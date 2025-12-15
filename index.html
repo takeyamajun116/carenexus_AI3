@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Ultimate Edition</title>
+<title>CareNexus AI : Final Ultimate Plus Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,6 +79,8 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .cal-cell { background: white; min-height: 80px; padding: 4px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; }
 .cal-header { background: #f9fafb; padding: 6px; text-align: center; font-weight: bold; font-size: 11px; }
 .cal-event { padding: 2px 4px; border-radius: 3px; font-size: 10px; color: white; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-event.me { border-left: 3px solid #2563eb; }
+.cal-event.other { border-left: 3px solid #9ca3af; opacity: 0.7; }
 
 /* Risk Score Card (Detailed) */
 .risk-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; transition:0.2s; position:relative; overflow:hidden; }
@@ -98,6 +100,18 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .analysis-table th { background:#f3f4f6; padding:8px; text-align:left; border-bottom:2px solid #ddd; }
 .analysis-table td { padding:8px; border-bottom:1px solid #eee; }
 .analysis-table tr:last-child td { font-weight:bold; border-top:2px solid #ddd; border-bottom:none; background:#f9fafb; }
+
+/* Chat Layout (New) */
+.chat-layout { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media(min-width: 700px) { .chat-layout { grid-template-columns: 120px 1fr; } }
+.chat-sidebar { display: flex; flex-direction: column; gap: 4px; }
+.chat-user { padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; background: #f9fafb; border: 1px solid transparent; }
+.chat-user.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: bold; }
+.chat-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
+
+/* Todo Item */
+.todo-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+.todo-item input[type="checkbox"]:checked + span { text-decoration: line-through; color: #999; }
 
 </style>
 </head>
@@ -124,21 +138,53 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
     </div>
 
     <section id="sect-home" class="section active">
+        <div class="flex-row" style="margin-bottom:16px; background:white; padding:10px; border-radius:8px; border:1px solid #e5e7eb; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
+            <div style="flex:1; border-right:1px solid #eee; display:flex; gap:8px; align-items:center;">
+                <i class="fa-solid fa-sun" style="color:#f59e0b; font-size:20px;"></i>
+                <div>
+                    <div style="font-size:11px; color:#666;">東京 八王子</div>
+                    <div style="font-weight:bold; font-size:14px;">晴れ 12℃</div>
+                </div>
+            </div>
+            <div style="flex:1; display:flex; gap:8px; align-items:center; padding-left:10px;">
+                <i class="fa-solid fa-car" style="color:#6b7280; font-size:20px;"></i>
+                <div>
+                    <div style="font-size:11px; color:#666;">交通情報</div>
+                    <div style="font-weight:bold; font-size:14px; color:#10b981;">平常通り</div>
+                </div>
+            </div>
+        </div>
+
         <div class="grid-2">
             <div class="panel">
                 <div class="panel-title">本日の訪問予定 (12/16)</div>
                 <div id="visitListContainer">
                     </div>
             </div>
-            <div class="panel">
-                <div class="panel-title">通知・アラート</div>
-                <div style="background:#fff7ed; border:1px solid #fdba74; color:#c2410c; padding:10px; border-radius:6px; font-size:13px; margin-bottom:8px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <b>指示書期限切れアラート</b><br>
-                    田中 太郎様：あと2日で期限切れです。主治医へ依頼済ですか？
+            
+            <div class="flex-col">
+                <div class="panel">
+                    <div class="panel-title">通知・アラート</div>
+                    <div style="background:#fff7ed; border:1px solid #fdba74; color:#c2410c; padding:10px; border-radius:6px; font-size:13px; margin-bottom:8px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i> <b>指示書期限切れアラート</b><br>
+                        田中 太郎様：あと2日で期限切れです。
+                    </div>
+                    <div style="background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:10px; border-radius:6px; font-size:13px;">
+                        <i class="fa-solid fa-check-circle"></i> <b>レセプト送信完了</b><br>
+                        11月分の請求データ送信が完了しました。
+                    </div>
                 </div>
-                <div style="background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:10px; border-radius:6px; font-size:13px;">
-                    <i class="fa-solid fa-check-circle"></i> <b>レセプト送信完了</b><br>
-                    11月分の請求データ(国保連)送信が正常完了しました。
+
+                <div class="panel">
+                    <div class="panel-title">
+                        マイタスク / ToDo
+                        <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <div id="todoList">
+                        <div class="todo-item"><input type="checkbox"><span>ケアマネ鈴木様へ連絡</span></div>
+                        <div class="todo-item"><input type="checkbox"><span>マスク・手袋の発注</span></div>
+                        <div class="todo-item"><input type="checkbox"><span>来月のシフト希望提出</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,13 +195,23 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
             <div class="panel-title">
                 <div><i class="fa-solid fa-calendar"></i> 2025年12月</div>
                 <div class="flex-row">
-                    <button class="btn btn-sm">今日</button>
+                    <div style="font-size:11px; background:#f3f4f6; border-radius:4px; padding:2px; display:flex; margin-right:8px;">
+                        <button class="btn btn-sm btn-primary" style="border:none;">自分</button>
+                        <button class="btn btn-sm btn-ghost" style="border:none;">全員</button>
+                    </div>
+                    <button class="btn btn-sm" onclick="alert('Googleカレンダーと同期しました')"><i class="fa-solid fa-rotate"></i> 同期</button>
                 </div>
             </div>
             <div class="calendar-grid" id="monthCalendar">
                 <div class="cal-header" style="color:#ef4444;">日</div>
                 <div class="cal-header">月</div><div class="cal-header">火</div><div class="cal-header">水</div>
                 <div class="cal-header">木</div><div class="cal-header">金</div><div class="cal-header" style="color:#2563eb;">土</div>
+            </div>
+            
+            <div style="margin-top:12px; font-size:12px; display:flex; gap:16px; border-top:1px solid #eee; padding-top:12px;">
+                <span><b>今月の訪問件数:</b> 45件</span>
+                <span><b>移動距離合計:</b> 120km</span>
+                <span><b>担当利用者:</b> 8名</span>
             </div>
         </div>
     </section>
@@ -172,25 +228,16 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 <span class="btn btn-sm btn-primary" style="pointer-events:none;">訪問中</span>
             </div>
         </div>
-
         <div id="faceSheetPanel" style="display:none; background:white; border:1px solid #ccc; padding:16px; border-radius:8px; margin-bottom:16px;">
             <h4 style="margin:0 0 10px 0;">フェイスシート (詳細情報)</h4>
             <div class="grid-2" style="font-size:13px;">
-                <div>
-                    <b>既往歴:</b> 脳梗塞, 高血圧<br><b>ADL:</b> 歩行器歩行, 入浴一部介助<br><b>キーパーソン:</b> 長男(090-xxxx)
-                </div>
-                <div>
-                    <b>処方薬:</b> アムロジピン, バイアスピリン<br><b>主治医:</b> 山田医院 (山田医師)<br><b>ケアマネ:</b> 鈴木(あおぞら居宅)
-                </div>
+                <div><b>既往歴:</b> 脳梗塞, 高血圧<br><b>ADL:</b> 歩行器歩行, 入浴一部介助<br><b>キーパーソン:</b> 長男(090-xxxx)</div>
+                <div><b>処方薬:</b> アムロジピン<br><b>主治医:</b> 山田医院<br><b>ケアマネ:</b> 鈴木</div>
             </div>
             <button class="btn btn-sm btn-ghost" style="margin-top:10px; width:100%;" onclick="toggleFaceSheet()">閉じる</button>
         </div>
-
         <div class="panel">
-            <div class="panel-title">
-                バイタルサイン入力 (全項目反映)
-                <button class="btn btn-sm" onclick="alert('Bluetooth機器連携完了')"><i class="fa-brands fa-bluetooth"></i> 機器連携</button>
-            </div>
+            <div class="panel-title">バイタルサイン入力 (全項目) <button class="btn btn-sm" onclick="alert('Bluetooth機器連携完了')"><i class="fa-brands fa-bluetooth"></i> 機器連携</button></div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:10px; margin-bottom:16px;">
                 <div><label>血圧(上)</label><input type="number" id="v_sbp"></div>
                 <div><label>血圧(下)</label><input type="number" id="v_dbp"></div>
@@ -200,91 +247,55 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 <div><label>体温</label><input type="number" id="v_temp"></div>
                 <div><label>体重</label><input type="number" id="v_weight"></div>
             </div>
-            <div style="height:250px; width:100%; margin-bottom:16px;">
-                <canvas id="vitalChart"></canvas>
-            </div>
+            <div style="height:250px; width:100%; margin-bottom:16px;"><canvas id="vitalChart"></canvas></div>
             <div style="overflow-x:auto;">
-                <table class="vital-table" id="vitalHistoryTable">
-                    <thead><tr><th>日時</th><th>BP(上)</th><th>BP(下)</th><th>脈拍</th><th>呼吸</th><th>SpO2</th><th>体温</th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <table class="vital-table" id="vitalHistoryTable"><thead><tr><th>日時</th><th>BP(上)</th><th>BP(下)</th><th>脈拍</th><th>呼吸</th><th>SpO2</th><th>体温</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
-
         <div class="grid-2">
             <div class="panel">
                 <div class="panel-title">訪問看護記録Ⅱ</div>
-                
                 <div style="margin-bottom:12px; font-size:12px; background:#f9fafb; padding:8px; border-radius:6px; border:1px solid #eee;">
                     <div style="font-weight:bold; margin-bottom:4px;">処置チェックリスト:</div>
-                    <label><input type="checkbox"> 清潔保持</label>
-                    <label><input type="checkbox"> 褥瘡処置</label>
-                    <label><input type="checkbox"> 点滴管理</label>
-                    <label><input type="checkbox"> 服薬指導</label>
+                    <label><input type="checkbox"> 清潔保持</label><label><input type="checkbox"> 褥瘡処置</label><label><input type="checkbox"> 点滴管理</label><label><input type="checkbox"> 服薬指導</label>
                 </div>
-
                 <div style="margin-bottom:8px;">
                     <div class="flex-between" style="margin-bottom:4px;">
                         <label>記録メモ (SOAP):</label>
-                        <div class="flex-row">
-                            <button class="btn btn-sm btn-ghost" onclick="copyPrevious()"><i class="fa-solid fa-copy"></i> 前回コピー</button>
-                            <button class="btn btn-sm btn-ghost" onclick="startVoiceInput()"><i class="fa-solid fa-microphone"></i> 音声入力</button>
-                        </div>
+                        <div class="flex-row"><button class="btn btn-sm btn-ghost" onclick="copyPrevious()"><i class="fa-solid fa-copy"></i> 前回コピー</button><button class="btn btn-sm btn-ghost" onclick="startVoiceInput()"><i class="fa-solid fa-microphone"></i> 音声入力</button></div>
                     </div>
-                    <textarea id="aiInputMemo" rows="3" placeholder="例: 褥瘡の赤みは引いている。ガーゼ交換実施。"></textarea>
+                    <textarea id="aiInputMemo" rows="3" placeholder="例: 褥瘡の赤みは引いている。"></textarea>
                 </div>
-                
                 <div class="flex-row" style="margin-bottom:12px;">
                     <button class="btn btn-sm" onclick="toggleSchema()"><i class="fa-solid fa-pen-nib"></i> シェーマ/患部</button>
                     <button class="btn btn-sm" onclick="document.getElementById('fileUp').click()"><i class="fa-regular fa-image"></i> 写真/動画</button>
                     <input type="file" id="fileUp" hidden>
                 </div>
-
                 <div id="schemaBox" style="display:none; border:1px solid #ddd; height:200px; margin-bottom:10px; background:white; position:relative;">
                     <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:#ccc;">(描画キャンバスエリア)</div>
                 </div>
-
-                <button class="btn btn-primary" style="width:100%; margin-bottom:12px;" onclick="runAIGeneration()" id="btnGen">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> AI生成実行
-                </button>
-
+                <button class="btn btn-primary" style="width:100%; margin-bottom:12px;" onclick="runAIGeneration()" id="btnGen"><i class="fa-solid fa-wand-magic-sparkles"></i> AI生成実行</button>
                 <div style="display:grid; gap:8px;">
                     <div style="background:#f8fafb; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【看護診断】</div>
-                        <div id="diagnosisArea" style="font-size:12px; min-height:20px;"></div>
+                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【看護診断】</div><div id="diagnosisArea" style="font-size:12px; min-height:20px;"></div>
                     </div>
                     <div style="background:#f8fafb; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【SOAP記録】</div>
-                        <div id="soapArea" style="font-size:12px; min-height:20px; white-space:pre-wrap;"></div>
+                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【SOAP記録】</div><div id="soapArea" style="font-size:12px; min-height:20px; white-space:pre-wrap;"></div>
                     </div>
                     <div style="background:#fff7ed; padding:8px; border:1px solid #fdba74; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:#c2410c;">【家族向けレポート】</div>
-                        <div id="familyReportText" style="font-size:12px; min-height:20px;"></div>
+                        <div style="font-size:11px; font-weight:bold; color:#c2410c;">【家族向けレポート】</div><div id="familyReportText" style="font-size:12px; min-height:20px;"></div>
                     </div>
                 </div>
-
                 <div style="margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
-                    <label>帳票作成・特化:</label>
-                    <div class="flex-row" style="margin-top:4px;">
-                        <button class="btn btn-sm"><i class="fa-solid fa-file-contract"></i> 計画書・報告書</button>
-                        <select style="font-size:11px; padding:4px;">
-                            <option>特化帳票を選択...</option>
-                            <option>精神科GAF尺度</option>
-                            <option>リハビリ実施計画書</option>
-                        </select>
-                    </div>
+                    <label>帳票作成:</label>
+                    <div class="flex-row" style="margin-top:4px;"><button class="btn btn-sm"><i class="fa-solid fa-file-contract"></i> 計画書・報告書</button><select style="font-size:11px; padding:4px;"><option>特化帳票を選択...</option><option>精神科GAF尺度</option><option>リハビリ実施計画書</option></select></div>
                 </div>
-
                 <div style="margin-top:16px;">
-                    <label>利用者署名 (電子サイン):</label>
-                    <div style="width:100%; height:80px; border:1px solid #ccc; background:white;"></div>
+                    <label>利用者署名:</label><div style="width:100%; height:80px; border:1px solid #ccc; background:white;"></div>
                 </div>
             </div>
-
             <div class="panel" style="height:fit-content;">
-                <div class="panel-title" style="color:var(--primary); border-bottom:2px solid var(--primary);">
-                    <i class="fa-solid fa-robot"></i> AI算定加算エンジン
-                </div>
+                <div class="panel-title" style="color:var(--primary); border-bottom:2px solid var(--primary);"><i class="fa-solid fa-robot"></i> AI算定加算エンジン</div>
                 <div style="font-size:12px; color:#666; margin-bottom:12px;">記録内容から算定可能な加算を提案します。</div>
                 <div id="billingSuggestionList"></div>
                 <div style="margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
@@ -295,17 +306,51 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
     </section>
 
     <section id="sect-collab" class="section">
-        <div class="grid-2">
-            <div class="panel">
-                <div class="panel-title">多職種連携チャット (MCS)</div>
-                <div style="height:250px; background:#f9fafb; border:1px solid var(--border); border-radius:8px; padding:10px; overflow-y:auto;">
-                    <div style="font-size:12px; color:#666; text-align:center;">履歴</div>
+        <div class="panel" style="min-height:400px;">
+            <div class="panel-title">多職種連携チャット (MCS連携)</div>
+            <div class="chat-layout">
+                <div class="chat-sidebar">
+                    <div class="chat-user active" onclick="alert('Ch: Dr.佐藤')">
+                        <div class="chat-avatar" style="background:var(--primary);">Dr</div>
+                        <span>Dr.佐藤</span>
+                    </div>
+                    <div class="chat-user" onclick="alert('Ch: CM鈴木')">
+                        <div class="chat-avatar" style="background:#10b981;">CM</div>
+                        <span>CM鈴木</span>
+                    </div>
+                    <div class="chat-user" onclick="alert('Ch: 全体')">
+                        <div class="chat-avatar" style="background:#f59e0b;">All</div>
+                        <span>ステーション</span>
+                    </div>
                 </div>
-                <div class="flex-row" style="margin-top:10px;"><input type="text" placeholder="メッセージ..."><button class="btn btn-primary">送信</button></div>
+                <div style="display:flex; flex-direction:column; height:350px;">
+                    <div style="flex:1; background:#f9fafb; border:1px solid var(--border); border-radius:8px; padding:10px; overflow-y:auto; margin-bottom:10px;">
+                        <div style="font-size:12px; color:#666; text-align:center;">Dr.佐藤との履歴</div>
+                        <div style="margin:8px 0; display:flex; gap:8px;">
+                             <div class="chat-avatar" style="background:var(--primary);">Dr</div>
+                             <div style="background:white; border:1px solid #eee; padding:8px; border-radius:8px; font-size:13px; max-width:80%;">次回の訪問時、写真をお願いします。</div>
+                        </div>
+                    </div>
+                    <div class="flex-row">
+                        <input type="text" placeholder="メッセージ...">
+                        <button class="btn btn-primary">送信</button>
+                    </div>
+                </div>
             </div>
-            <div class="panel">
-                <div class="panel-title">連携ツール</div>
-                <button class="btn btn-primary" style="width:100%; margin-bottom:8px;"><i class="fa-solid fa-file-csv"></i> 予定・実績データ送受信</button>
+            
+            <div style="margin-top:16px; padding-top:12px; border-top:1px solid #eee;">
+                <label style="margin-bottom:8px;">共有ファイル / メディア一覧:</label>
+                <div class="flex-row">
+                    <button class="btn btn-sm btn-ghost" style="border:1px solid #ddd;"><i class="fa-regular fa-image"></i> 褥瘡_1212.jpg</button>
+                    <button class="btn btn-sm btn-ghost" style="border:1px solid #ddd;"><i class="fa-solid fa-file-pdf"></i> 指示書.pdf</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-title">外部ツール連携</div>
+            <div class="grid-2">
+                <button class="btn btn-primary" style="width:100%;"><i class="fa-solid fa-file-csv"></i> 予定・実績(提供票)連携</button>
                 <button class="btn" style="width:100%;"><i class="fa-solid fa-envelope-open-text"></i> 家族連絡帳アプリ</button>
             </div>
         </div>
@@ -326,32 +371,23 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 </div>
                 <div>
                     <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--primary);">保険・介護情報</h4>
-                    <label>被保険者番号 (OCR可)</label>
-                    <div class="flex-row">
-                        <input type="text" placeholder="1234567890">
-                        <button class="btn btn-sm" onclick="alert('カメラ起動')"><i class="fa-solid fa-camera"></i></button>
-                    </div>
-                    <label>保険者名</label><input type="text" placeholder="xx市">
+                    <label>被保険者番号 (OCR可)</label><div class="flex-row"><input type="text"><button class="btn btn-sm"><i class="fa-solid fa-camera"></i></button></div>
                     <label>要介護度</label><select><option>要介護1</option><option>要介護3</option><option>要介護5</option></select>
-                    <label>認定有効期間</label>
-                    <div class="flex-row"><input type="date"><span style="font-size:12px;">~</span><input type="date"></div>
+                    <label>認定有効期間</label><div class="flex-row"><input type="date"><span style="font-size:12px;">~</span><input type="date"></div>
                     <label>負担割合</label><select><option>1割</option><option>2割</option><option>3割</option></select>
                 </div>
             </div>
             <div class="grid-2" style="margin-top:16px;">
                 <div>
                     <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--primary);">関係機関・緊急時</h4>
-                    <label>居宅介護支援事業所</label><input type="text" placeholder="事業所名">
-                    <label>担当ケアマネジャー</label><input type="text" placeholder="氏名">
-                    <label>主治医 / 医療機関</label><input type="text" placeholder="医療機関・医師名">
-                    <label>キーパーソン(緊急連絡先)</label><input type="text" placeholder="氏名・続柄・TEL">
+                    <label>居宅介護支援事業所</label><input type="text">
+                    <label>主治医 / 医療機関</label><input type="text">
+                    <label>キーパーソン</label><input type="text">
                 </div>
                 <div>
                     <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--primary);">医療情報</h4>
-                    <label>主病名</label><input type="text" placeholder="">
+                    <label>主病名</label><input type="text">
                     <label>既往歴</label><textarea rows="2"></textarea>
-                    <label>感染症情報</label><input type="text" placeholder="なし">
-                    <label>ADL状況</label><textarea rows="2"></textarea>
                 </div>
             </div>
             <div style="text-align:center; margin-top:20px;"><button class="btn btn-primary" onclick="alert('登録完了')">利用者情報を保存</button></div>
@@ -362,18 +398,14 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
         <div style="background:#312e81; color:white; padding:12px; border-radius:6px; margin-bottom:16px; font-size:13px;">
             <i class="fa-solid fa-lock"></i> <b>管理者モード</b> (スタッフ: 3名 / 利用者: 3名)
         </div>
-
         <div class="grid-2">
             <div class="panel">
-                <div class="panel-title">位置情報マップ (利用者宅＋スタッフ)</div>
-                <div class="map-container" id="adminMap"></div>
+                <div class="panel-title">位置情報マップ</div><div class="map-container" id="adminMap"></div>
             </div>
-
             <div class="panel">
-                <div class="panel-title">スタッフ離職予測スコア (詳細)</div>
-                <div id="riskScoreList"></div> </div>
+                <div class="panel-title">スタッフ離職予測スコア (詳細)</div><div id="riskScoreList"></div>
+            </div>
         </div>
-
         <div class="panel">
             <div class="panel-title">請求・経営分析 (レセプト詳細)</div>
             <div class="grid-3">
@@ -381,29 +413,16 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                     <div style="font-size:11px; color:#666;">今月の請求総額見込</div>
                     <div style="font-size:24px; font-weight:800; color:var(--text-main);">¥ 5,420,000</div>
                     <div style="font-size:11px; color:var(--success); margin-bottom:12px;">前月比 +12%</div>
-                    
                     <button class="btn btn-primary" style="width:100%; margin-bottom:8px;"><i class="fa-solid fa-file-invoice-dollar"></i> レセプト作成・伝送</button>
                     <button class="btn btn-danger" style="width:100%;"><i class="fa-solid fa-check-double"></i> 返戻エラーチェック</button>
                 </div>
-                
                 <div style="grid-column: span 2;">
                     <div style="font-size:12px; font-weight:bold; margin-bottom:8px;">保険別・加算内訳</div>
-                    <table class="analysis-table">
-                        <thead><tr><th>区分</th><th>件数</th><th>基本単位</th><th>加算(ターミナル等)</th><th>請求額</th></tr></thead>
-                        <tbody>
-                            <tr><td>介護保険</td><td>45件</td><td>350,000</td><td>+50,000</td><td>¥ 4,000,000</td></tr>
-                            <tr><td>医療保険</td><td>12件</td><td>120,000</td><td>+30,000</td><td>¥ 1,350,000</td></tr>
-                            <tr><td>自費/その他</td><td>5件</td><td>-</td><td>-</td><td>¥ 70,000</td></tr>
-                            <tr><td>合計</td><td>62件</td><td>470,000</td><td>+80,000</td><td>¥ 5,420,000</td></tr>
-                        </tbody>
-                    </table>
+                    <table class="analysis-table"><thead><tr><th>区分</th><th>件数</th><th>基本単位</th><th>加算</th><th>請求額</th></tr></thead><tbody><tr><td>介護保険</td><td>45件</td><td>350,000</td><td>+50,000</td><td>¥ 4,000,000</td></tr><tr><td>医療保険</td><td>12件</td><td>120,000</td><td>+30,000</td><td>¥ 1,350,000</td></tr><tr><td>自費/その他</td><td>5件</td><td>-</td><td>-</td><td>¥ 70,000</td></tr><tr><td>合計</td><td>62件</td><td>470,000</td><td>+80,000</td><td>¥ 5,420,000</td></tr></tbody></table>
                 </div>
             </div>
-            
             <div style="background:#f8fafb; margin-top:16px; padding:12px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:12px;">
-                    <b>資金繰り支援:</b> カイポケファクタリングで早期現金化が可能です。
-                </div>
+                <div style="font-size:12px;"><b>資金繰り支援:</b> カイポケファクタリングで早期現金化が可能です。</div>
                 <button class="btn btn-sm btn-ghost" style="border:1px solid #ccc; background:white;">ファクタリング申請</button>
             </div>
         </div>
@@ -415,38 +434,24 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 let currentPatientId = 1;
 let isAdmin = false;
 
-// 3 Patient Examples
 const patients = [
     { id: 1, name: "田中 太郎", age: 82, addr: "新宿区", level: "要介護3", map:{x:30, y:40}, vitals:{sbp:132, dbp:78, p:72, resp:16, spo2:98, temp:36.6, w:60.5} },
     { id: 2, name: "佐藤 花子", age: 78, addr: "港区", level: "要介護5", map:{x:70, y:20}, vitals:{sbp:140, dbp:82, p:85, resp:20, spo2:95, temp:37.1, w:42.0} },
     { id: 3, name: "鈴木 一郎", age: 65, addr: "渋谷区", level: "要支援2", map:{x:50, y:70}, vitals:{sbp:120, dbp:70, p:68, resp:14, spo2:99, temp:36.2, w:70.0} }
 ];
 
-// 3 Staff Examples with Detailed Risk Stats
 const staffs = [
-    { id: 101, name: "Ns.山田", x: 35, y: 45, status: "訪問中", risk: 85, riskLevel:"high",
-      stats: { overtime: "45h", recordDelay: "15件", travel: "200km" } },
-    { id: 102, name: "Ns.鈴木", x: 65, y: 25, status: "移動中", risk: 20, riskLevel:"low",
-      stats: { overtime: "5h", recordDelay: "0件", travel: "80km" } },
-    { id: 103, name: "Ns.佐藤", x: 55, y: 65, status: "休憩中", risk: 45, riskLevel:"med",
-      stats: { overtime: "15h", recordDelay: "3件", travel: "150km" } }
+    { id: 101, name: "Ns.山田", x: 35, y: 45, status: "訪問中", risk: 85, riskLevel:"high", stats: { overtime: "45h", recordDelay: "15件", travel: "200km" } },
+    { id: 102, name: "Ns.鈴木", x: 65, y: 25, status: "移動中", risk: 20, riskLevel:"low", stats: { overtime: "5h", recordDelay: "0件", travel: "80km" } },
+    { id: 103, name: "Ns.佐藤", x: 55, y: 65, status: "休憩中", risk: 45, riskLevel:"med", stats: { overtime: "15h", recordDelay: "3件", travel: "150km" } }
 ];
 
-const billingRules = [
-    { keyword: "褥瘡", name: "真皮を超える褥瘡", point: 500 },
-    { keyword: "看取り", name: "ターミナルケア加算", point: 2500 },
-    { keyword: "緊急", name: "緊急時訪問看護加算", point: 574 }
-];
+const billingRules = [ { keyword: "褥瘡", name: "真皮を超える褥瘡", point: 500 }, { keyword: "看取り", name: "ターミナルケア加算", point: 2500 }, { keyword: "緊急", name: "緊急時訪問看護加算", point: 574 } ];
 
 /* ================= INIT ================= */
 window.onload = () => {
-    renderHome();
-    renderCalendar();
-    renderPatientSelector();
-    loadPatientData(currentPatientId);
-    renderAdminMap();
-    renderRiskScores();
-    initChart();
+    renderHome(); renderCalendar(); renderPatientSelector();
+    loadPatientData(currentPatientId); renderAdminMap(); renderRiskScores(); initChart();
 };
 
 /* ================= LOGIC ================= */
@@ -461,32 +466,23 @@ function setTab(tabId) {
 }
 
 function renderHome() {
-    const list = document.getElementById('visitListContainer');
-    list.innerHTML = "";
+    const list = document.getElementById('visitListContainer'); list.innerHTML = "";
     patients.forEach(p => {
-        list.innerHTML += `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
-                <div><div style="font-weight:bold;">${p.name} <span style="font-size:11px; background:#eee; padding:2px 6px; border-radius:4px;">${p.level}</span></div><div style="font-size:11px; color:#666;"><i class="fa-solid fa-location-dot"></i> ${p.addr}</div></div>
-                <div class="flex-row">
-                    <button class="btn btn-sm" onclick="goToPatient(${p.id})"><i class="fa-solid fa-heart-pulse"></i> バイタル</button>
-                    <button class="btn btn-sm btn-primary" onclick="goToPatient(${p.id})"><i class="fa-solid fa-pen"></i> 記録</button>
-                </div>
-            </div>`;
+        list.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;"><div><div style="font-weight:bold;">${p.name} <span style="font-size:11px; background:#eee; padding:2px 6px; border-radius:4px;">${p.level}</span></div><div style="font-size:11px; color:#666;"><i class="fa-solid fa-location-dot"></i> ${p.addr}</div></div><div class="flex-row"><button class="btn btn-sm" onclick="goToPatient(${p.id})"><i class="fa-solid fa-heart-pulse"></i> バイタル</button><button class="btn btn-sm btn-primary" onclick="goToPatient(${p.id})"><i class="fa-solid fa-pen"></i> 記録</button></div></div>`;
     });
 }
 function goToPatient(id) { currentPatientId = id; document.getElementById('patientSelector').value = id; loadPatientData(id); setTab('record'); }
+function addTodo() { document.getElementById('todoList').innerHTML += `<div class="todo-item"><input type="checkbox"><span>新規タスク</span></div>`; }
 
 function renderPatientSelector() {
-    const sel = document.getElementById('patientSelector');
-    sel.innerHTML = "";
+    const sel = document.getElementById('patientSelector'); sel.innerHTML = "";
     patients.forEach(p => { let opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name; sel.appendChild(opt); });
 }
 function switchPatient() { currentPatientId = parseInt(document.getElementById('patientSelector').value); loadPatientData(currentPatientId); }
 function toggleFaceSheet() { const el = document.getElementById('faceSheetPanel'); el.style.display = el.style.display==='none'?'block':'none'; }
 
 function loadPatientData(pid) {
-    const p = patients.find(x => x.id === pid);
-    if(!p) return;
+    const p = patients.find(x => x.id === pid); if(!p) return;
     document.getElementById('v_sbp').value = p.vitals.sbp; document.getElementById('v_dbp').value = p.vitals.dbp;
     document.getElementById('v_pulse').value = p.vitals.p; document.getElementById('v_resp').value = p.vitals.resp;
     document.getElementById('v_spo2').value = p.vitals.spo2; document.getElementById('v_temp').value = p.vitals.temp;
@@ -501,34 +497,21 @@ function updateHistory(v) {
     }
 }
 
-// Fixed AI Generation: Generates Diagnosis, SOAP, and Family Report
 function runAIGeneration() {
     const btn = document.getElementById('btnGen'); btn.disabled=true; btn.innerHTML = "生成中...";
     const memo = document.getElementById('aiInputMemo').value;
-    
     const diag = "1. 皮膚統合性障害リスク\n2. 活動耐性低下";
     const soap = `S: 「${memo||"変わりなし"}」\nO: バイタル安定。浮腫なし。\nA: ケア介入効果あり。状態安定。\nP: 継続観察。次回入浴。`;
     const fam = `${patients.find(p=>p.id===currentPatientId).name}様、本日はお元気そうでした。バイタルも安定しています。`;
-
     setTimeout(() => {
         typeWriter('diagnosisArea', diag);
         setTimeout(() => typeWriter('soapArea', soap), 500);
         setTimeout(() => typeWriter('familyReportText', fam), 1000);
-        
         runBilling(memo + " " + soap);
         btn.disabled=false; btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> AI生成実行`;
     }, 800);
 }
-
-function typeWriter(id, text) {
-    const el = document.getElementById(id); el.innerHTML = ""; el.classList.add("typing");
-    let i = 0;
-    function type() {
-        if(i < text.length) { el.innerHTML += text.charAt(i)==='\n'?'<br>':text.charAt(i); i++; setTimeout(type, 20); }
-        else { el.classList.remove("typing"); }
-    }
-    type();
-}
+function typeWriter(id, text) { const el = document.getElementById(id); el.innerHTML = ""; el.classList.add("typing"); let i = 0; function type() { if(i < text.length) { el.innerHTML += text.charAt(i)==='\n'?'<br>':text.charAt(i); i++; setTimeout(type, 20); } else { el.classList.remove("typing"); } } type(); }
 
 function runBilling(text) {
     const list = document.getElementById('billingSuggestionList'); list.innerHTML = "";
@@ -558,7 +541,7 @@ function renderAdminMap() {
 function renderRiskScores() {
     const box = document.getElementById('riskScoreList'); box.innerHTML = "";
     staffs.forEach(s => {
-        const cls = s.riskLevel; // high, med, low
+        const cls = s.riskLevel;
         box.innerHTML += `
         <div class="risk-card ${cls}">
             <div class="flex-between" style="font-weight:bold; margin-bottom:8px;">${s.name} <span style="font-size:12px; color:#666;">(${s.status})</span> <span style="color:${cls==='high'?'red':cls==='med'?'orange':'green'};">離職リスク ${s.risk}%</span></div>
@@ -572,14 +555,13 @@ function renderRiskScores() {
     });
 }
 
-function renderCalendar() { const c = document.getElementById('monthCalendar'); while(c.children.length>7)c.lastChild.remove(); for(let i=1;i<=31;i++) c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${i==16?'<div class="cal-event" style="background:var(--primary);">田中様</div>':''}</div>`; }
+function renderCalendar() { const c = document.getElementById('monthCalendar'); while(c.children.length>7)c.lastChild.remove(); for(let i=1;i<=31;i++) c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${i==16?'<div class="cal-event me" style="background:var(--primary);">田中様(自)</div><div class="cal-event other">佐藤様(他)</div>':''}</div>`; }
 function toggleClockIn() { alert("打刻しました"); }
 function toggleOffline() { alert("オフラインモード切替"); }
 function copyPrevious() { document.getElementById('aiInputMemo').value = "前回記録: 褥瘡処置実施。本人痛みなし。"; }
 function toggleSchema() { const el = document.getElementById('schemaBox'); el.style.display = el.style.display==='none'?'block':'none'; }
 function startVoiceInput() { alert("音声入力中..."); document.getElementById('aiInputMemo').value += " 褥瘡の状態は改善傾向。"; }
 
-/* CHART: All 6 Vitals */
 let chart; 
 function initChart() { 
     const ctx = document.getElementById('vitalChart').getContext('2d');
@@ -617,7 +599,6 @@ function updateChart(v) {
     d[5].data=[v.temp,v.temp,v.temp,v.temp,v.temp]; 
     chart.update(); 
 }
-
 </script>
 </body>
 </html>
