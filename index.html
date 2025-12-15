@@ -2,630 +2,561 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI (Ultimate Edition)</title>
+<title>CareNexus AI : Complete Suite</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ========== CSS (Base Design Preserved & Extended) ========== */
-:root { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: #111827; background: #f3f4f6; --primary: #2563eb; --danger: #ef4444; --success: #10b981; --warning: #f59e0b; }
-body { margin: 0; background: #f3f4f6; user-select: none; -webkit-tap-highlight-color: transparent; }
-.app { max-width: 1200px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; transition: filter 0.3s; }
-
-/* Security Overlay */
-.blur-mode { filter: blur(10px); pointer-events: none; }
-#loginOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-.login-box { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 300px; border: 1px solid #e5e7eb; }
-.pin-dots { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-.pin-dot { width: 12px; height: 12px; border-radius: 50%; background: #d1d5db; transition: 0.2s; }
-.pin-dot.filled { background: var(--primary); transform: scale(1.2); }
-
-/* Header & Connectivity */
-header { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(16px); background: rgba(243, 244, 246, 0.95); border-bottom: 1px solid #e5e7eb; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.logo { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; color: #1f2937; }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.connection-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: bold; display: flex; align-items: center; gap: 4px; cursor: pointer; }
-.status-online { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-.status-offline { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-
-/* Navigation Tabs (Scrollable) */
-main { padding: 16px; flex: 1; padding-bottom: 80px; /* Mobile safe area */ }
-.tabs { display: flex; border-radius: 12px; background: #e5e7eb; padding: 4px; margin-bottom: 16px; overflow-x: auto; gap: 4px; scrollbar-width: none; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab { flex: 1; text-align: center; padding: 10px 16px; font-size: 13px; border-radius: 8px; cursor: pointer; white-space: nowrap; color: #6b7280; font-weight: 500; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-.tab.active { background: #ffffff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); font-weight: 700; color: var(--primary); }
-.section { display: none; animation: fadeIn 0.3s ease; }
-.section.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Panels & Cards */
-.two-column { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 900px) { .two-column { grid-template-columns: 1fr 1fr; } }
-.panel { border-radius: 16px; background: #ffffff; padding: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); border: 1px solid #e5e7eb; position: relative; }
-.panel-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; color: #111827; }
+/* ========== Base UI (CareNexus Design Language) ========== */
+:root { 
+    --primary: #2563eb; --primary-light: #dbeafe; 
+    --danger: #ef4444; --danger-bg: #fee2e2;
+    --success: #10b981; --success-bg: #d1fae5;
+    --warning: #f59e0b; --warning-bg: #fef3c7;
+    --text: #111827; --bg: #f3f4f6; --white: #ffffff;
+    --admin: #4f46e5; /* 管理者モード用カラー */
+}
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Noto Sans JP", sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+.app { max-width: 1200px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 80px; }
 
 /* Components */
-.btn { border-radius: 8px; border: none; padding: 10px 16px; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; transition: all 0.2s; text-decoration: none; }
-.btn:active { transform: scale(0.98); }
-.btn-primary { background: var(--primary); color: #ffffff; box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3); }
-.btn-danger { background: var(--danger); color: white; }
-.btn-outline { background: #ffffff; color: #374151; border: 1px solid #d1d5db; }
-.btn-icon { padding: 8px; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.btn { border:none; padding:10px 16px; border-radius:8px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; font-size:13px; transition:0.2s; text-decoration:none; }
+.btn:active { transform:scale(0.98); }
+.btn-primary { background:var(--primary); color:white; }
+.btn-admin { background:var(--admin); color:white; }
+.btn-danger { background:var(--danger); color:white; }
+.btn-outline { background:white; border:1px solid #d1d5db; color:#374151; }
+.btn-icon { width:36px; height:36px; padding:0; justify-content:center; border-radius:50%; }
 
-textarea, input, select { width: 100%; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px; padding: 12px; box-sizing: border-box; margin-top: 4px; background: #f9fafb; transition: 0.2s; }
-textarea:focus, input:focus { background: white; border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+input, textarea, select { width:100%; padding:12px; border:1px solid #d1d5db; border-radius:8px; background:#f9fafb; font-size:14px; margin-bottom:8px; }
+input:focus, textarea:focus { outline:2px solid var(--primary); background:white; }
 
-/* Custom Features UI */
-/* Map & Route */
-.map-wrapper { position: relative; height: 350px; border-radius: 12px; overflow: hidden; border: 1px solid #dbeafe; }
-.ai-route-overlay { position: absolute; bottom: 12px; right: 12px; z-index: 10; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; gap: 8px; }
+/* Header & Nav */
+header { position:sticky; top:0; z-index:50; background:rgba(243,244,246,0.95); backdrop-filter:blur(10px); border-bottom:1px solid #e5e7eb; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; }
+.logo { font-weight:800; font-size:18px; color:var(--primary); display:flex; align-items:center; gap:8px; }
+.admin-mode .logo { color: var(--admin); }
 
-/* Calendar */
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px; }
-.cal-day { aspect-ratio: 1; background: #f9fafb; border-radius: 6px; border: 1px solid #f3f4f6; display: flex; flex-direction: column; padding: 4px; font-size: 12px; position: relative; }
-.cal-day.today { border: 2px solid var(--primary); background: #eff6ff; }
-.cal-event { font-size: 9px; padding: 2px 4px; border-radius: 3px; margin-top: 2px; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-/* Photo & Schema */
-.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 12px; }
-.media-item { aspect-ratio: 1; background: #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; overflow: hidden; }
-.media-item img { width: 100%; height: 100%; object-fit: cover; }
-.schema-canvas { border: 1px solid #ddd; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="30" r="10" fill="none" stroke="%23ccc"/><line x1="50" y1="40" x2="50" y2="70" stroke="%23ccc"/><line x1="50" y1="50" x2="30" y2="60" stroke="%23ccc"/><line x1="50" y1="50" x2="70" y2="60" stroke="%23ccc"/><line x1="50" y1="70" x2="40" y2="90" stroke="%23ccc"/><line x1="50" y1="70" x2="60" y2="90" stroke="%23ccc"/></svg>') no-repeat center; background-size: contain; width: 100%; height: 250px; touch-action: none; border-radius: 8px; }
+.tabs { display:flex; gap:6px; padding:8px 16px; overflow-x:auto; scrollbar-width:none; background:#e5e7eb; margin:0 16px 16px; border-radius:12px; }
+.tab { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; color:#6b7280; white-space:nowrap; cursor:pointer; transition:0.2s; }
+.tab.active { background:white; color:var(--primary); box-shadow:0 1px 2px rgba(0,0,0,0.1); }
+.admin-mode .tab.active { color: var(--admin); }
 
-/* Typing Animation (AI) */
-.typing::after { content: '|'; animation: blink 1s infinite; color: var(--primary); }
-@keyframes blink { 50% { opacity: 0; } }
+/* Layout Grid */
+.grid-2 { display:grid; grid-template-columns:1fr; gap:16px; }
+@media(min-width:768px){ .grid-2 { grid-template-columns:1fr 1fr; } }
 
-/* Responsive Adjustments */
-@media (max-width: 600px) {
-    .tabs { flex-wrap: nowrap; justify-content: flex-start; }
-    .header-right span { display: none; }
-}
+.panel { background:white; border-radius:16px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.05); border:1px solid #e5e7eb; position:relative; }
+.panel-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-weight:700; font-size:15px; }
+
+/* Feature Specific UI */
+/* Vitals Grid */
+.vital-input-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(80px, 1fr)); gap:8px; }
+.vital-box { text-align:center; }
+.vital-box label { font-size:10px; color:#666; display:block; margin-bottom:2px; }
+
+/* AI Suggestion Box (Billing Engine) */
+.ai-suggestion { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border:1px solid #bfdbfe; border-radius:12px; padding:12px; margin-top:12px; animation: slideIn 0.3s ease; }
+.ai-badge { font-size:10px; background:var(--primary); color:white; padding:2px 6px; border-radius:4px; margin-right:6px; }
+
+/* Schema Canvas */
+#schemaCanvas { border:1px solid #ddd; background:white; border-radius:8px; width:100%; height:300px; touch-action:none; cursor:crosshair; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200"><path d="M50,10 Q60,10 60,20 L60,30 L80,30 L85,60 L60,60 L60,100 L70,180 L55,180 L50,110 L45,180 L30,180 L40,100 L40,60 L15,60 L20,30 L40,30 L40,20 Q40,10 50,10" fill="none" stroke="%23ccc" stroke-width="2"/></svg>'); background-repeat:no-repeat; background-position:center; background-size:contain; }
+
+/* Admin Map */
+.admin-map-container { height:300px; background:#e0e7ff; border-radius:12px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.staff-pin { position:absolute; width:30px; height:30px; background:var(--admin); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; border:2px solid white; box-shadow:0 4px 6px rgba(0,0,0,0.2); transition:0.3s; }
+.staff-pin:hover { transform:scale(1.2); z-index:10; }
+
+/* Risk Score Bar */
+.risk-bar-bg { background:#eee; height:8px; border-radius:4px; overflow:hidden; margin-top:4px; }
+.risk-bar-fill { height:100%; transition:1s ease-out; }
+
+/* Animation */
+@keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.section { display:none; animation: slideIn 0.3s ease; padding:0 16px; }
+.section.active { display:block; }
+
+/* Security Overlay */
+#authOverlay { position:fixed; inset:0; background:rgba(255,255,255,0.98); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 </style>
 </head>
 <body>
 
-<div id="loginOverlay">
-    <div class="logo" style="margin-bottom: 20px; font-size: 24px;">
-        <i class="fa-solid fa-heart-pulse" style="color: #2563eb;"></i> CareNexus AI
-    </div>
-    <div class="login-box">
-        <h3 style="margin:0 0 10px 0;">スタッフ認証</h3>
-        <p style="font-size:12px; color:#666;">セキュリティのためパスコードを入力してください<br>(デモ用: 0000)</p>
-        <div class="pin-dots" id="pinDots">
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+<div id="authOverlay">
+    <div style="font-size:40px; color:var(--primary); margin-bottom:20px;"><i class="fa-solid fa-user-nurse"></i></div>
+    <h2 style="margin:0;">CareNexus AI</h2>
+    <p style="color:#666; font-size:12px;">Complete Suite v2.0</p>
+    
+    <div style="margin-top:30px; width:280px;">
+        <input type="password" id="passcode" placeholder="パスコード (1234)" style="text-align:center; font-size:18px; letter-spacing:4px;">
+        <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="authenticate()">ログイン (生体認証)</button>
+        <div style="text-align:center; margin-top:20px; font-size:12px; color:#666;">
+            <i class="fa-solid fa-shield-halved"></i> 2要素認証(SMS)は設定済みです
         </div>
-        <input type="password" id="pinInput" maxlength="4" style="text-align:center; letter-spacing:10px; font-size:24px; width:100%;" inputmode="numeric" autofocus>
     </div>
 </div>
 
-<div class="app" id="appContainer">
-    <header>
-        <div class="logo">
-            <i class="fa-solid fa-heart-pulse" style="color: #2563eb;"></i>
-            <span>CareNexus AI</span>
+<div class="app">
+    <header id="mainHeader">
+        <div class="logo" id="appLogo">
+            <i class="fa-solid fa-heart-pulse"></i> CareNexus AI
         </div>
-        <div class="header-right">
-            <div id="connectionStatus" class="connection-status status-online" onclick="toggleOfflineMode()">
-                <i class="fa-solid fa-wifi"></i> <span>オンライン</span>
-            </div>
-            <button class="btn btn-outline" style="padding:6px 10px;" onclick="lockScreen()">
-                <i class="fa-solid fa-lock"></i>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn btn-outline btn-icon" onclick="toggleOffline()" title="オフラインモード"><i id="wifiIcon" class="fa-solid fa-wifi"></i></button>
+            <button class="btn btn-outline btn-icon" onclick="toggleAuditMode()" title="実地指導モード"><i class="fa-solid fa-glasses"></i></button>
+            <button class="btn btn-outline" style="font-size:11px; padding:6px 10px;" id="modeSwitchBtn" onclick="toggleAdminMode()">
+                <i class="fa-solid fa-user-gear"></i> <span id="modeLabel">看護師</span>
             </button>
         </div>
     </header>
 
-    <main>
-        <div class="tabs">
-            <div class="tab active" data-tab="list"><i class="fa-solid fa-list-check"></i> 訪問予定</div>
-            <div class="tab" data-tab="schedule"><i class="fa-regular fa-calendar"></i> カレンダー</div>
-            <div class="tab" data-tab="record"><i class="fa-solid fa-file-medical"></i> 記録/AI</div>
-            <div class="tab" data-tab="vitals"><i class="fa-solid fa-chart-line"></i> バイタル</div>
-            <div class="tab" data-tab="patient"><i class="fa-solid fa-user"></i> 利用者</div>
-            <div class="tab" data-tab="report"><i class="fa-solid fa-file-contract"></i> 報告書</div>
-            <div class="tab" data-tab="admin"><i class="fa-solid fa-sliders"></i> 経営/管理</div>
-        </div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('visit')" id="tab-visit"><i class="fa-solid fa-route"></i> 訪問・ルート</div>
+        <div class="tab" onclick="switchTab('record')" id="tab-record"><i class="fa-solid fa-file-medical"></i> 記録・AI算定</div>
+        <div class="tab" onclick="switchTab('collab')" id="tab-collab"><i class="fa-solid fa-users"></i> 連携・MCS</div>
+        <div class="tab" onclick="switchTab('admin')" id="tab-admin" style="display:none;"><i class="fa-solid fa-chart-pie"></i> 管理・分析</div>
+    </div>
 
-        <section id="section-list" class="section active">
-            <div class="two-column">
-                <div class="panel">
-                    <div class="panel-title">
-                        本日の訪問 (AI優先度順)
-                        <span style="font-size:12px; font-weight:normal; background:#dcfce7; padding:2px 8px; border-radius:12px; color:#166534;">最適化済</span>
-                    </div>
-                    <div class="visit-list" id="visitList"></div>
-                </div>
-                <div class="panel">
-                    <div class="panel-title">動態管理・ルート</div>
-                    <div class="map-wrapper" id="mapContainer">
-                        <div style="position:absolute; inset:0; background: #e0f2fe; display:flex; align-items:center; justify-content:center; color:#bae6fd; font-weight:bold; font-size:40px; opacity:0.5;">MAP</div>
-                        <div id="mapMarkers"></div>
-                        <div class="ai-route-overlay">
-                            <button class="btn btn-primary" onclick="optimizeRoute()">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> AIルート再構築
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-schedule" class="section">
+    <section id="sect-visit" class="section active">
+        <div class="grid-2">
             <div class="panel">
-                <div class="panel-title">
-                    <div>
-                        <span style="font-size:18px;">2025年 12月</span>
-                        <button class="btn btn-outline" style="margin-left:8px; padding:4px 8px;"><i class="fa-solid fa-chevron-left"></i></button>
-                        <button class="btn btn-outline" style="padding:4px 8px;"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> 新規予定</button>
+                <div class="panel-head">
+                    本日の訪問ルート (AI最適化済)
+                    <span style="font-size:10px; background:#dcfce7; color:#166534; padding:2px 6px; border-radius:4px;">交通状況考慮中</span>
                 </div>
-                <div class="calendar-grid" id="calendarGrid">
-                    </div>
-            </div>
-        </section>
-
-        <section id="section-record" class="section">
-            <div class="two-column">
-                <div class="panel">
-                    <div class="panel-title">
-                        <span id="recordTitle">記録入力</span>
-                        <select id="recordPatientSelect" style="width:auto; padding:4px; font-size:12px;"></select>
-                    </div>
-                    
-                    <div style="display:flex; gap:8px; margin-bottom:8px;">
-                        <button class="btn btn-outline" onclick="alert('カメラ起動：写真を撮影します')"><i class="fa-solid fa-camera"></i></button>
-                        <button class="btn btn-outline" onclick="document.getElementById('fileInput').click()"><i class="fa-regular fa-image"></i></button>
-                        <button class="btn btn-outline" onclick="toggleSchema()"><i class="fa-solid fa-pen-nib"></i> シェーマ</button>
-                        <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(this)">
-                    </div>
-
-                    <div id="schemaArea" style="display:none; margin-bottom:10px;">
-                        <div class="schema-canvas" id="schemaCanvas"></div>
-                        <div style="text-align:right; margin-top:4px;">
-                            <button class="btn btn-outline" style="font-size:11px;" onclick="clearSchema()">クリア</button>
-                        </div>
-                    </div>
-
-                    <div id="mediaPreview" class="media-grid"></div>
-
-                    <div class="field-label">メモ・発話内容 (音声入力対応)</div>
-                    <textarea id="freeText" placeholder="例: 14:00訪問。BP130/80。足のむくみ軽減。本人は食欲ありと話す。"></textarea>
-                    
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-                        <button id="voiceInputBtn" class="btn btn-outline"><i class="fa-solid fa-microphone"></i> 音声入力</button>
-                        <button class="btn btn-primary" id="btnGenerate" onclick="runAIDemo()">
-                            <i class="fa-solid fa-robot"></i> AI生成実行
-                        </button>
-                    </div>
+                <div style="margin-bottom:10px;">
+                    <button class="btn btn-outline" style="width:100%; justify-content:center;" onclick="alert('Googleマップアプリを起動し、ルートナビを開始します。')">
+                        <i class="fa-solid fa-location-arrow"></i> ナビゲーション開始 (Google Maps)
+                    </button>
                 </div>
-
-                <div class="panel">
-                    <div class="panel-title">AI生成結果 (Simulation)</div>
-                    <div class="field-label">看護診断・問題点</div>
-                    <div id="diagnosisArea" class="ai-result-box" style="padding:10px; background:#ecfdf5; border-radius:6px; color:#065f46; font-weight:bold; min-height:40px;">---</div>
-                    
-                    <div class="field-label">SOAP記録 (自動構成)</div>
-                    <div id="soapArea" class="ai-result-box" style="padding:10px; background:#f9fafb; border:1px solid #ddd; border-radius:6px; white-space:pre-wrap; min-height:80px; font-size:13px;">---</div>
-                    
-                    <div class="field-label">家族・連携用サマリー</div>
-                    <div id="familyReportText" class="ai-result-box" style="padding:10px; background:#eff6ff; border-radius:6px; color:#1e40af; font-size:13px;">---</div>
-                </div>
+                <div id="visitList">
+                    </div>
             </div>
             
-            <div class="panel" style="margin-top:16px;">
-                <div class="panel-title">多職種連携チャット (MCS連携)</div>
-                <div id="chatArea" style="max-height:150px; overflow-y:auto; border:1px solid #e5e7eb; padding:10px; border-radius:8px; background:#f9fafb;">
-                    </div>
-                <div style="display:flex; gap:8px; margin-top:8px;">
-                    <input type="text" id="chatInput" placeholder="メッセージ..." style="margin:0;">
-                    <button class="btn btn-primary" onclick="sendChat()">送信</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-vitals" class="section">
             <div class="panel">
-                <div class="panel-title">
-                    <span id="vitalTitle">バイタル詳細分析</span>
-                    <button class="btn btn-outline" style="font-size:11px;" onclick="simulateBluetooth()"><i class="fa-brands fa-bluetooth"></i> 機器連携</button>
+                <div class="panel-head">スケジュール・マッチング</div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                     <div style="flex:1; background:#f9fafb; padding:10px; border-radius:8px;">
+                         <div style="font-size:11px; color:#666;">同行訪問管理</div>
+                         <div style="font-weight:bold; font-size:13px;"><i class="fa-solid fa-user-group"></i> 新人A + ベテランB</div>
+                     </div>
+                     <div style="flex:1; background:#f9fafb; padding:10px; border-radius:8px;">
+                         <div style="font-size:11px; color:#666;">スキルマッチング</div>
+                         <div style="font-weight:bold; font-size:13px; color:var(--primary);"><i class="fa-solid fa-check-circle"></i> ストーマ処置対応</div>
+                     </div>
                 </div>
-                <div style="height:300px; width:100%;">
-                    <canvas id="chart_vitals"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <section id="section-patient" class="section">
-            <div class="two-column">
-                <div class="panel">
-                    <div class="panel-title">利用者一覧</div>
-                    <div id="patientListSelect" style="display:flex; flex-direction:column; gap:8px;"></div>
-                </div>
-                <div class="panel">
-                    <div class="panel-title">基本情報編集</div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                        <input id="pt_name" placeholder="氏名">
-                        <input id="pt_age" placeholder="年齢">
-                        <div style="grid-column:1/-1"><input id="pt_address" placeholder="住所"></div>
-                        <div style="grid-column:1/-1"><textarea id="pt_history" placeholder="既往歴" style="height:60px;"></textarea></div>
-                    </div>
-                    <button class="btn btn-primary" style="margin-top:12px;" onclick="alert('保存しました')">更新保存</button>
+                <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                    <div style="font-size:12px; font-weight:bold; color:var(--danger);">未提出アラート</div>
+                    <div style="font-size:11px; margin-top:4px;">・田中様：計画書未作成 (期限あと2日)</div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="section-report" class="section">
-            <div class="two-column">
-                <div class="panel">
-                    <div class="panel-title">帳票作成</div>
-                    <div style="display:flex; flex-direction:column; gap:10px;">
-                        <button class="btn btn-outline" onclick="generateReport('plan')"><i class="fa-solid fa-file-pen"></i> 訪問看護計画書 (作成)</button>
-                        <button class="btn btn-outline" onclick="generateReport('report')"><i class="fa-solid fa-file-export"></i> 訪問看護報告書 (月次)</button>
-                        <button class="btn btn-outline" onclick="generateReport('info')"><i class="fa-solid fa-user-doctor"></i> 情報提供書</button>
+    <section id="sect-record" class="section">
+        <div class="panel" style="margin-bottom:16px; border:2px solid var(--primary);">
+            <div class="panel-head">
+                <div>
+                    対象：田中 太郎 (82)
+                    <span style="font-size:11px; font-weight:normal; background:#eee; padding:2px 6px; border-radius:4px;">要介護3</span>
+                </div>
+                <button class="btn btn-outline" style="font-size:11px;" onclick="openManual()"><i class="fa-solid fa-book-medical"></i> 手順書参照</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <span style="font-size:12px; font-weight:bold;">バイタルサイン</span>
+                    <button class="btn btn-primary" style="padding:4px 8px; font-size:10px;" onclick="simulateBluetooth()"><i class="fa-brands fa-bluetooth"></i> 機器連携</button>
+                </div>
+                <div class="vital-input-grid">
+                    <div class="vital-box"><label>血圧(上)</label><input type="number" id="v_sbp" placeholder="130"></div>
+                    <div class="vital-box"><label>血圧(下)</label><input type="number" id="v_dbp" placeholder="80"></div>
+                    <div class="vital-box"><label>脈拍</label><input type="number" id="v_hr" placeholder="72"></div>
+                    <div class="vital-box"><label>SpO2</label><input type="number" id="v_spo2" placeholder="98"></div>
+                    <div class="vital-box"><label>体温</label><input type="number" id="v_kt" placeholder="36.5"></div>
+                    <div class="vital-box"><label>体重(kg)</label><input type="number" id="v_weight" placeholder="60.5"></div>
+                </div>
+            </div>
+
+            <div style="height:250px; margin-bottom:15px;">
+                <canvas id="vitalChart"></canvas>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:15px; overflow-x:auto;">
+                <button class="btn btn-outline" style="font-size:11px;" onclick="alert('Barthel Index自動計算：85点 (自立)')">Barthel Index</button>
+                <button class="btn btn-outline" style="font-size:11px;" onclick="alert('ブレーデンスケール：15点 (中リスク)')">褥瘡スケール</button>
+                <button class="btn btn-outline" style="font-size:11px;" onclick="alert('MNA栄養評価：18点 (リスクあり)')">MNA栄養</button>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <div class="panel-head" style="font-size:13px; margin-bottom:8px;">看護記録 (SOAP)</div>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                         <button class="btn btn-outline" onclick="startVoiceInput()"><i class="fa-solid fa-microphone"></i> 音声入力</button>
+                         <button class="btn btn-outline" onclick="loadNanda()"><i class="fa-solid fa-list"></i> 看護診断引用</button>
+                    </div>
+                    <textarea id="soapInput" rows="6" placeholder="記録を入力... (例: 仙骨部に発赤あり、処置実施。本人より痛みなしとの発言。)" oninput="analyzeBilling()"></textarea>
+                    
+                    <div style="display:flex; gap:8px; margin-top:8px;">
+                        <button class="btn btn-outline" onclick="toggleSchema()"><i class="fa-solid fa-pen-nib"></i> シェーマ描画</button>
+                        <button class="btn btn-outline" onclick="document.getElementById('fileUp').click()"><i class="fa-solid fa-video"></i> 動画/写真</button>
+                        <input type="file" id="fileUp" hidden multiple>
+                    </div>
+                    <div id="schemaContainer" style="display:none; margin-top:10px;">
+                        <div id="schemaCanvas"></div>
+                        <button class="btn btn-outline" style="margin-top:4px; font-size:11px; width:100%;" onclick="clearSchema()">クリア</button>
                     </div>
                 </div>
-                <div class="panel" id="reportPreviewPanel" style="display:none; background:#525252;">
-                    <div class="panel-title" style="color:white; border-bottom:1px solid #777;">
-                        プレビュー
-                        <button class="btn btn-primary" style="padding:4px 8px; font-size:11px;">印刷 / PDF</button>
-                    </div>
-                    <div style="background:white; height:300px; margin-top:10px; padding:20px; font-size:10px; overflow:hidden; position:relative;">
-                        <div style="text-align:center; font-size:14px; font-weight:bold; margin-bottom:10px;">訪問看護報告書</div>
-                        <div style="border:1px solid #000; height:80%;">
-                            <div style="border-bottom:1px solid #000; padding:5px;">利用者名: <span id="reportPtName">田中 太郎</span></div>
-                            <div style="padding:5px;">
-                                <p>【病状の経過】<br>バイタル安定。浮腫軽減傾向。...</p>
-                                <p>【看護の内容】<br>・健康状態の観察<br>・清潔保持...</p>
-                            </div>
+
+                <div>
+                    <div class="ai-suggestion" id="billingEngine">
+                        <div style="font-weight:bold; color:var(--primary); font-size:13px; margin-bottom:6px;">
+                            <i class="fa-solid fa-robot"></i> AI算定加算エンジン
                         </div>
-                        <div style="position:absolute; bottom:10px; right:20px; color:red; border:2px solid red; padding:2px 8px; transform:rotate(-15deg); opacity:0.3; font-weight:bold; font-size:20px;">SAMPLE</div>
+                        <div id="billingSuggestions" style="font-size:12px;">
+                            <p style="color:#666;">記録を入力すると、算定可能な加算をAIが提案します。</p>
+                        </div>
+                    </div>
+
+                    <div style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; border-radius:8px; margin-top:10px; font-size:12px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#b45309;"></i> <b>複雑加算アラート</b><br>
+                        特別管理加算(ii)の算定要件を満たしています。<br>
+                        指示書の有効期限を確認してください。
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="section-admin" class="section">
+    <section id="sect-collab" class="section">
+        <div class="grid-2">
             <div class="panel">
-                <div class="panel-title">経営ダッシュボード & HR分析</div>
-                <div class="two-column">
-                    <div style="background:#f9fafb; padding:15px; border-radius:8px;">
-                        <div style="font-size:12px; color:#666;">今月の売上見込</div>
-                        <div style="font-size:24px; font-weight:bold; color:#111827;">¥ 4,820,000</div>
-                        <div style="font-size:11px; color:#10b981;"><i class="fa-solid fa-arrow-trend-up"></i> 前月比 +12%</div>
+                <div class="panel-head">MCS / 地域連携タイムライン</div>
+                <div style="height:200px; overflow-y:auto; background:#f9fafb; border-radius:8px; padding:10px; border:1px solid #eee; margin-bottom:10px;">
+                    <div style="margin-bottom:10px;">
+                        <div style="font-size:10px; color:#666;">Dr. 佐藤 (主治医)</div>
+                        <div style="background:white; padding:8px; border-radius:8px; display:inline-block; border:1px solid #ddd; font-size:12px;">
+                            次回の訪問時に、褥瘡の状態写真を送ってください。
+                        </div>
                     </div>
-                    <div style="background:#f9fafb; padding:15px; border-radius:8px;">
-                        <div style="font-size:12px; color:#666;">スタッフ稼働率</div>
-                        <div style="font-size:24px; font-weight:bold; color:#111827;">88.5%</div>
-                        <div style="font-size:11px; color:#f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i> 過重労働注意</div>
+                    <div style="text-align:right;">
+                        <div style="font-size:10px; color:#666;">自分</div>
+                        <div style="background:#dbeafe; padding:8px; border-radius:8px; display:inline-block; font-size:12px;">
+                            承知いたしました。シェーマと合わせて共有します。
+                        </div>
                     </div>
                 </div>
-                <div style="margin-top:20px;">
-                    <div class="field-label">スタッフ離職リスク分析 (AI予兆検知)</div>
-                    <div id="staffRiskList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:10px; margin-top:8px;">
-                        </div>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" placeholder="メッセージ..." style="margin:0;">
+                    <button class="btn btn-primary">送信</button>
+                </div>
+                <div style="margin-top:12px; display:flex; gap:8px;">
+                    <button class="btn btn-outline" style="flex:1; font-size:11px;"><i class="fa-solid fa-video"></i> オンライン診療接続(Zoom)</button>
+                    <button class="btn btn-outline" style="flex:1; font-size:11px;"><i class="fa-solid fa-envelope-open-text"></i> 家族連絡帳アプリ</button>
                 </div>
             </div>
-        </section>
-    </main>
+
+            <div class="panel">
+                <div class="panel-head">事務・コンプライアンス</div>
+                <button class="btn btn-outline" style="width:100%; margin-bottom:8px;" onclick="alert('スキャンカメラ起動：保険証をOCR解析します')">
+                    <i class="fa-solid fa-expand"></i> 保険証/指示書 OCR読取
+                </button>
+                <button class="btn btn-outline" style="width:100%; margin-bottom:8px;" onclick="alert('サテライトAの利用者実績を集計しました')">
+                    <i class="fa-solid fa-building-user"></i> サテライト一括管理
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="sect-admin" class="section">
+        <div style="background:var(--admin); color:white; padding:10px; border-radius:8px; margin-bottom:16px; font-size:13px;">
+            <i class="fa-solid fa-lock"></i> <b>管理者モード起動中</b>：閲覧ログは監査証跡として保存されます。
+        </div>
+
+        <div class="grid-2">
+            <div class="panel">
+                <div class="panel-head">看護師リアルタイム位置情報 (GPS)</div>
+                <div class="admin-map-container">
+                    <div style="position:absolute; inset:0; opacity:0.3; background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 20px 20px;"></div>
+                    <div class="staff-pin" style="top:40%; left:30%; background:#ef4444;" title="山田(移動中)">A</div>
+                    <div class="staff-pin" style="top:60%; left:70%; background:#2563eb;" title="鈴木(訪問中)">B</div>
+                    <div class="staff-pin" style="top:20%; left:50%; background:#10b981;" title="佐藤(休憩)">C</div>
+                </div>
+                <div style="margin-top:10px; font-size:12px; display:flex; gap:10px;">
+                    <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#2563eb; border-radius:50%;"></span>訪問中</span>
+                    <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#ef4444; border-radius:50%;"></span>移動中</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">スタッフ離職予兆スコア (AI分析)</div>
+                <div style="font-size:11px; color:#666; margin-bottom:10px;">勤怠、記録時間、移動ログから疲労度を算出</div>
+                
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px;">
+                        <span>山田 花子</span> <span style="color:var(--danger); font-weight:bold;">高リスク (85%)</span>
+                    </div>
+                    <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:85%; background:var(--danger);"></div></div>
+                    <div style="font-size:10px; color:#666; margin-top:2px;">理由: 残業過多(45h/月), 記録遅延増加</div>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:13px;">
+                        <span>鈴木 一郎</span> <span style="color:var(--warning); font-weight:bold;">注意 (60%)</span>
+                    </div>
+                    <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:60%; background:var(--warning);"></div></div>
+                    <div style="font-size:10px; color:#666; margin-top:2px;">理由: 訪問件数急増, 移動距離長</div>
+                </div>
+                
+                <button class="btn btn-outline" style="width:100%; font-size:11px; margin-top:10px;">
+                    <i class="fa-solid fa-file-chart-column"></i> スタッフ別生産性分析レポート出力
+                </button>
+            </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px;">
+            <div class="panel">
+                <div class="panel-head">経営分析・予実管理</div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                    <div style="font-size:24px; font-weight:bold; color:var(--text);">¥ 5,240,000</div>
+                    <div style="font-size:12px; color:var(--success);">達成率 92%</div>
+                </div>
+                <div style="height:10px; background:#eee; border-radius:5px; margin:10px 0; overflow:hidden;">
+                    <div style="width:92%; height:100%; background:var(--success);"></div>
+                </div>
+                <div style="font-size:12px; color:#666;">今月の見込み売上 (シミュレーション値)</div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">リスク管理・BCP</div>
+                <button class="btn btn-danger" style="width:100%; margin-bottom:8px;" onclick="alert('【BCP発動】\nトリアージリストを出力しました。\nオフラインデータをバックアップサーバーへ送信開始します。')">
+                    <i class="fa-solid fa-house-tsunami"></i> 災害時BCPモード発動
+                </button>
+                <div style="display:flex; gap:8px;">
+                    <button class="btn btn-outline" style="flex:1; font-size:11px;" onclick="alert('インシデントレポート作成画面を開きます')">事故報告書</button>
+                    <button class="btn btn-outline" style="flex:1; font-size:11px;" onclick="alert('紛失端末のリモートロック信号を送信しました')">MDMロック</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
 </div>
 
 <script>
-/* =========================================
-   Data & State
-   ========================================= */
-const patients = [
-    { id: 1, name: "田中 太郎", age: 82, address: "新宿区西新宿2-8-1", loc: {x:30, y:40}, priority: "high", status: "要介護3" },
-    { id: 2, name: "佐藤 花子", age: 78, address: "港区芝公園4-2-8", loc: {x:60, y:20}, priority: "mid", status: "要介護5" },
-    { id: 3, name: "鈴木 一郎", age: 65, address: "世田谷区北沢1-1", loc: {x:40, y:70}, priority: "low", status: "要介護2" }
-];
-
+// --- State & Config ---
+let isAdmin = false;
 let isOffline = false;
-let currentTab = 'list';
+let isAuditMode = false;
 
-/* =========================================
-   1. Security & Login Logic
-   ========================================= */
-const pinInput = document.getElementById('pinInput');
-const dots = document.querySelectorAll('.pin-dot');
-
-pinInput.addEventListener('input', (e) => {
-    const val = e.target.value;
-    dots.forEach((dot, idx) => {
-        if (idx < val.length) dot.classList.add('filled');
-        else dot.classList.remove('filled');
-    });
-    if (val.length === 4) {
-        if(val === "0000") {
-            document.getElementById('loginOverlay').style.opacity = 0;
-            setTimeout(() => document.getElementById('loginOverlay').style.display = "none", 300);
-        } else {
-            alert("PINが違います (0000)");
-            pinInput.value = "";
-            dots.forEach(d => d.classList.remove('filled'));
-        }
-    }
-});
-
-function lockScreen() {
-    document.getElementById('loginOverlay').style.display = "flex";
-    document.getElementById('loginOverlay').style.opacity = 1;
-    pinInput.value = "";
-    dots.forEach(d => d.classList.remove('filled'));
-    pinInput.focus();
-}
-
-/* =========================================
-   2. Tab Switching
-   ========================================= */
-document.querySelectorAll('.tab').forEach(t => {
-    t.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        t.classList.add('active');
-        document.getElementById('section-' + t.dataset.tab).classList.add('active');
-        currentTab = t.dataset.tab;
-    });
-});
-
-/* =========================================
-   3. Initialization & Rendering
-   ========================================= */
-function init() {
-    renderVisitList();
-    renderMap();
-    renderCalendar();
-    renderStaffRisk();
-    
-    // Patient Select Options
-    const sel = document.getElementById('recordPatientSelect');
-    const listSel = document.getElementById('patientListSelect');
-    patients.forEach(p => {
-        // Dropdown
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.name;
-        sel.appendChild(opt);
-        // List Item
-        const div = document.createElement('div');
-        div.className = "btn btn-outline";
-        div.style.justifyContent = "space-between";
-        div.innerHTML = `<span>${p.name}</span> <span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:4px;">${p.status}</span>`;
-        div.onclick = () => {
-            document.getElementById('pt_name').value = p.name;
-            document.getElementById('pt_age').value = p.age + "歳";
-            document.getElementById('pt_address').value = p.address;
-        };
-        listSel.appendChild(div);
-    });
-
-    // Chat Demo Init
-    addChatBubble("Dr. 佐藤", "田中様の血糖値、本日のデータを見てインスリン量を調整します。", true);
-}
-
-/* =========================================
-   4. Functionality Implementations
-   ========================================= */
-
-// --- Visit List & Map ---
-function renderVisitList() {
-    const el = document.getElementById('visitList');
-    el.innerHTML = "";
-    patients.forEach(p => {
-        const div = document.createElement('div');
-        div.className = "btn btn-outline";
-        div.style.display = "flex";
-        div.style.marginBottom = "8px";
-        div.style.justifyContent = "space-between";
-        div.style.borderLeft = p.priority === "high" ? "4px solid var(--danger)" : "4px solid #ddd";
-        div.innerHTML = `
-            <div>
-                <div style="font-weight:bold;">${p.name}</div>
-                <div style="font-size:11px; color:#666;">${p.address}</div>
-            </div>
-            <button class="btn btn-primary" style="padding:4px 8px; font-size:11px;">記録</button>
-        `;
-        el.appendChild(div);
-    });
-}
-
-function renderMap() {
-    const el = document.getElementById('mapMarkers');
-    el.innerHTML = "";
-    patients.forEach((p, idx) => {
-        const pin = document.createElement('div');
-        pin.style.position = "absolute";
-        pin.style.left = p.loc.x + "%";
-        pin.style.top = p.loc.y + "%";
-        pin.style.width = "24px";
-        pin.style.height = "24px";
-        pin.style.background = p.priority === "high" ? "var(--danger)" : "var(--primary)";
-        pin.style.color = "white";
-        pin.style.borderRadius = "50%";
-        pin.style.display = "flex";
-        pin.style.alignItems = "center";
-        pin.style.justifyContent = "center";
-        pin.style.fontSize = "12px";
-        pin.style.fontWeight = "bold";
-        pin.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
-        pin.innerText = idx + 1;
-        el.appendChild(pin);
-    });
-}
-
-function optimizeRoute() {
-    alert("AIが交通状況と利用者様態を分析し、最適なルートを再構築しました。\n(移動時間 -15分 短縮見込)");
-    // Demo visual update
-    document.getElementById('visitList').style.opacity = 0.5;
-    setTimeout(() => document.getElementById('visitList').style.opacity = 1, 300);
-}
-
-// --- Calendar ---
-function renderCalendar() {
-    const grid = document.getElementById('calendarGrid');
-    for(let i=1; i<=31; i++) {
-        const day = document.createElement('div');
-        day.className = "cal-day" + (i === 16 ? " today" : "");
-        day.innerHTML = `<span>${i}</span>`;
-        if(i % 3 === 0) day.innerHTML += `<div class="cal-event" style="background:var(--primary);">田中様</div>`;
-        if(i % 4 === 0) day.innerHTML += `<div class="cal-event" style="background:var(--warning);">会議</div>`;
-        grid.appendChild(day);
-    }
-}
-
-// --- Records & Multimedia ---
-function handleFileSelect(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            div.className = "media-item";
-            div.innerHTML = `<img src="${e.target.result}">`;
-            document.getElementById('mediaPreview').appendChild(div);
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-
-function toggleSchema() {
-    const area = document.getElementById('schemaArea');
-    area.style.display = area.style.display === "none" ? "block" : "none";
-}
-function clearSchema() {
-    // In real app, clear canvas logic
-    alert("シェーマをクリアしました");
-}
-
-function runAIDemo() {
-    const btn = document.getElementById('btnGenerate');
-    btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 生成中...`;
-    
-    // Simulate thinking
-    setTimeout(() => {
-        typeWriter('diagnosisArea', "1. 体液量均衡過剰の疑い (浮腫)\n2. 転倒リスク (歩行不安定)");
-        setTimeout(() => typeWriter('soapArea', "**S:** 「足が楽になった」\n**O:** 浮腫軽減(+1)。BP安定。\n**A:** 利尿剤の効果あり。経過良好。\n**P:** 継続観察。"), 500);
-        setTimeout(() => typeWriter('familyReportText', "足のむくみは少し良くなっています。ご本人も楽だとおっしゃっていました。転倒には引き続きご注意ください。"), 1000);
-        
-        btn.disabled = false;
-        btn.innerHTML = `<i class="fa-solid fa-robot"></i> AI生成実行`;
-    }, 1500);
-}
-
-function typeWriter(id, text) {
-    const el = document.getElementById(id);
-    el.innerHTML = "";
-    el.classList.add("typing");
-    let i = 0;
-    const interval = setInterval(() => {
-        el.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-        i++;
-        if(i >= text.length) {
-            clearInterval(interval);
-            el.classList.remove("typing");
-        }
-    }, 30);
-}
-
-// --- Vitals & Devices ---
-function simulateBluetooth() {
-    alert("Bluetooth機器を検索中...\n\n[テルモ血圧計 P2020] に接続しました。\n数値を自動入力します。");
-    // Chart update simulation could go here
-}
-
-// --- Chat ---
-function addChatBubble(name, text, isLeft) {
-    const area = document.getElementById('chatArea');
-    const div = document.createElement('div');
-    div.style.background = isLeft ? "#fff" : "#dbeafe";
-    div.style.padding = "8px 12px";
-    div.style.borderRadius = "8px";
-    div.style.marginBottom = "8px";
-    div.style.fontSize = "13px";
-    div.style.alignSelf = isLeft ? "flex-start" : "flex-end";
-    div.style.maxWidth = "80%";
-    div.style.border = "1px solid #e5e7eb";
-    div.innerHTML = `<div style="font-size:10px; color:#666; margin-bottom:2px;">${name}</div>${text}`;
-    area.appendChild(div);
-}
-function sendChat() {
-    const inp = document.getElementById('chatInput');
-    if(inp.value) {
-        addChatBubble("自分", inp.value, false);
-        inp.value = "";
-    }
-}
-
-// --- Reports ---
-function generateReport(type) {
-    document.getElementById('reportPreviewPanel').style.display = "block";
-    document.getElementById('reportPtName').textContent = document.getElementById('pt_name').value || "田中 太郎";
-}
-
-// --- Offline Mode ---
-function toggleOfflineMode() {
-    isOffline = !isOffline;
-    const status = document.getElementById('connectionStatus');
-    if(isOffline) {
-        status.className = "connection-status status-offline";
-        status.innerHTML = `<i class="fa-solid fa-cloud-bolt"></i> オフライン`;
-        alert("オフラインモードに切り替えました。\nデータは端末内に一時保存され、再接続時に自動同期されます。");
-    } else {
-        status.className = "connection-status status-online";
-        status.innerHTML = `<i class="fa-solid fa-wifi"></i> オンライン`;
-        alert("オンラインに復帰しました。\n保存されたデータをクラウドへ同期しました。");
-    }
-}
-
-// --- Admin/Staff Risk ---
-function renderStaffRisk() {
-    const list = document.getElementById('staffRiskList');
-    const staff = [
-        { name: "山田 花子", risk: 80, reason: "残業過多 / 記録遅延" },
-        { name: "佐藤 健", risk: 20, reason: "安定" }
-    ];
-    staff.forEach(s => {
-        const div = document.createElement('div');
-        div.style.border = "1px solid #ddd";
-        div.style.borderRadius = "8px";
-        div.style.padding = "10px";
-        div.style.background = s.risk > 50 ? "#fef2f2" : "#fff";
-        div.style.borderLeft = s.risk > 50 ? "4px solid red" : "4px solid green";
-        div.innerHTML = `
-            <div style="font-weight:bold; font-size:13px;">${s.name}</div>
-            <div style="font-size:11px; margin-top:4px;">離職リスク: ${s.risk}%</div>
-            <div style="font-size:10px; color:#666;">${s.reason}</div>
-        `;
-        list.appendChild(div);
-    });
-}
-
-// --- Chart Init ---
-const ctx = document.getElementById('chart_vitals').getContext('2d');
-new Chart(ctx, {
+// --- Chart Initialization (Vital Graph) ---
+const ctx = document.getElementById('vitalChart').getContext('2d');
+const vitalChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: ['12/10', '12/11', '12/12', '12/13', '12/14'],
-        datasets: [{
-            label: '収縮期血圧',
-            data: [138, 135, 142, 130, 128],
-            borderColor: '#2563eb',
-            tension: 0.3
-        }, {
-            label: '脈拍',
-            data: [80, 82, 85, 78, 76],
-            borderColor: '#f59e0b',
-            tension: 0.3
-        }]
+        labels: ['12/10', '12/11', '12/12', '12/13', 'Current'],
+        datasets: [
+            { label: '収縮期血圧', data: [135, 138, 132, 128, null], borderColor: '#ef4444', yAxisID: 'y' },
+            { label: '拡張期血圧', data: [82, 85, 80, 78, null], borderColor: '#f87171', borderDash:[5,5], yAxisID: 'y' },
+            { label: '脈拍', data: [75, 78, 72, 70, null], borderColor: '#2563eb', yAxisID: 'y' },
+            { label: 'SpO2', data: [98, 97, 98, 99, null], borderColor: '#10b981', yAxisID: 'y1' },
+            { label: '体温', data: [36.5, 36.6, 36.4, 36.5, null], borderColor: '#f59e0b', yAxisID: 'y2' },
+            { label: '体重', data: [60.0, 60.2, 60.1, 60.5, null], borderColor: '#8b5cf6', hidden:true }
+        ]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom' } }
+        interaction: { mode: 'index', intersect: false },
+        scales: {
+            y: { position:'left', title:{display:true, text:'BP/Pulse'} },
+            y1: { position:'right', min:90, max:100, grid:{drawOnChartArea:false}, title:{display:true, text:'SpO2'} },
+            y2: { position:'right', min:35, max:40, grid:{drawOnChartArea:false}, title:{display:true, text:'Temp'} }
+        }
     }
 });
 
-// Run Init
-window.onload = init;
+// --- Core Functions ---
+
+// 1. Authenticate
+function authenticate() {
+    const code = document.getElementById('passcode').value;
+    if(code === "1234") {
+        document.getElementById('authOverlay').style.display = 'none';
+    } else {
+        alert("パスコードが違います(1234)");
+    }
+}
+
+// 2. Tab Switch
+function switchTab(tabId) {
+    // Admin Guard
+    if(tabId === 'admin' && !isAdmin) {
+        alert("管理者権限が必要です。右上のアイコンから管理者モードに切り替えてください。");
+        return;
+    }
+    
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    
+    document.getElementById('tab-'+tabId).classList.add('active');
+    document.getElementById('sect-'+tabId).classList.add('active');
+}
+
+// 3. Admin Mode Toggle
+function toggleAdminMode() {
+    isAdmin = !isAdmin;
+    const body = document.body;
+    const btn = document.getElementById('modeSwitchBtn');
+    const label = document.getElementById('modeLabel');
+    const tab = document.getElementById('tab-admin');
+
+    if(isAdmin) {
+        const pass = prompt("管理者パスワードを入力してください (admin)");
+        if(pass !== "admin") {
+            isAdmin = false;
+            alert("認証失敗");
+            return;
+        }
+        body.classList.add('admin-mode');
+        btn.classList.add('btn-admin');
+        btn.classList.remove('btn-outline');
+        label.innerText = "管理者";
+        tab.style.display = "block";
+        switchTab('admin');
+        // GPS & Risk Data Simulation
+        alert("管理者モード: 全スタッフの位置情報と離職リスクスコアへのアクセスが許可されました。");
+    } else {
+        body.classList.remove('admin-mode');
+        btn.classList.remove('btn-admin');
+        btn.classList.add('btn-outline');
+        label.innerText = "看護師";
+        tab.style.display = "none";
+        switchTab('visit');
+    }
+}
+
+// 4. AI Billing Engine (Real-time Analysis)
+function analyzeBilling() {
+    const text = document.getElementById('soapInput').value;
+    const container = document.getElementById('billingSuggestions');
+    
+    // Simple Keywords Matching Simulation
+    let suggestions = [];
+    if(text.includes("褥瘡") || text.includes("仙骨") || text.includes("処置")) {
+        suggestions.push({name:"真皮を超える褥瘡の状態", point: "訪問看護記録書参照"});
+    }
+    if(text.includes("痛み") || text.includes("疼痛")) {
+        suggestions.push({name:"ターミナルケア加算(緩和ケア)", point: "+2500単位/月"});
+    }
+    if(text.includes("緊急")) {
+        suggestions.push({name:"緊急時訪問看護加算", point: "+574単位"});
+    }
+
+    if(suggestions.length > 0) {
+        container.innerHTML = suggestions.map(s => `
+            <div style="background:white; padding:8px; border-radius:6px; margin-top:6px; box-shadow:0 1px 2px rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center;">
+                <div><span class="ai-badge">AI提案</span> <b>${s.name}</b></div>
+                <div style="font-size:10px; font-weight:bold; color:var(--primary);">${s.point}</div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = `<p style="color:#666;">記録を入力すると、算定可能な加算をAIが提案します。</p>`;
+    }
+}
+
+// 5. Bluetooth Simulation
+function simulateBluetooth() {
+    alert("Bluetooth機器接続中... [テルモ P2020]\n測定データを受信しました。");
+    document.getElementById('v_sbp').value = 132;
+    document.getElementById('v_dbp').value = 78;
+    document.getElementById('v_hr').value = 74;
+    document.getElementById('v_spo2').value = 98;
+    document.getElementById('v_kt').value = 36.6;
+    document.getElementById('v_weight').value = 60.5;
+    
+    // Add to chart
+    const data = vitalChart.data.datasets;
+    data[0].data[4] = 132;
+    data[1].data[4] = 78;
+    data[2].data[4] = 74;
+    data[3].data[4] = 98;
+    data[4].data[4] = 36.6;
+    data[5].data[4] = 60.5;
+    vitalChart.update();
+}
+
+// 6. Schema Logic
+let isDrawing = false;
+function toggleSchema() {
+    const el = document.getElementById('schemaContainer');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+// (Simple mouse tracking for demo visual - actual drawing requires canvas context listeners)
+document.getElementById('schemaCanvas').addEventListener('mousemove', function(e) {
+    if(e.buttons === 1) {
+        // Just visual feedback cursor for demo
+        this.style.cursor = 'crosshair';
+        // In real app: ctx.lineTo(x, y); ctx.stroke();
+    }
+});
+function clearSchema() { alert("シェーマをリセットしました"); }
+
+// 7. Utils
+function toggleOffline() {
+    isOffline = !isOffline;
+    const icon = document.getElementById('wifiIcon');
+    if(isOffline) {
+        icon.className = "fa-solid fa-cloud-bolt";
+        icon.style.color = "var(--danger)";
+        alert("オフラインモード：データはローカルに暗号化保存されます。");
+    } else {
+        icon.className = "fa-solid fa-wifi";
+        icon.style.color = "inherit";
+        alert("オンライン復帰：クラウド同期完了。");
+    }
+}
+
+function toggleAuditMode() {
+    isAuditMode = !isAuditMode;
+    if(isAuditMode) {
+        document.body.style.filter = "grayscale(10%)"; // Visual cue
+        alert("【実地指導モード】\n不要なメモ書きを非表示にし、正規記録のみを表示します。");
+    } else {
+        document.body.style.filter = "none";
+        alert("通常モードに戻りました。");
+    }
+}
+
+function startVoiceInput() {
+    alert("音声認識を開始します... (マイク許可)");
+    setTimeout(() => {
+        document.getElementById('soapInput').value += "仙骨部の発赤は昨日より改善傾向。洗浄後に軟膏塗布を実施。";
+        analyzeBilling(); // Trigger AI
+    }, 1500);
+}
+
+function loadNanda() {
+    alert("NANDA-I 看護診断辞書を開きます。\n「皮膚統合性障害」を選択しました。");
+}
+
+// Visit List Generator
+const visitData = [
+    {name:"田中 太郎", time:"09:00", address:"新宿区西新宿", tag:"重点"},
+    {name:"鈴木 花子", time:"11:30", address:"渋谷区代々木", tag:"リハビリ"},
+    {name:"佐藤 次郎", time:"14:00", address:"港区赤坂", tag:"入浴"}
+];
+const vList = document.getElementById('visitList');
+visitData.forEach(v => {
+    vList.innerHTML += `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+            <div>
+                <div style="font-weight:bold;">${v.time} ${v.name}</div>
+                <div style="font-size:11px; color:#666;"><i class="fa-solid fa-map-pin"></i> ${v.address}</div>
+            </div>
+            <span style="font-size:10px; background:#f3f4f6; padding:2px 6px; border-radius:4px;">${v.tag}</span>
+        </div>
+    `;
+});
+
 </script>
 </body>
 </html>
