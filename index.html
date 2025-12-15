@@ -2,856 +2,719 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>CareNexus AI - Electronic Medical Record Integrated</title>
+  <title>CareNexus AI - Full EMR Integration</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* =========================================
-       CSS: CareNexus AI Base Design
+       CSS: CareNexus Design System
        ========================================= */
     :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-body: #f3f4f6;
+      --bg-panel: #ffffff;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --border: #e5e7eb;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      color: #111827;
-      background: #f3f4f6;
     }
-    body {
-      margin: 0;
-      background: #f3f4f6;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    body { margin: 0; background: var(--bg-body); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
     
+    /* Utility */
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-4 { gap: 16px; }
+    .w-full { width: 100%; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    .text-sm { font-size: 13px; }
+    .font-bold { font-weight: 700; }
+    .text-gray { color: var(--text-sub); }
+
+    /* Login Overlay */
+    #login-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(243, 244, 246, 0.95);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .login-card {
+      background: #fff; padding: 32px; border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 360px;
+      text-align: center; border: 1px solid var(--border);
+    }
+
     /* Header */
     header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      backdrop-filter: blur(16px);
-      background: rgba(243, 244, 246, 0.95);
-      border-bottom: 1px solid #e5e7eb;
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
       padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
     }
-    .logo {
-      font-weight: 700;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #1f2937;
-    }
-    .header-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
-    .badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-    .user-info {
-      font-size: 12px;
-      color: #6b7280;
-    }
+    .brand { font-size: 18px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .header-user { font-size: 12px; text-align: right; }
 
-    /* Layout Containers */
-    .app-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 16px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* Navigation Tabs */
-    .tabs {
-      display: flex;
-      border-radius: 8px;
-      background: #e5e7eb;
-      padding: 4px;
-      margin-bottom: 16px;
-      overflow-x: auto;
-      gap: 4px;
-    }
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 8px 0;
-      font-size: 13px;
-      border-radius: 6px;
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-      min-width: 70px;
-      color: #6b7280;
-      transition: all 0.2s;
-    }
-    .tab.active {
-      background: #ffffff;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      font-weight: 600;
-      color: #111827;
-    }
-
-    /* View Sections */
-    .section {
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    .section.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Column Layouts */
-    .two-column {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    @media (min-width: 900px) {
-      .two-column { flex-direction: row; }
-    }
-    .panel {
-      flex: 1;
-      border-radius: 12px;
-      background: #ffffff;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      margin-bottom: 12px;
-      border: 1px solid #e5e7eb;
-    }
-    .panel-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f3f4f6;
-      padding-bottom: 8px;
-      color: #111827;
-    }
-
-    /* UI Elements: Buttons, Inputs */
-    .btn {
-      border-radius: 6px;
-      border: none;
-      padding: 8px 16px;
-      font-size: 13px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 500;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn-primary { background: #2563eb; color: #ffffff; }
-    .btn-outline { background: #ffffff; color: #374151; border: 1px solid #d1d5db; }
-    .btn-danger { background: #fee2e2; color: #991b1b; }
+    /* Layout */
+    .container { max-width: 1200px; margin: 0 auto; padding: 16px; width: 100%; box-sizing: border-box; }
     
+    /* Navigation */
+    .nav-tabs { display: flex; background: #e5e7eb; padding: 4px; border-radius: 8px; margin-bottom: 20px; overflow-x: auto; }
+    .nav-item {
+      flex: 1; text-align: center; padding: 10px; font-size: 13px; font-weight: 500;
+      cursor: pointer; border-radius: 6px; color: var(--text-sub); transition: 0.2s; white-space: nowrap;
+    }
+    .nav-item:hover { color: var(--text-main); background: rgba(255,255,255,0.5); }
+    .nav-item.active { background: #fff; color: var(--primary); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+    /* Panels & Cards */
+    .panel { background: var(--bg-panel); border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .panel-title { font-size: 16px; font-weight: 700; color: #1f2937; }
+
+    .card { background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 8px; transition: 0.2s; cursor: pointer; }
+    .card:hover { border-color: #d1d5db; background: #f3f4f6; }
+    
+    /* Forms */
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #4b5563; margin-bottom: 4px; }
     input, select, textarea {
-      width: 100%;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 14px;
-      padding: 10px;
-      box-sizing: border-box;
-      font-family: inherit;
-      margin-top: 4px;
-      background: #fff;
+      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db;
+      font-size: 14px; background: #fff; box-sizing: border-box; font-family: inherit;
     }
-    textarea { min-height: 80px; resize: vertical; }
-    .field-label {
-      font-size: 12px;
-      color: #4b5563;
-      margin-top: 12px;
-      margin-bottom: 4px;
-      font-weight: 600;
-      display: block;
-    }
+    textarea { resize: vertical; min-height: 80px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); ring: 2px var(--primary); }
 
-    /* Lists & Tables */
-    .visit-list { display: flex; flex-direction: column; gap: 10px; }
-    .visit-card {
-      padding: 12px;
-      border-radius: 8px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      cursor: pointer;
-      transition: background 0.2s;
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; transition: 0.2s; gap: 6px;
     }
-    .visit-card:hover { background: #f3f4f6; }
-    
-    .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-left: 6px; }
-    .tag-red { background: #fee2e2; color: #991b1b; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: #fff; border: 1px solid #d1d5db; color: #374151; }
+    .btn-secondary:hover { background: #f9fafb; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    /* Tables */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { text-align: left; padding: 12px; background: #f9fafb; border-bottom: 1px solid var(--border); color: var(--text-sub); font-weight: 600; }
+    .data-table td { padding: 12px; border-bottom: 1px solid var(--border); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover { background: #f9fafb; }
+
+    /* Tags */
+    .tag { padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
     .tag-blue { background: #dbeafe; color: #1e40af; }
-    .tag-gray { background: #e5e7eb; color: #374151; }
-
-    .vital-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
-    .vital-table th, .vital-table td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
-    .vital-table th { background: #f9fafb; }
+    .tag-green { background: #dcfce7; color: #166534; }
+    .tag-gray { background: #f3f4f6; color: #4b5563; }
 
     /* AI Typing Effect */
-    .ai-result-box {
-      background: #f9fafb;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 13px;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      border: 1px solid #e5e7eb;
-      color: #374151;
-      min-height: 60px;
-      position: relative;
-    }
-    .typing::after {
-      content: '|';
-      animation: blink 1s infinite;
-      color: #2563eb;
-    }
+    .ai-box { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; }
+    .typing::after { content: '|'; animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
-
-    /* Map (Demo) */
-    .map-container {
-      position: relative;
-      width: 100%;
-      height: 200px;
-      border-radius: 8px;
-      background: #eff6ff;
-      overflow: hidden;
-      border: 1px solid #dbeafe;
-      margin-bottom: 12px;
-    }
-    .map-marker {
-      position: absolute;
-      transform: translate(-50%, -50%);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 11px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      font-weight: bold;
-      border: 1px solid rgba(0,0,0,0.1);
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .marker-patient { background: #fee2e2; color: #991b1b; }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-    </svg>
-    <span>CareNexus AI</span>
-  </div>
-  <div class="header-right">
-    <div class="badge">Integrated Edition</div>
-    <div class="user-info" id="currentUserDisplay">Not Logged In</div>
-  </div>
-</header>
-
-<div class="app-container">
-  
-  <div class="tabs">
-    <div class="tab active" onclick="showView('dashboard')">ダッシュボード</div>
-    <div class="tab" onclick="showView('patients')">利用者一覧</div>
-    <div class="tab" onclick="showView('record')">記録・AI作成</div>
-    <div class="tab" onclick="showView('settings')">設定・管理</div>
-  </div>
-
-  <div id="view-dashboard" class="section active">
-    <div class="two-column">
-      <div class="panel" style="flex: 2;">
-        <div class="panel-title">
-          <span>本日の訪問予定</span>
-          <span class="badge" id="todayDateDisplay"></span>
-        </div>
-        <div id="dashboard-visit-list" class="visit-list">
-          </div>
+<div id="login-overlay">
+  <div class="login-card">
+    <div style="margin-bottom: 20px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <h2 style="margin: 8px 0 0; font-size: 20px;">CareNexus AI</h2>
+      <p style="color:#6b7280; font-size:13px;">電子カルテ統合システム</p>
+    </div>
+    <form onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <input type="text" id="login-id" placeholder="ユーザーID (例: user)" value="user" required>
       </div>
-      <div class="panel" style="flex: 1;">
-        <div class="panel-title">地域マップ (デモ)</div>
-        <div class="map-container" id="mapContainer">
-          </div>
-        <div class="panel-title" style="margin-top:12px;">通知・連携</div>
-        <div class="visit-card" style="font-size:12px; color:#555;">
-          <strong>Dr. 佐藤 (連携医)</strong> <span style="float:right; color:#999;">10:30</span><br>
-          田中様の血糖値変動について、インスリン単位の変更を検討しています。
-        </div>
+      <div class="form-group">
+        <input type="password" id="login-pw" placeholder="パスワード (例: pass)" value="pass" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-full">ログイン</button>
+      <p id="login-error" style="color:#dc2626; font-size:12px; margin-top:8px; display:none;">IDまたはパスワードが違います</p>
+    </form>
+  </div>
+</div>
+
+<div id="app-main" class="hidden">
+  <header>
+    <div class="container flex justify-between items-center" style="padding:0;">
+      <div class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>CareNexus AI</span>
+        <span class="tag tag-blue" style="margin-left:8px;">Full Edition</span>
+      </div>
+      <div class="header-user">
+        <div id="display-username" class="font-bold">Ns. Yamada</div>
+        <a href="#" onclick="handleLogout()" style="color:#ef4444; text-decoration:none;">ログアウト</a>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div id="view-patients" class="section">
-    <div class="panel">
-      <div class="panel-title">
-        利用者検索
-        <button class="btn btn-primary" onclick="showAddPatientModal()">＋ 新規登録</button>
-      </div>
-      <input type="text" id="patient-search" placeholder="名前で検索..." onkeyup="renderPatientsList()" style="margin-bottom:12px;">
-      <div style="overflow-x:auto;">
-        <table class="vital-table" style="text-align:left;">
-          <thead>
-            <tr>
-              <th>氏名</th>
-              <th>年齢/性別</th>
-              <th>要介護度</th>
-              <th>診断名</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="patient-list-tbody">
-            </tbody>
-        </table>
-      </div>
+  <div class="container">
+    <div class="nav-tabs">
+      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">ダッシュボード</div>
+      <div class="nav-item" onclick="navigate('patients')" id="nav-patients">利用者一覧</div>
+      <div class="nav-item" onclick="navigate('settings')" id="nav-settings">設定・データ</div>
     </div>
-  </div>
 
-  <div id="view-record" class="section">
-    <div class="two-column">
-      <div class="panel" style="flex: 1;">
-        <div class="panel-title">対象利用者選択</div>
-        <select id="record-patient-select" onchange="onRecordPatientChange()" style="margin-bottom:12px;">
-          <option value="">選択してください</option>
-        </select>
-        
-        <div id="record-patient-info" style="display:none;">
-          <div style="background:#f9fafb; padding:10px; border-radius:6px; font-size:12px; margin-bottom:12px;">
-            <div id="p-info-basic" style="font-weight:bold; font-size:14px; margin-bottom:4px;"></div>
-            <div id="p-info-detail" style="color:#555;"></div>
+    <div id="view-dashboard" class="view-section">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="panel" style="flex:2;">
+          <div class="panel-header">
+            <span class="panel-title">本日の訪問予定</span>
+            <span class="tag tag-green" id="today-date"></span>
           </div>
-          
-          <div class="panel-title">バイタル推移</div>
-          <div style="height:150px; width:100%;">
-            <canvas id="vitalsChartMini"></canvas>
-          </div>
-
-          <div class="panel-title" style="margin-top:16px;">過去の記録</div>
-          <div id="record-history-list" class="visit-list" style="max-height:300px; overflow-y:auto;"></div>
-        </div>
-      </div>
-
-      <div class="panel" style="flex: 2;">
-        <div class="panel-title">
-          <span id="record-form-title">訪問記録入力</span>
-          <div>
-            <button class="btn btn-outline" type="button" onclick="startVoiceDemo()">🎤 音声入力デモ</button>
-            <button class="btn btn-primary" type="button" onclick="generateAIReport()">✨ AI生成</button>
-          </div>
-        </div>
-
-        <form id="visit-record-form" onsubmit="saveVisitRecord(event)">
-          <input type="hidden" id="rec-visit-id">
-          
-          <div style="display:flex; gap:12px;">
-            <div style="flex:1;">
-              <span class="field-label">日付</span>
-              <input type="date" id="rec-date" required>
+          <div id="schedule-list">
             </div>
-            <div style="flex:1;">
-              <span class="field-label">時間</span>
-              <div style="display:flex; gap:4px;">
-                <input type="time" id="rec-time-start" required>
-                <span style="align-self:center;">~</span>
-                <input type="time" id="rec-time-end">
+        </div>
+        <div class="panel" style="flex:1;">
+          <div class="panel-header"><span class="panel-title">ステータス</span></div>
+          <div class="card">
+            <div class="text-sm font-bold">要確認</div>
+            <div class="text-sm text-gray">未完了の記録が 1 件あります。</div>
+          </div>
+          <div class="card">
+            <div class="text-sm font-bold">AIアップデート</div>
+            <div class="text-sm text-gray">生成エンジンの精度が向上しました。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-patients" class="view-section hidden">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">利用者検索・一覧</span>
+          <button class="btn btn-primary btn-sm" onclick="alert('デモ版: 追加機能は制限されています')">＋ 新規登録</button>
+        </div>
+        <div class="flex gap-2 mb-4">
+          <input type="text" id="patient-search" placeholder="氏名またはIDで検索..." onkeyup="renderPatientList()">
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>氏名</th><th>年齢/性別</th><th>要介護度</th><th>操作</th></tr>
+            </thead>
+            <tbody id="patient-list-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-patient-detail" class="view-section hidden">
+      <div class="flex justify-between items-center mb-4">
+        <button class="btn btn-secondary" onclick="navigate('patients')">← 一覧に戻る</button>
+        <button class="btn btn-primary" onclick="startNewRecord()">＋ 新規記録作成</button>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-4 mb-4">
+        <div class="panel" style="flex:1;">
+          <div class="panel-header"><span class="panel-title">基本情報</span></div>
+          <div id="detail-profile" class="text-sm" style="line-height:1.8;"></div>
+        </div>
+        <div class="panel" style="flex:2;">
+          <div class="panel-header"><span class="panel-title">バイタル推移 (直近)</span></div>
+          <div style="height:200px;"><canvas id="chart-vitals"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">訪問・記録履歴</span></div>
+        <div id="detail-history-list"></div>
+      </div>
+    </div>
+
+    <div id="view-record-editor" class="view-section hidden">
+      <div class="flex justify-between items-center mb-4">
+        <button class="btn btn-secondary" onclick="closeRecordEditor()">キャンセル</button>
+        <span class="font-bold text-gray" id="editor-mode-label">新規記録</span>
+      </div>
+
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="panel" style="flex:1; background:#f0f9ff; border-color:#bfdbfe;">
+          <div class="panel-header"><span class="panel-title" style="color:#1e40af;">AI アシスト</span></div>
+          <p class="text-sm text-gray mb-2">音声認識やメモを入力すると、SOAP形式で下書きを生成します。</p>
+          <textarea id="ai-raw-input" placeholder="例: 「今日は体温36.5度。足のむくみ少しあり。食事は全部食べた。家族から夜間のトイレ回数について相談あり。」" style="height:120px;"></textarea>
+          <div class="flex gap-2 mt-4">
+            <button class="btn btn-secondary btn-sm" onclick="demoVoiceInput()">🎤 音声デモ</button>
+            <button class="btn btn-primary btn-sm" onclick="generateSOAP()">✨ AI生成実行</button>
+          </div>
+        </div>
+
+        <div class="panel" style="flex:2;">
+          <form onsubmit="saveRecord(event)">
+            <input type="hidden" id="edit-visit-id">
+            <div class="flex gap-4 mb-4">
+              <div class="w-full">
+                <label>訪問日時</label>
+                <input type="datetime-local" id="edit-datetime" required>
+              </div>
+              <div class="w-full">
+                <label>実施者</label>
+                <input type="text" id="edit-staff" readonly>
               </div>
             </div>
-          </div>
 
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:8px; margin-top:12px;">
-            <div><span class="field-label">体温</span><input type="number" step="0.1" id="rec-temp" placeholder="℃"></div>
-            <div><span class="field-label">血圧(上)</span><input type="number" id="rec-bp-sys" placeholder="mmHg"></div>
-            <div><span class="field-label">血圧(下)</span><input type="number" id="rec-bp-dia" placeholder="mmHg"></div>
-            <div><span class="field-label">SpO2</span><input type="number" id="rec-spo2" placeholder="%"></div>
-          </div>
+            <label>バイタルサイン</label>
+            <div class="flex gap-2 mb-4" style="flex-wrap:wrap;">
+              <div style="flex:1; min-width:80px;"><input type="number" step="0.1" id="edit-temp" placeholder="体温 ℃"></div>
+              <div style="flex:1; min-width:80px;"><input type="number" id="edit-bp-sys" placeholder="BP上"></div>
+              <div style="flex:1; min-width:80px;"><input type="number" id="edit-bp-dia" placeholder="BP下"></div>
+              <div style="flex:1; min-width:80px;"><input type="number" id="edit-pulse" placeholder="脈拍"></div>
+              <div style="flex:1; min-width:80px;"><input type="number" id="edit-spo2" placeholder="SpO2"></div>
+            </div>
 
-          <div style="margin-top:16px; border-top:1px dashed #e5e7eb; padding-top:12px;">
-            <span class="field-label">生成プロセス / 状況メモ (AI入力元)</span>
-            <textarea id="rec-raw-input" placeholder="ここに箇条書きや音声認識テキストを入力すると、AIが下のSOAPを生成します..." style="height:60px;"></textarea>
-          </div>
+            <div class="form-group">
+              <label>S (Subjective) - 主訴・自覚症状</label>
+              <textarea id="edit-soap-s"></textarea>
+            </div>
+            <div class="form-group">
+              <label>O (Objective) - 客観的所見</label>
+              <textarea id="edit-soap-o"></textarea>
+            </div>
+            <div class="form-group">
+              <label>A (Assessment) - 評価</label>
+              <textarea id="edit-soap-a"></textarea>
+            </div>
+            <div class="form-group">
+              <label>P (Plan) - 計画</label>
+              <textarea id="edit-soap-p"></textarea>
+            </div>
 
-          <div class="field-label" style="margin-top:12px; color:#2563eb;">SOAP記録 (AI生成対象)</div>
-          <textarea id="rec-soap" style="height:150px; font-family:monospace;" placeholder="ここにAI生成結果が出力されます"></textarea>
-          
-          <div style="margin-top:16px; text-align:right;">
-            <button type="button" class="btn btn-outline" onclick="clearRecordForm()">クリア</button>
-            <button type="submit" class="btn btn-primary">保存して完了</button>
-          </div>
-        </form>
+            <div class="text-right mt-4 border-t pt-4">
+              <button type="submit" class="btn btn-primary btn-lg">保存して完了</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="view-settings" class="section">
-    <div class="panel">
-      <div class="panel-title">データ管理</div>
-      <p style="font-size:13px; color:#666;">
-        このデモアプリのデータはブラウザ(localStorage)に保存されています。
-        ブラウザを閉じてもデータは保持されますが、キャッシュをクリアすると消えます。
-      </p>
-      <button class="btn btn-danger" onclick="resetAllData()">データを初期化(デモ用リセット)</button>
+    <div id="view-settings" class="view-section hidden">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">データ管理</span></div>
+        <p class="text-sm text-gray mb-4">
+          このアプリケーションのデータはブラウザのローカルストレージに保存されています。
+          キャッシュをクリアするとデータは消失します。
+        </p>
+        <button class="btn btn-danger" onclick="resetData()">データを初期化 (デモ用リセット)</button>
+      </div>
     </div>
-  </div>
 
+  </div>
 </div>
 
 <script>
 /**
- * =============================================================================
- * 1. DATA MODEL & STORAGE (電子カルテコード相当)
- * =============================================================================
+ * ------------------------------------------------------------------
+ * 1. Data Store & State Management (Based on EMR Logic)
+ * ------------------------------------------------------------------
  */
-const STORAGE_KEY = "carenexus_integrated_v1";
+const STORAGE_KEY = 'carenexus_full_v2';
+const DEFAULT_USER = { id: 'user', name: 'Ns. 山田', role: 'nurse' };
 
-// 初期データセット（初回起動時のみ使用）
-function createInitialState() {
-  const p1 = "pat-001"; // 田中 太郎
-  const p2 = "pat-002"; // 佐藤 花子
+// Initial Mock Data
+function getInitialData() {
   const now = new Date();
+  const yesterday = new Date(now.getTime() - 86400000);
   
   return {
-    currentUser: { name: "Ns. 山田", role: "admin" },
-    patients: [
-      { id: p1, lastName: "田中", firstName: "太郎", age: 82, sex: "M", address: "東京都世田谷区1-1", care: "要介護3", diag: "糖尿病、高血圧", loc:{x:30,y:40} },
-      { id: p2, lastName: "佐藤", firstName: "花子", age: 75, sex: "F", address: "東京都世田谷区2-5", care: "要介護1", diag: "慢性心不全", loc:{x:60,y:70} }
+    users: [
+      { id: 'user', password: 'pass', name: 'Ns. 山田', role: 'nurse' },
+      { id: 'admin', password: 'admin', name: '管理者', role: 'admin' }
     ],
-    // 訪問予定と履歴
+    patients: [
+      { id: 'P001', name: '田中 太郎', kana: 'タナカ タロウ', gender: '男性', dob: '1940-05-15', careLevel: '要介護3', address: '東京都世田谷区1-1', diagnosis: '2型糖尿病, 本態性高血圧' },
+      { id: 'P002', name: '鈴木 ハナ', kana: 'スズキ ハナ', gender: '女性', dob: '1935-11-20', careLevel: '要介護4', address: '東京都世田谷区2-5', diagnosis: 'アルツハイマー型認知症' },
+      { id: 'P003', name: '佐藤 健', kana: 'サトウ ケン', gender: '男性', dob: '1950-02-10', careLevel: '要介護1', address: '東京都目黒区5-5', diagnosis: '脳梗塞後遺症' }
+    ],
     visits: [
       { 
-        id: "v-1", 
-        patientId: p1, 
-        startAt: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 30).toISOString(), 
-        type: "regular", 
-        status: "completed", 
-        soap: "S: 足のむくみが気になる\nO: BP138/84, KT36.5\nA: 服薬コンプライアンス良好\nP: 次回採血予定" 
-      },
-      { 
-        id: "v-2", 
-        patientId: p2, 
-        startAt: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 13, 0).toISOString(), 
-        type: "regular", 
-        status: "scheduled", 
-        soap: "" 
+        id: 'V101', patientId: 'P001', staffName: 'Ns. 山田', date: yesterday.toISOString(), status: 'completed',
+        s: '足のむくみが少し気になる。', o: '下肢浮腫(+)、皮膚トラブルなし。', a: '塩分摂取過多の可能性。バイタルは安定。', p: '食事指導の継続。次回体重測定。',
+        vitals: { temp: 36.5, bpSys: 138, bpDia: 85, pulse: 72, spo2: 98 }
       }
     ],
-    // バイタルデータ
-    vitals: [
-      { patientId: p1, measuredAt: new Date(now.getTime() - 86400000).toISOString(), temp: 36.5, bpSys: 138, bpDia: 84, spo2: 96 },
-      { patientId: p1, measuredAt: new Date(now.getTime() - 172800000).toISOString(), temp: 36.8, bpSys: 142, bpDia: 88, spo2: 95 },
-      { patientId: p2, measuredAt: new Date(now.getTime() - 86400000).toISOString(), temp: 36.2, bpSys: 110, bpDia: 70, spo2: 98 }
-    ]
+    currentUser: null
   };
 }
 
-// データの読み込み・保存
-let appState = loadState();
+let appState = { ...getInitialData() };
+let currentPatientId = null;
+let vitalsChartInstance = null;
 
+// Load/Save Logic
 function loadState() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) return createInitialState();
-  try {
-    return JSON.parse(raw);
-  } catch(e) {
-    return createInitialState();
+  const json = localStorage.getItem(STORAGE_KEY);
+  if (json) {
+    try {
+      appState = JSON.parse(json);
+    } catch(e) { console.error('Data load error', e); }
   }
 }
-
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
 }
-
-function resetAllData() {
-  if(confirm("全てのデータを初期状態に戻しますか？")) {
-    appState = createInitialState();
-    saveState();
+function resetData() {
+  if(confirm('全てのデータを初期状態に戻しますか？')) {
+    localStorage.removeItem(STORAGE_KEY);
     location.reload();
   }
 }
 
-// 簡易ID生成
-function genId() { return Math.random().toString(36).substr(2, 9); }
+/**
+ * ------------------------------------------------------------------
+ * 2. Authentication
+ * ------------------------------------------------------------------
+ */
+function handleLogin(e) {
+  e.preventDefault();
+  const id = document.getElementById('login-id').value;
+  const pw = document.getElementById('login-pw').value;
+  
+  const user = appState.users.find(u => u.id === id && u.password === pw);
+  if (user) {
+    appState.currentUser = user;
+    saveState();
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
 
+function handleLogout() {
+  appState.currentUser = null;
+  saveState();
+  location.reload();
+}
 
 /**
- * =============================================================================
- * 2. UI CONTROL & VIEW LOGIC (CareNexus UI連携)
- * =============================================================================
+ * ------------------------------------------------------------------
+ * 3. Navigation & View Routing
+ * ------------------------------------------------------------------
  */
-let currentView = "dashboard";
-let currentPatientId = null;
-let vitalsChart = null; // Chart.jsインスタンス保持用
-
-// アプリ初期化
-document.addEventListener("DOMContentLoaded", () => {
-  updateHeader();
-  showView("dashboard"); // 初期表示
-});
-
-function updateHeader() {
-  document.getElementById("currentUserDisplay").textContent = appState.currentUser ? appState.currentUser.name : "Guest";
-  const d = new Date();
-  document.getElementById("todayDateDisplay").textContent = `${d.getMonth()+1}/${d.getDate()}`;
+function initApp() {
+  // Hide login, show app
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('app-main').classList.remove('hidden');
+  
+  // Header Info
+  document.getElementById('display-username').textContent = appState.currentUser.name;
+  
+  // Load Data
+  loadState();
+  
+  // Default View
+  navigate('dashboard');
 }
 
-// 画面切り替え管理
-function showView(viewId) {
-  currentView = viewId;
-  
-  // セクションの表示切替
-  document.querySelectorAll(".section").forEach(el => el.classList.remove("active"));
-  document.getElementById(`view-${viewId}`).classList.add("active");
-  
-  // タブのActive状態更新
-  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
-  const tabIds = ["dashboard", "patients", "record", "settings"];
-  const idx = tabIds.indexOf(viewId);
-  if(idx >= 0) {
-    document.querySelectorAll(".tab")[idx].classList.add("active");
-  }
+function navigate(viewName) {
+  // Hide all sections
+  document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-  // 各画面の初期化関数呼び出し
-  if (viewId === "dashboard") renderDashboard();
-  if (viewId === "patients") renderPatientsList();
-  if (viewId === "record") initRecordView();
+  // Show target
+  const targetId = (viewName === 'patient-detail' || viewName === 'record-editor') 
+    ? 'view-' + viewName // Sub-views don't have nav tabs
+    : 'view-' + viewName;
+
+  document.getElementById(targetId).classList.remove('hidden');
+
+  // Activate Tab if exists
+  const navTab = document.getElementById('nav-' + viewName);
+  if (navTab) navTab.classList.add('active');
+
+  // Logic triggers
+  if (viewName === 'dashboard') renderDashboard();
+  if (viewName === 'patients') renderPatientList();
 }
 
-
-/* --- Dashboard Logic --- */
+/**
+ * ------------------------------------------------------------------
+ * 4. Dashboard Logic
+ * ------------------------------------------------------------------
+ */
 function renderDashboard() {
-  const listEl = document.getElementById("dashboard-visit-list");
-  listEl.innerHTML = "";
+  const d = new Date();
+  document.getElementById('today-date').textContent = `${d.getMonth()+1}/${d.getDate()}`;
   
-  // 今日の日付の訪問を抽出
-  const todayStr = new Date().toISOString().slice(0,10);
-  // 全訪問データから今日開始のものフィルタし、時間順ソート
-  const todaysVisits = appState.visits
-    .filter(v => v.startAt.startsWith(todayStr))
-    .sort((a,b) => new Date(a.startAt) - new Date(b.startAt));
+  const listEl = document.getElementById('schedule-list');
+  listEl.innerHTML = '';
 
-  if (todaysVisits.length === 0) {
-    listEl.innerHTML = `<div style="color:#999; text-align:center; padding:20px;">本日の予定はありません</div>`;
-  }
-
-  todaysVisits.forEach(v => {
-    const p = appState.patients.find(p => p.id === v.patientId);
-    if (!p) return;
+  // Demo: Show all patients as "Scheduled" for today if no visit exists today
+  appState.patients.forEach(p => {
+    // Check if visited today
+    const todayStr = d.toISOString().slice(0,10);
+    const hasVisit = appState.visits.find(v => v.patientId === p.id && v.date.startsWith(todayStr));
     
-    const timeStr = new Date(v.startAt).toTimeString().slice(0,5);
-    const div = document.createElement("div");
-    div.className = "visit-card";
-    
-    // 完了/予定のタグ色分け
-    const statusLabel = v.status === 'completed' ? '完了' : '予定';
-    const tagClass = v.status === 'completed' ? 'tag-gray' : 'tag-red';
-
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:bold; font-size:14px;">${timeStr} - ${p.lastName} ${p.firstName} 様</span>
-        <span class="tag ${tagClass}">${statusLabel}</span>
+    const card = document.createElement('div');
+    card.className = 'card flex justify-between items-center';
+    card.innerHTML = `
+      <div>
+        <div class="font-bold">${p.name} 様</div>
+        <div class="text-sm text-gray">${p.address}</div>
       </div>
-      <div style="font-size:12px; color:#666; margin-top:4px;">
-        ${p.address} | ${p.care}
+      <div>
+        ${hasVisit 
+          ? '<span class="tag tag-gray">完了</span>' 
+          : '<span class="tag tag-blue">予定あり</span>'}
       </div>
     `;
-    div.onclick = () => {
-      // クリックで記録画面へジャンプ
-      showView("record");
-      // ドロップダウン更新後に選択
-      setTimeout(() => {
-        const sel = document.getElementById("record-patient-select");
-        sel.value = p.id;
-        onRecordPatientChange();
-      }, 50);
-    };
-    listEl.appendChild(div);
-  });
-
-  renderMap();
-}
-
-// 簡易マップ描画
-function renderMap() {
-  const el = document.getElementById("mapContainer");
-  // 背景グリッド
-  el.innerHTML = '<div style="position:absolute; inset:0; background: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; opacity:0.4;"></div>';
-  
-  appState.patients.forEach(p => {
-    if(!p.loc) return;
-    const m = document.createElement("div");
-    m.className = "map-marker marker-patient";
-    // 座標は％指定(デモ用)
-    m.style.left = p.loc.x + "%";
-    m.style.top = p.loc.y + "%";
-    m.textContent = p.lastName;
-    el.appendChild(m);
+    card.onclick = () => openPatientDetail(p.id);
+    listEl.appendChild(card);
   });
 }
 
-
-/* --- Patients List Logic --- */
-function renderPatientsList() {
-  const tbody = document.getElementById("patient-list-tbody");
-  tbody.innerHTML = "";
-  const filterText = document.getElementById("patient-search").value.toLowerCase();
+/**
+ * ------------------------------------------------------------------
+ * 5. Patient List & Detail Logic
+ * ------------------------------------------------------------------
+ */
+function renderPatientList() {
+  const tbody = document.getElementById('patient-list-tbody');
+  tbody.innerHTML = '';
+  const search = document.getElementById('patient-search').value.toLowerCase();
 
   appState.patients.forEach(p => {
-    const fullName = p.lastName + p.firstName;
-    if (filterText && !fullName.includes(filterText)) return;
-
-    const tr = document.createElement("tr");
+    if (search && !p.name.includes(search) && !p.id.toLowerCase().includes(search)) return;
+    
+    const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="font-weight:bold;">${p.lastName} ${p.firstName}</td>
-      <td>${p.age}歳 / ${p.sex}</td>
-      <td>${p.care}</td>
-      <td style="font-size:11px;">${p.diag}</td>
-      <td><button class="btn btn-outline" style="padding:2px 8px; font-size:11px;" onclick="goToRecord('${p.id}')">記録</button></td>
+      <td>${p.id}</td>
+      <td class="font-bold">${p.name}</td>
+      <td>${getAge(p.dob)}歳 / ${p.gender}</td>
+      <td><span class="tag tag-green">${p.careLevel}</span></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openPatientDetail('${p.id}')">詳細・記録</button></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-function showAddPatientModal() {
-  alert("デモ版のため、新規登録機能は省略されています。");
+function getAge(dobStr) {
+  const dob = new Date(dobStr);
+  const now = new Date();
+  return Math.floor((now - dob) / 31557600000);
 }
 
-function goToRecord(pid) {
-  showView("record");
-  setTimeout(() => {
-    const sel = document.getElementById("record-patient-select");
-    sel.value = pid;
-    onRecordPatientChange();
-  }, 50);
-}
-
-
-/* --- Record / AI Logic --- */
-function initRecordView() {
-  const sel = document.getElementById("record-patient-select");
-  // 選択肢を再生成（重複回避のため一度空にする手もあるが、ここでは追加チェック）
-  if(sel.options.length <= 1) {
-    appState.patients.forEach(p => {
-      const opt = document.createElement("option");
-      opt.value = p.id;
-      opt.textContent = `${p.lastName} ${p.firstName} (${p.age}歳)`;
-      sel.appendChild(opt);
-    });
-  }
-  
-  // 日付の初期値を今日に
-  document.getElementById("rec-date").valueAsDate = new Date();
-  document.getElementById("rec-time-start").value = new Date().toTimeString().slice(0,5);
-}
-
-// 利用者選択時の処理
-function onRecordPatientChange() {
-  const pid = document.getElementById("record-patient-select").value;
+function openPatientDetail(pid) {
   currentPatientId = pid;
   const p = appState.patients.find(x => x.id === pid);
-  
-  const infoDiv = document.getElementById("record-patient-info");
-  
-  if (!p) {
-    infoDiv.style.display = "none";
-    clearRecordForm();
-    return;
-  }
+  if (!p) return;
 
-  // 基本情報表示
-  infoDiv.style.display = "block";
-  document.getElementById("p-info-basic").textContent = `${p.lastName} ${p.firstName} (${p.age}歳 / ${p.sex})`;
-  document.getElementById("p-info-detail").textContent = `住所: ${p.address} | 病名: ${p.diag}`;
+  // Render Basic Info
+  document.getElementById('detail-profile').innerHTML = `
+    <strong>氏名:</strong> ${p.name} (${p.kana})<br>
+    <strong>年齢/性別:</strong> ${getAge(p.dob)}歳 / ${p.gender}<br>
+    <strong>要介護度:</strong> ${p.careLevel}<br>
+    <strong>住所:</strong> ${p.address}<br>
+    <strong>診断名:</strong> ${p.diagnosis}
+  `;
 
-  // グラフ更新
-  renderMiniChart(pid);
-
-  // 過去の記録履歴を表示
-  const histEl = document.getElementById("record-history-list");
-  histEl.innerHTML = "";
-  const visits = appState.visits
+  // Render History
+  const histEl = document.getElementById('detail-history-list');
+  histEl.innerHTML = '';
+  const pVisits = appState.visits
     .filter(v => v.patientId === pid)
-    .sort((a,b) => new Date(b.startAt) - new Date(a.startAt)); // 新しい順
-    
-  visits.forEach(v => {
-    const d = document.createElement("div");
-    d.className = "visit-card";
-    d.style.marginBottom = "8px";
-    
-    const dateStr = new Date(v.startAt).toLocaleDateString() + " " + new Date(v.startAt).toTimeString().slice(0,5);
-    const shortSoap = v.soap ? v.soap.substring(0, 80) + (v.soap.length>80?"...":"") : "(記録なし)";
-    
-    d.innerHTML = `
-      <div style="font-size:11px; font-weight:bold; color:#555;">${dateStr} <span class="tag ${v.status==='completed'?'tag-gray':'tag-red'}">${v.status}</span></div>
-      <div style="font-size:12px; white-space:pre-wrap; margin-top:4px;">${shortSoap}</div>
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if(pVisits.length === 0) histEl.innerHTML = '<div class="text-sm text-gray p-2">記録はまだありません</div>';
+
+  pVisits.forEach(v => {
+    const d = new Date(v.date);
+    const dateStr = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `
+      <div class="flex justify-between items-center mb-2">
+        <span class="font-bold text-sm">${dateStr}</span>
+        <span class="text-sm text-gray">担当: ${v.staffName}</span>
+      </div>
+      <div class="text-sm" style="white-space:pre-wrap; color:#374151;">S: ${v.s || ''}</div>
     `;
-    histEl.appendChild(d);
+    div.onclick = () => openRecordEditor(v.id); // Edit mode
+    histEl.appendChild(div);
   });
-  
-  // フォームリセット
-  clearRecordForm();
-  document.getElementById("rec-date").valueAsDate = new Date();
-  document.getElementById("rec-time-start").value = new Date().toTimeString().slice(0,5);
+
+  // Render Chart
+  renderChart(pVisits);
+
+  navigate('patient-detail');
 }
 
-// Chart.jsを使ったバイタルグラフ描画
-function renderMiniChart(pid) {
-  const ctx = document.getElementById("vitalsChartMini").getContext("2d");
-  if(vitalsChart) vitalsChart.destroy();
+function renderChart(visits) {
+  const ctx = document.getElementById('chart-vitals').getContext('2d');
+  if (vitalsChartInstance) vitalsChartInstance.destroy();
+
+  // Reverse to chrono order for chart
+  const data = [...visits].reverse().filter(v => v.vitals && v.vitals.bpSys);
   
-  // 対象患者のバイタルデータを取得（日付順）
-  const pVitals = appState.vitals
-    .filter(v => v.patientId === pid)
-    .sort((a,b) => new Date(a.measuredAt) - new Date(b.measuredAt));
-  
-  vitalsChart = new Chart(ctx, {
+  vitalsChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: pVitals.map(v => {
-        const d = new Date(v.measuredAt);
+      labels: data.map(v => {
+        const d = new Date(v.date);
         return `${d.getMonth()+1}/${d.getDate()}`;
       }),
       datasets: [
-        { 
-          label: '収縮期血圧', 
-          data: pVitals.map(v => v.bpSys), 
-          borderColor: '#ef4444', 
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          tension: 0.1,
-          fill: true
-        }
+        { label: '収縮期血圧', data: data.map(v => v.vitals.bpSys), borderColor: '#ef4444', tension: 0.1 },
+        { label: '拡張期血圧', data: data.map(v => v.vitals.bpDia), borderColor: '#fca5a5', tension: 0.1 },
+        { label: '脈拍', data: data.map(v => v.vitals.pulse), borderColor: '#3b82f6', tension: 0.1, hidden: true }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { 
-        y: { beginAtZero: false, suggestedMin: 80, suggestedMax: 160 } 
-      }
+      scales: { y: { suggestedMin: 50, suggestedMax: 160 } }
     }
   });
 }
 
-// フォームのクリア
-function clearRecordForm() {
-  document.getElementById("rec-raw-input").value = "";
-  document.getElementById("rec-soap").value = "";
-  document.getElementById("rec-bp-sys").value = "";
-  document.getElementById("rec-bp-dia").value = "";
-  document.getElementById("rec-temp").value = "";
-  document.getElementById("rec-spo2").value = "";
-  document.getElementById("rec-visit-id").value = "";
+/**
+ * ------------------------------------------------------------------
+ * 6. Record Editor & AI Logic
+ * ------------------------------------------------------------------
+ */
+function startNewRecord() {
+  document.getElementById('editor-mode-label').textContent = '新規記録作成';
+  document.getElementById('edit-visit-id').value = '';
+  
+  // Defaults
+  const now = new Date();
+  // formatting for datetime-local: YYYY-MM-DDTHH:mm
+  const localIso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  document.getElementById('edit-datetime').value = localIso;
+  document.getElementById('edit-staff').value = appState.currentUser.name;
+  
+  // Clear fields
+  ['edit-temp','edit-bp-sys','edit-bp-dia','edit-pulse','edit-spo2',
+   'edit-soap-s','edit-soap-o','edit-soap-a','edit-soap-p','ai-raw-input']
+   .forEach(id => document.getElementById(id).value = '');
+
+  navigate('record-editor');
 }
 
-/* --- AI & Save Actions --- */
+function openRecordEditor(visitId) {
+  const v = appState.visits.find(x => x.id === visitId);
+  if(!v) return;
 
-// 音声入力デモボタン
-function startVoiceDemo() {
-  const txt = document.getElementById("rec-raw-input");
-  txt.value = "（音声聞き取り中...）";
+  document.getElementById('editor-mode-label').textContent = '過去記録の編集';
+  document.getElementById('edit-visit-id').value = v.id;
+  
+  // Fill data
+  const d = new Date(v.date);
+  const localIso = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  document.getElementById('edit-datetime').value = localIso;
+  document.getElementById('edit-staff').value = v.staffName;
+
+  if(v.vitals) {
+    document.getElementById('edit-temp').value = v.vitals.temp || '';
+    document.getElementById('edit-bp-sys').value = v.vitals.bpSys || '';
+    document.getElementById('edit-bp-dia').value = v.vitals.bpDia || '';
+    document.getElementById('edit-pulse').value = v.vitals.pulse || '';
+    document.getElementById('edit-spo2').value = v.vitals.spo2 || '';
+  }
+
+  document.getElementById('edit-soap-s').value = v.s || '';
+  document.getElementById('edit-soap-o').value = v.o || '';
+  document.getElementById('edit-soap-a').value = v.a || '';
+  document.getElementById('edit-soap-p').value = v.p || '';
+  document.getElementById('ai-raw-input').value = ''; // Clear AI input on edit
+
+  navigate('record-editor');
+}
+
+function closeRecordEditor() {
+  if (currentPatientId) {
+    openPatientDetail(currentPatientId);
+  } else {
+    navigate('dashboard');
+  }
+}
+
+// AI Functions
+function demoVoiceInput() {
+  const box = document.getElementById('ai-raw-input');
+  box.value = '(音声認識中...)';
   setTimeout(() => {
-    txt.value = "本日は顔色良好。食事は全量摂取できたが、少し足のむくみがあるとのこと。バイタルは安定しているが、塩分摂取について指導を行った。家族からは夜間のトイレ回数が増えたとの相談あり。";
-  }, 1500);
+    box.value = '本日の訪問時、顔色は良好。バイタルは血圧130/80、体温36.6度。足のむくみは軽減している。本人は「昨日はよく眠れた」と話す。服薬カレンダーを確認し、残薬なし。次回はリハビリの様子を確認する。';
+  }, 1000);
 }
 
-// AI生成デモ
-function generateAIReport() {
-  const raw = document.getElementById("rec-raw-input").value;
-  const soapArea = document.getElementById("rec-soap");
-  
-  if(!raw) return alert("生成元となるメモを入力してください");
+function generateSOAP() {
+  const raw = document.getElementById('ai-raw-input').value;
+  if (!raw) return alert('生成元のテキストを入力してください。');
 
-  soapArea.classList.add("typing");
-  soapArea.value = "";
+  // Simple rule-based mock AI for demo
+  document.getElementById('edit-soap-s').value = 'AI生成中...';
   
-  // デモ用の生成テキスト（本来はAPIから取得）
-  const soapText = `S: 「足のむくみがある」「夜間のトイレ回数が増えた」
-O: 顔色良好、食事全量摂取。下肢浮腫(+)、BP安定。
-A: 心不全徴候の著しい悪化なし。夜間頻尿は浮腫に関連する可能性。
-P: 
-1. 塩分制限の再指導
-2. 下肢挙上の励行
-3. 次回訪問時、体重変動と浮腫の評価`;
+  setTimeout(() => {
+    // Fill Logic
+    document.getElementById('edit-soap-s').value = `・「昨日はよく眠れた」との発言あり\n・足のむくみ軽減の自覚あり`;
+    document.getElementById('edit-soap-o').value = `・顔色良、覚醒清明\n・下肢浮腫: 軽減傾向\n・残薬: なし(コンプライアンス良好)`;
+    document.getElementById('edit-soap-a').value = `・状態安定しており、服薬管理もできている。\n・睡眠状況の改善によりQOL向上が見られる。`;
+    document.getElementById('edit-soap-p').value = `・現行プラン継続\n・次回訪問時、リハビリ実施状況の確認`;
 
-  let i = 0;
-  function typeWriter() {
-    if (i < soapText.length) {
-      soapArea.value += soapText.charAt(i);
-      i++;
-      setTimeout(typeWriter, 15); // 打鍵エフェクト
-    } else {
-      soapArea.classList.remove("typing");
-    }
-  }
-  typeWriter();
+    // Extract Vitals Mock
+    if (raw.includes('130')) document.getElementById('edit-bp-sys').value = 130;
+    if (raw.includes('80')) document.getElementById('edit-bp-dia').value = 80;
+    if (raw.includes('36.6')) document.getElementById('edit-temp').value = 36.6;
+    
+    alert('AIによるSOAP生成が完了しました');
+  }, 1000);
 }
 
-// 保存処理（電子カルテロジック）
-function saveVisitRecord(e) {
+function saveRecord(e) {
   e.preventDefault();
-  if(!currentPatientId) return alert("患者を選択してください");
+  const vid = document.getElementById('edit-visit-id').value;
+  const isNew = !vid;
 
-  const soap = document.getElementById("rec-soap").value;
-  const dateVal = document.getElementById("rec-date").value;
-  const timeVal = document.getElementById("rec-time-start").value;
-  
-  if(!dateVal || !timeVal) return alert("日時を入力してください");
-
-  const startAtStr = dateVal + "T" + timeVal;
-  
-  // 1. Visitデータの保存
-  const newVisit = {
-    id: genId(),
+  const newRecord = {
+    id: isNew ? 'V' + Date.now() : vid,
     patientId: currentPatientId,
-    startAt: new Date(startAtStr).toISOString(),
-    type: "regular",
-    status: "completed",
-    soap: soap
+    staffName: document.getElementById('edit-staff').value,
+    date: new Date(document.getElementById('edit-datetime').value).toISOString(),
+    status: 'completed',
+    s: document.getElementById('edit-soap-s').value,
+    o: document.getElementById('edit-soap-o').value,
+    a: document.getElementById('edit-soap-a').value,
+    p: document.getElementById('edit-soap-p').value,
+    vitals: {
+      temp: document.getElementById('edit-temp').value,
+      bpSys: document.getElementById('edit-bp-sys').value,
+      bpDia: document.getElementById('edit-bp-dia').value,
+      pulse: document.getElementById('edit-pulse').value,
+      spo2: document.getElementById('edit-spo2').value
+    }
   };
-  
-  // 既存配列に追加
-  appState.visits.push(newVisit);
 
-  // 2. Vitalデータの保存 (値がある場合のみ)
-  const sys = document.getElementById("rec-bp-sys").value;
-  if(sys) {
-    appState.vitals.push({
-      patientId: currentPatientId,
-      measuredAt: new Date(startAtStr).toISOString(),
-      bpSys: sys,
-      bpDia: document.getElementById("rec-bp-dia").value,
-      temp: document.getElementById("rec-temp").value,
-      spo2: document.getElementById("rec-spo2").value
-    });
+  if (isNew) {
+    appState.visits.push(newRecord);
+  } else {
+    const idx = appState.visits.findIndex(v => v.id === vid);
+    if(idx !== -1) appState.visits[idx] = newRecord;
   }
 
-  // ストレージ保存
   saveState();
-  
-  alert("記録を保存しました");
-  
-  // 画面更新
-  onRecordPatientChange(); 
-  // ダッシュボード等も更新されるようリセット
-  showView("record");
+  alert('記録を保存しました');
+  closeRecordEditor();
 }
 
+// Start
+document.addEventListener('DOMContentLoaded', () => {
+  // Check if already logged in (Simple session persist)
+  loadState();
+  // Force login screen for demo purpose if not in session, or just allow auto-login logic
+  // For this full demo, let's start at login screen unless we want to auto-login.
+  // Uncomment below to force login every reload:
+  // appState.currentUser = null; 
+});
 </script>
 </body>
 </html>
