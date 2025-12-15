@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Ultimate Plus Edition</title>
+<title>CareNexus AI : UI Polished Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -82,7 +82,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .cal-event.me { border-left: 3px solid #2563eb; }
 .cal-event.other { border-left: 3px solid #9ca3af; opacity: 0.7; }
 
-/* Risk Score Card (Detailed) */
+/* Risk Score Card */
 .risk-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; transition:0.2s; position:relative; overflow:hidden; }
 .risk-card.high { border-left: 4px solid var(--danger); }
 .risk-card.med { border-left: 4px solid var(--warning); }
@@ -101,7 +101,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .analysis-table td { padding:8px; border-bottom:1px solid #eee; }
 .analysis-table tr:last-child td { font-weight:bold; border-top:2px solid #ddd; border-bottom:none; background:#f9fafb; }
 
-/* Chat Layout (New) */
+/* Chat Layout */
 .chat-layout { display: grid; grid-template-columns: 1fr; gap: 10px; }
 @media(min-width: 700px) { .chat-layout { grid-template-columns: 120px 1fr; } }
 .chat-sidebar { display: flex; flex-direction: column; gap: 4px; }
@@ -109,9 +109,15 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .chat-user.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: bold; }
 .chat-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
 
-/* Todo Item */
-.todo-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-.todo-item input[type="checkbox"]:checked + span { text-decoration: line-through; color: #999; }
+/* Todo Item (Refined UI) */
+.todo-list { display: flex; flex-direction: column; gap: 8px; }
+.todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; transition: 0.2s; cursor: pointer; }
+.todo-item:hover { background: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+.todo-item input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: var(--primary); }
+.todo-item span { flex: 1; transition: 0.2s; }
+/* Checkbox checked state handled by JS to add class for styling */
+.todo-item.completed span { text-decoration: line-through; color: #9ca3af; }
+.todo-item.completed { background: #f3f4f6; border-color: #e5e7eb; }
 
 </style>
 </head>
@@ -141,17 +147,11 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
         <div class="flex-row" style="margin-bottom:16px; background:white; padding:10px; border-radius:8px; border:1px solid #e5e7eb; box-shadow:0 1px 2px rgba(0,0,0,0.05);">
             <div style="flex:1; border-right:1px solid #eee; display:flex; gap:8px; align-items:center;">
                 <i class="fa-solid fa-sun" style="color:#f59e0b; font-size:20px;"></i>
-                <div>
-                    <div style="font-size:11px; color:#666;">東京 八王子</div>
-                    <div style="font-weight:bold; font-size:14px;">晴れ 12℃</div>
-                </div>
+                <div><div style="font-size:11px; color:#666;">東京 八王子</div><div style="font-weight:bold; font-size:14px;">晴れ 12℃</div></div>
             </div>
             <div style="flex:1; display:flex; gap:8px; align-items:center; padding-left:10px;">
                 <i class="fa-solid fa-car" style="color:#6b7280; font-size:20px;"></i>
-                <div>
-                    <div style="font-size:11px; color:#666;">交通情報</div>
-                    <div style="font-weight:bold; font-size:14px; color:#10b981;">平常通り</div>
-                </div>
+                <div><div style="font-size:11px; color:#666;">交通情報</div><div style="font-weight:bold; font-size:14px; color:#10b981;">平常通り</div></div>
             </div>
         </div>
 
@@ -178,12 +178,21 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 <div class="panel">
                     <div class="panel-title">
                         マイタスク / ToDo
-                        <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i></button>
+                        <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i> 追加</button>
                     </div>
-                    <div id="todoList">
-                        <div class="todo-item"><input type="checkbox"><span>ケアマネ鈴木様へ連絡</span></div>
-                        <div class="todo-item"><input type="checkbox"><span>マスク・手袋の発注</span></div>
-                        <div class="todo-item"><input type="checkbox"><span>来月のシフト希望提出</span></div>
+                    <div id="todoList" class="todo-list">
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>ケアマネ鈴木様へ連絡</span>
+                        </label>
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>マスク・手袋の発注</span>
+                        </label>
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>来月のシフト希望提出</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -207,11 +216,8 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 <div class="cal-header">月</div><div class="cal-header">火</div><div class="cal-header">水</div>
                 <div class="cal-header">木</div><div class="cal-header">金</div><div class="cal-header" style="color:#2563eb;">土</div>
             </div>
-            
             <div style="margin-top:12px; font-size:12px; display:flex; gap:16px; border-top:1px solid #eee; padding-top:12px;">
-                <span><b>今月の訪問件数:</b> 45件</span>
-                <span><b>移動距離合計:</b> 120km</span>
-                <span><b>担当利用者:</b> 8名</span>
+                <span><b>今月の訪問件数:</b> 45件</span><span><b>移動距離合計:</b> 120km</span><span><b>担当利用者:</b> 8名</span>
             </div>
         </div>
     </section>
@@ -310,18 +316,9 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
             <div class="panel-title">多職種連携チャット (MCS連携)</div>
             <div class="chat-layout">
                 <div class="chat-sidebar">
-                    <div class="chat-user active" onclick="alert('Ch: Dr.佐藤')">
-                        <div class="chat-avatar" style="background:var(--primary);">Dr</div>
-                        <span>Dr.佐藤</span>
-                    </div>
-                    <div class="chat-user" onclick="alert('Ch: CM鈴木')">
-                        <div class="chat-avatar" style="background:#10b981;">CM</div>
-                        <span>CM鈴木</span>
-                    </div>
-                    <div class="chat-user" onclick="alert('Ch: 全体')">
-                        <div class="chat-avatar" style="background:#f59e0b;">All</div>
-                        <span>ステーション</span>
-                    </div>
+                    <div class="chat-user active" onclick="alert('Ch: Dr.佐藤')"><div class="chat-avatar" style="background:var(--primary);">Dr</div><span>Dr.佐藤</span></div>
+                    <div class="chat-user" onclick="alert('Ch: CM鈴木')"><div class="chat-avatar" style="background:#10b981;">CM</div><span>CM鈴木</span></div>
+                    <div class="chat-user" onclick="alert('Ch: 全体')"><div class="chat-avatar" style="background:#f59e0b;">All</div><span>ステーション</span></div>
                 </div>
                 <div style="display:flex; flex-direction:column; height:350px;">
                     <div style="flex:1; background:#f9fafb; border:1px solid var(--border); border-radius:8px; padding:10px; overflow-y:auto; margin-bottom:10px;">
@@ -331,13 +328,9 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                              <div style="background:white; border:1px solid #eee; padding:8px; border-radius:8px; font-size:13px; max-width:80%;">次回の訪問時、写真をお願いします。</div>
                         </div>
                     </div>
-                    <div class="flex-row">
-                        <input type="text" placeholder="メッセージ...">
-                        <button class="btn btn-primary">送信</button>
-                    </div>
+                    <div class="flex-row"><input type="text" placeholder="メッセージ..."><button class="btn btn-primary">送信</button></div>
                 </div>
             </div>
-            
             <div style="margin-top:16px; padding-top:12px; border-top:1px solid #eee;">
                 <label style="margin-bottom:8px;">共有ファイル / メディア一覧:</label>
                 <div class="flex-row">
@@ -346,7 +339,6 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                 </div>
             </div>
         </div>
-        
         <div class="panel">
             <div class="panel-title">外部ツール連携</div>
             <div class="grid-2">
@@ -472,7 +464,8 @@ function renderHome() {
     });
 }
 function goToPatient(id) { currentPatientId = id; document.getElementById('patientSelector').value = id; loadPatientData(id); setTab('record'); }
-function addTodo() { document.getElementById('todoList').innerHTML += `<div class="todo-item"><input type="checkbox"><span>新規タスク</span></div>`; }
+function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
+function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
 
 function renderPatientSelector() {
     const sel = document.getElementById('patientSelector'); sel.innerHTML = "";
