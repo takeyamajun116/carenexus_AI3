@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Secure Login Edition</title>
+<title>CareNexus AI : Full Schedule Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,8 +79,9 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .cal-cell { background: white; min-height: 80px; padding: 4px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; }
 .cal-header { background: #f9fafb; padding: 6px; text-align: center; font-weight: bold; font-size: 11px; }
 .cal-event { padding: 2px 4px; border-radius: 3px; font-size: 10px; color: white; cursor: pointer; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.cal-event.me { border-left: 3px solid #2563eb; }
-.cal-event.other { border-left: 3px solid #9ca3af; opacity: 0.7; }
+.cal-event.me { border-left: 3px solid #2563eb; background:var(--primary-light); color:var(--text-main); }
+.cal-event.other { border-left: 3px solid #9ca3af; opacity: 0.7; background:#f3f4f6; color:#666; }
+.cal-event.mtg { border-left: 3px solid #f59e0b; background:#fffbeb; color:#92400e; }
 
 /* Risk Score Card */
 .risk-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; transition:0.2s; position:relative; overflow:hidden; }
@@ -132,20 +133,10 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
     <div class="login-box">
         <h2 style="margin: 0 0 8px 0;">CareNexus AI</h2>
         <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 24px;">スタッフ認証を行ってください</p>
-        
         <input type="password" id="loginPin" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
-        
-        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px; margin-bottom: 12px;" onclick="checkLogin()">
-            ログイン
-        </button>
-        
-        <button class="btn btn-ghost" style="width: 100%;" onclick="checkLogin(true)">
-            <i class="fa-solid fa-face-smile"></i> Face ID / 生体認証
-        </button>
-        
-        <div style="margin-top: 20px; font-size: 11px; color: #999;">
-            Demo Passcode: 0000
-        </div>
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px; margin-bottom: 12px;" onclick="checkLogin()">ログイン</button>
+        <button class="btn btn-ghost" style="width: 100%;" onclick="checkLogin(true)"><i class="fa-solid fa-face-smile"></i> Face ID / 生体認証</button>
+        <div style="margin-top: 20px; font-size: 11px; color: #999;">Demo Passcode: 0000</div>
     </div>
 </div>
 
@@ -185,41 +176,24 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
         <div class="grid-2">
             <div class="panel">
                 <div class="panel-title">本日の訪問予定 (12/16)</div>
-                <div id="visitListContainer">
-                    </div>
+                <div id="visitListContainer"></div>
             </div>
-            
             <div class="flex-col">
                 <div class="panel">
                     <div class="panel-title">通知・アラート</div>
                     <div style="background:#fff7ed; border:1px solid #fdba74; color:#c2410c; padding:10px; border-radius:6px; font-size:13px; margin-bottom:8px;">
-                        <i class="fa-solid fa-triangle-exclamation"></i> <b>指示書期限切れアラート</b><br>
-                        田中 太郎様：あと2日で期限切れです。
+                        <i class="fa-solid fa-triangle-exclamation"></i> <b>指示書期限切れアラート</b><br>田中 太郎様：あと2日で期限切れです。
                     </div>
                     <div style="background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:10px; border-radius:6px; font-size:13px;">
-                        <i class="fa-solid fa-check-circle"></i> <b>レセプト送信完了</b><br>
-                        11月分の請求データ送信が完了しました。
+                        <i class="fa-solid fa-check-circle"></i> <b>レセプト送信完了</b><br>11月分の請求データ送信が完了しました。
                     </div>
                 </div>
-
                 <div class="panel">
-                    <div class="panel-title">
-                        マイタスク / ToDo
-                        <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i> 追加</button>
-                    </div>
+                    <div class="panel-title">マイタスク / ToDo <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i> 追加</button></div>
                     <div id="todoList" class="todo-list">
-                        <label class="todo-item">
-                            <input type="checkbox" onclick="toggleTodo(this)">
-                            <span>ケアマネ鈴木様へ連絡</span>
-                        </label>
-                        <label class="todo-item">
-                            <input type="checkbox" onclick="toggleTodo(this)">
-                            <span>マスク・手袋の発注</span>
-                        </label>
-                        <label class="todo-item">
-                            <input type="checkbox" onclick="toggleTodo(this)">
-                            <span>来月のシフト希望提出</span>
-                        </label>
+                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>ケアマネ鈴木様へ連絡</span></label>
+                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>マスク・手袋の発注</span></label>
+                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>来月のシフト希望提出</span></label>
                     </div>
                 </div>
             </div>
@@ -235,16 +209,14 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                         <button class="btn btn-sm btn-primary" style="border:none;">自分</button>
                         <button class="btn btn-sm btn-ghost" style="border:none;">全員</button>
                     </div>
-                    <button class="btn btn-sm" onclick="alert('Googleカレンダーと同期しました')"><i class="fa-solid fa-rotate"></i> 同期</button>
+                    <button class="btn btn-sm" onclick="alert('同期完了')"><i class="fa-solid fa-rotate"></i> 同期</button>
                 </div>
             </div>
             <div class="calendar-grid" id="monthCalendar">
-                <div class="cal-header" style="color:#ef4444;">日</div>
-                <div class="cal-header">月</div><div class="cal-header">火</div><div class="cal-header">水</div>
-                <div class="cal-header">木</div><div class="cal-header">金</div><div class="cal-header" style="color:#2563eb;">土</div>
+                <div class="cal-header" style="color:#ef4444;">日</div><div class="cal-header">月</div><div class="cal-header">火</div><div class="cal-header">水</div><div class="cal-header">木</div><div class="cal-header">金</div><div class="cal-header" style="color:#2563eb;">土</div>
             </div>
             <div style="margin-top:12px; font-size:12px; display:flex; gap:16px; border-top:1px solid #eee; padding-top:12px;">
-                <span><b>今月の訪問件数:</b> 45件</span><span><b>移動距離合計:</b> 120km</span><span><b>担当利用者:</b> 8名</span>
+                <span><b>今月の訪問件数:</b> 98件</span><span><b>移動距離合計:</b> 240km</span><span><b>担当利用者:</b> 8名</span>
             </div>
         </div>
     </section>
@@ -272,18 +244,10 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
         <div class="panel">
             <div class="panel-title">バイタルサイン入力 (全項目) <button class="btn btn-sm" onclick="alert('Bluetooth機器連携完了')"><i class="fa-brands fa-bluetooth"></i> 機器連携</button></div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:10px; margin-bottom:16px;">
-                <div><label>血圧(上)</label><input type="number" id="v_sbp"></div>
-                <div><label>血圧(下)</label><input type="number" id="v_dbp"></div>
-                <div><label>脈拍</label><input type="number" id="v_pulse"></div>
-                <div><label>呼吸数</label><input type="number" id="v_resp"></div>
-                <div><label>SpO2</label><input type="number" id="v_spo2"></div>
-                <div><label>体温</label><input type="number" id="v_temp"></div>
-                <div><label>体重</label><input type="number" id="v_weight"></div>
+                <div><label>血圧(上)</label><input type="number" id="v_sbp"></div><div><label>血圧(下)</label><input type="number" id="v_dbp"></div><div><label>脈拍</label><input type="number" id="v_pulse"></div><div><label>呼吸数</label><input type="number" id="v_resp"></div><div><label>SpO2</label><input type="number" id="v_spo2"></div><div><label>体温</label><input type="number" id="v_temp"></div><div><label>体重</label><input type="number" id="v_weight"></div>
             </div>
             <div style="height:250px; width:100%; margin-bottom:16px;"><canvas id="vitalChart"></canvas></div>
-            <div style="overflow-x:auto;">
-                <table class="vital-table" id="vitalHistoryTable"><thead><tr><th>日時</th><th>BP(上)</th><th>BP(下)</th><th>脈拍</th><th>呼吸</th><th>SpO2</th><th>体温</th></tr></thead><tbody></tbody></table>
-            </div>
+            <div style="overflow-x:auto;"><table class="vital-table" id="vitalHistoryTable"><thead><tr><th>日時</th><th>BP(上)</th><th>BP(下)</th><th>脈拍</th><th>呼吸</th><th>SpO2</th><th>体温</th></tr></thead><tbody></tbody></table></div>
         </div>
         <div class="grid-2">
             <div class="panel">
@@ -323,9 +287,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
                     <label>帳票作成:</label>
                     <div class="flex-row" style="margin-top:4px;"><button class="btn btn-sm"><i class="fa-solid fa-file-contract"></i> 計画書・報告書</button><select style="font-size:11px; padding:4px;"><option>特化帳票を選択...</option><option>精神科GAF尺度</option><option>リハビリ実施計画書</option></select></div>
                 </div>
-                <div style="margin-top:16px;">
-                    <label>利用者署名:</label><div style="width:100%; height:80px; border:1px solid #ccc; background:white;"></div>
-                </div>
+                <div style="margin-top:16px;"><label>利用者署名:</label><div style="width:100%; height:80px; border:1px solid #ccc; background:white;"></div></div>
             </div>
             <div class="panel" style="height:fit-content;">
                 <div class="panel-title" style="color:var(--primary); border-bottom:2px solid var(--primary);"><i class="fa-solid fa-robot"></i> AI算定加算エンジン</div>
@@ -449,7 +411,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 </div>
 
 <script>
-/* ================= DATA ================= */
+/* ================= DATA & INIT ================= */
 let currentPatientId = 1;
 let isAdmin = false;
 
@@ -458,54 +420,36 @@ const patients = [
     { id: 2, name: "佐藤 花子", age: 78, addr: "港区", level: "要介護5", map:{x:70, y:20}, vitals:{sbp:140, dbp:82, p:85, resp:20, spo2:95, temp:37.1, w:42.0} },
     { id: 3, name: "鈴木 一郎", age: 65, addr: "渋谷区", level: "要支援2", map:{x:50, y:70}, vitals:{sbp:120, dbp:70, p:68, resp:14, spo2:99, temp:36.2, w:70.0} }
 ];
-
 const staffs = [
     { id: 101, name: "Ns.山田", x: 35, y: 45, status: "訪問中", risk: 85, riskLevel:"high", stats: { overtime: "45h", recordDelay: "15件", travel: "200km" } },
     { id: 102, name: "Ns.鈴木", x: 65, y: 25, status: "移動中", risk: 20, riskLevel:"low", stats: { overtime: "5h", recordDelay: "0件", travel: "80km" } },
     { id: 103, name: "Ns.佐藤", x: 55, y: 65, status: "休憩中", risk: 45, riskLevel:"med", stats: { overtime: "15h", recordDelay: "3件", travel: "150km" } }
 ];
-
 const billingRules = [ { keyword: "褥瘡", name: "真皮を超える褥瘡", point: 500 }, { keyword: "看取り", name: "ターミナルケア加算", point: 2500 }, { keyword: "緊急", name: "緊急時訪問看護加算", point: 574 } ];
 
-/* ================= INIT ================= */
 window.onload = () => {
-    // Show login overlay first
+    // Show login first
     renderHome(); renderCalendar(); renderPatientSelector();
     loadPatientData(currentPatientId); renderAdminMap(); renderRiskScores(); initChart();
 };
 
-/* ================= LOGIN & LOCK ================= */
-function checkLogin(isBio = false) {
-    const pin = document.getElementById('loginPin').value;
-    const overlay = document.getElementById('loginOverlay');
-    
-    if(isBio) {
-        alert("Face ID認証に成功しました");
-        overlay.style.display = 'none';
-        return;
-    }
-    
-    if(pin === '0000') {
-        overlay.style.display = 'none';
+/* ================= LOGIN ================= */
+function checkLogin(isBio) {
+    if(isBio || document.getElementById('loginPin').value === '0000') {
+        document.getElementById('loginOverlay').style.display = 'none';
     } else {
         alert('パスコードが違います (0000)');
-        document.getElementById('loginPin').value = "";
     }
 }
+function lockScreen() { document.getElementById('loginOverlay').style.display = 'flex'; document.getElementById('loginPin').value = ''; }
 
-function lockScreen() {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('loginPin').value = "";
-}
-
-/* ================= LOGIC ================= */
+/* ================= APP LOGIC ================= */
 function setTab(tabId) {
     if(tabId === 'admin' && !isAdmin) { alert("管理者権限が必要です。"); return; }
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     const tabs = ['home','calendar','record','collab','newuser','admin'];
-    const idx = tabs.indexOf(tabId);
-    if(idx >= 0) document.querySelectorAll('.tab')[idx].classList.add('active');
+    document.querySelectorAll('.tab')[tabs.indexOf(tabId)].classList.add('active');
     document.getElementById('sect-'+tabId).classList.add('active');
 }
 
@@ -600,7 +544,19 @@ function renderRiskScores() {
     });
 }
 
-function renderCalendar() { const c = document.getElementById('monthCalendar'); while(c.children.length>7)c.lastChild.remove(); for(let i=1;i<=31;i++) c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${i==16?'<div class="cal-event me" style="background:var(--primary);">田中様(自)</div><div class="cal-event other">佐藤様(他)</div>':''}</div>`; }
+function renderCalendar() { 
+    const c = document.getElementById('monthCalendar'); 
+    while(c.children.length>7)c.lastChild.remove(); 
+    // Random filling
+    for(let i=1;i<=31;i++) {
+        let ev = "";
+        const r = Math.random();
+        if(r > 0.6) ev += `<div class="cal-event me">田中様(自)</div>`;
+        if(r > 0.8) ev += `<div class="cal-event other">佐藤様(他)</div>`;
+        if(i===15) ev += `<div class="cal-event mtg">会議</div>`;
+        c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${ev}</div>`;
+    }
+}
 function toggleClockIn() { alert("打刻しました"); }
 function toggleOffline() { alert("オフラインモード切替"); }
 function copyPrevious() { document.getElementById('aiInputMemo').value = "前回記録: 褥瘡処置実施。本人痛みなし。"; }
