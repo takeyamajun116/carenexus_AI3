@@ -510,6 +510,7 @@ function checkLogin(isBio) {
     if(isBio || document.getElementById('loginPin').value === '0000') {
         document.getElementById('loginOverlay').style.display = 'none';
         showToast();
+        renderBilling();
     } else { alert('パスコードが違います (0000)'); }
 }
 function showToast() { const t = document.getElementById('toast'); t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000); }
@@ -601,7 +602,7 @@ function renderRiskScores() {
     });
 }
 
-function renderCalendar() { const c = document.getElementById('monthCalendar'); while(c.children.length>7)c.lastChild.remove(); for(let i=1;i<=31;i++) { let ev = ""; const r = Math.random(); if(r>0.6) ev += `<div class="cal-event me">田中様</div>`; if(r>0.8) ev += `<div class="cal-event other">佐藤様</div>`; c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${ev}</div>`; } }
+function renderCalendar() { const c = document.getElementById('monthCalendar'); while(c.children.length>7)c.lastChild.remove(); for(let i=1;i<=31;i++) c.innerHTML+=`<div class="cal-cell"><div style="text-align:right; color:#999;">${i}</div>${i==16?'<div style="background:var(--primary); color:white; font-size:10px; padding:2px;">田中様</div>':''}</div>`; }
 function toggleClockIn() { alert("打刻しました"); }
 function toggleOffline() { alert("オフラインモード切替"); }
 function copyPrevious() { document.getElementById('aiInputMemo').value = "前回記録: 褥瘡処置実施。本人痛みなし。"; }
@@ -620,9 +621,6 @@ function updateChart(v) {
     d[0].data=[v.sbp-2,v.sbp+1,v.sbp-1,v.sbp,v.sbp]; d[1].data=[v.dbp-2,v.dbp+1,v.dbp-1,v.dbp,v.dbp]; d[2].data=[v.p-1,v.p+2,v.p,v.p-2,v.p]; 
     d[3].data=[v.temp,v.temp,v.temp,v.temp,v.temp]; chart.update(); 
 }
-</style>
-/* Gantt Bar CSS Fix */
-.gantt-bar { background: var(--primary); color: white; border-radius: 4px; display: flex; align-items: center; padding: 0 4px; overflow: hidden; white-space: nowrap; font-size: 10px; position: absolute; top: 5px; bottom: 5px; }
 </script>
 </body>
 </html>
