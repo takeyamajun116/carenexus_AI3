@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Complete Integrated Version</title>
+<title>CareNexus AI : Final Fixed Version</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -56,7 +56,7 @@ label { font-size: 11px; font-weight: bold; color: var(--text-sub); display: blo
 color: var(--text-main); }
 .tag { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: #eee; margin-right: 4px; }
 
-/* ========== Login Screen (復活) ========== */
+/* ========== Login Screen ========== */
 #loginScreen { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
 .pin-input { display: flex; gap: 10px; margin: 20px 0; }
 .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; background: transparent; transition:0.2s; }
@@ -120,7 +120,7 @@ white-space: nowrap; transition:0.2s; }
 .task-bar.break { background: #f3f4f6; color: #666; border: 1px solid #ddd; }
 .task-bar.travel { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
 
-/* === Other Utils (Timeline, Billing etc.) === */
+/* === Other Utils === */
 .timeline-container { position: relative; padding-left: 20px; border-left: 3px solid #e5e7eb; margin-left: 8px; margin-top: 10px; }
 .timeline-item { position: relative; margin-bottom: 24px; }
 .timeline-dot { position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid white; box-shadow: 0 0 0 2px #e5e7eb; }
@@ -134,8 +134,15 @@ white-space: nowrap; transition:0.2s; }
 .analysis-table { width:100%; border-collapse:collapse; font-size:12px; }
 .analysis-table th, .analysis-table td { border:1px solid #ccc; padding:8px; text-align:center; }
 .analysis-table th { background:#f9fafb; }
-.todo-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; transition: 0.2s; margin-bottom:6px; }
+
+/* 修正箇所②: ToDoのレイアウト崩れ防止 */
+.todo-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; transition: 0.2s; margin-bottom:6px; flex-wrap: nowrap; }
+.todo-item span { flex: 1; word-break: break-all; } /* テキストが長くても崩れないように */
 .todo-item.completed { opacity:0.6; text-decoration:line-through; background:#f9fafb; }
+
+/* 修正箇所③: 労働負荷バー */
+.load-bar-bg { background: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+.load-bar-val { height: 100%; background: var(--primary); }
 
 </style>
 </head>
@@ -193,6 +200,24 @@ white-space: nowrap; transition:0.2s; }
         <div class="grid-2">
             <div>
                 <div class="panel">
+                    <div class="panel-title">本日の訪問予定 (3件)</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <div class="flex-between" style="padding:8px; border-bottom:1px solid #eee;">
+                            <div><div style="font-weight:bold; font-size:13px;">田中 太郎 様</div><div style="font-size:11px; color:#666;">09:00 - 定期巡回</div></div>
+                            <span class="tag" style="background:#dcfce7; color:#15803d;">完了</span>
+                        </div>
+                        <div class="flex-between" style="padding:8px; border-bottom:1px solid #eee;">
+                            <div><div style="font-weight:bold; font-size:13px;">佐藤 花子 様</div><div style="font-size:11px; color:#666;">11:00 - 入浴介助</div></div>
+                            <span class="tag" style="background:#dbeafe; color:#1e40af;">進行中</span>
+                        </div>
+                        <div class="flex-between" style="padding:8px;">
+                            <div><div style="font-weight:bold; font-size:13px;">鈴木 一郎 様</div><div style="font-size:11px; color:#666;">13:30 - リハビリ</div></div>
+                            <span class="tag">予定</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
                     <div class="panel-title">1日のタイムライン (自分)</div>
                     <div class="timeline-container">
                         <div class="timeline-item">
@@ -246,8 +271,8 @@ white-space: nowrap; transition:0.2s; }
                 <div class="panel">
                     <div class="panel-title">マイタスク (ToDo) <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i></button></div>
                     <div id="todoList">
-                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>ケアマネ鈴木様へ連絡</span></label>
-                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>マスク発注</span></label>
+                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>ケアマネ鈴木様へ連絡 (14:00まで)</span></label>
+                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>マスク・消毒液の発注</span></label>
                     </div>
                 </div>
             </div>
@@ -339,8 +364,7 @@ white-space: nowrap; transition:0.2s; }
             <div class="panel" style="height:fit-content;">
                 <div class="panel-title" style="color:var(--primary); border-bottom:2px solid var(--primary);"><i class="fa-solid fa-coins"></i> AI算定提案・承認</div>
                 <div style="font-size:12px; color:#666; margin-bottom:12px;">記録内容から算定可能な加算を提案します。</div>
-                <div id="billingSuggestionList">
-                    </div>
+                <div id="billingSuggestionList"></div>
                 <div style="margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
                     <div class="flex-between" style="font-weight:bold; font-size:16px;"><span>確定額</span><span id="billingGrandTotal">0 円</span></div>
                     <button class="btn btn-success" style="width:100%; margin-top:8px;">確定して保存</button>
@@ -446,6 +470,34 @@ white-space: nowrap; transition:0.2s; }
         </div>
 
         <div class="panel">
+            <div class="panel-title">労働負荷モニタリング (週間予測)</div>
+            <div style="font-size:12px;">
+                <div style="margin-bottom:12px;">
+                    <div class="flex-between" style="margin-bottom:4px;">
+                        <span>Ns.山田 (稼働率: 危険)</span>
+                        <span style="font-weight:bold; color:var(--danger);">95%</span>
+                    </div>
+                    <div class="load-bar-bg"><div class="load-bar-val" style="width:95%; background:var(--danger);"></div></div>
+                    <div style="text-align:right; font-size:10px; color:#666; margin-top:2px;">残業見込: 8.5時間/週</div>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <div class="flex-between" style="margin-bottom:4px;">
+                        <span>PT.鈴木 (稼働率: 適正)</span>
+                        <span style="font-weight:bold; color:var(--success);">75%</span>
+                    </div>
+                    <div class="load-bar-bg"><div class="load-bar-val" style="width:75%; background:var(--success);"></div></div>
+                </div>
+                <div>
+                    <div class="flex-between" style="margin-bottom:4px;">
+                        <span>Ns.高橋 (稼働率: やや高)</span>
+                        <span style="font-weight:bold; color:var(--warning);">82%</span>
+                    </div>
+                    <div class="load-bar-bg"><div class="load-bar-val" style="width:82%; background:var(--warning);"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
             <div class="panel-title">全スタッフ 訪問スケジュール</div>
             <div class="schedule-wrapper">
                 <table class="schedule-table">
@@ -509,7 +561,7 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
-// --- Login Logic (復活) ---
+// --- Login Logic ---
 let pinBuffer = "";
 function enterPin(num) {
     pinBuffer += num;
@@ -555,12 +607,12 @@ function setTab(id) {
     if(id === 'admin') setTimeout(renderMap, 100);
 }
 
-// --- Calendar Logic (JS Generated) ---
+// --- Calendar Logic ---
 function renderCalendar() {
     const container = document.getElementById('calendarContent');
-    if(container.innerHTML.trim() !== "") return; // 生成済みならスキップ
+    if(container.innerHTML.trim() !== "") return;
     const daysInMonth = 31;
-    let html = `<div class="cal-day" style="background:#f3f4f6"></div>`; // 1日が月曜始まり調整
+    let html = `<div class="cal-day" style="background:#f3f4f6"></div>`;
     for(let i=1; i<=daysInMonth; i++) {
         let events = "";
         if(i===16) events += `<span class="cal-event evt-visit">田中様</span><span class="cal-event evt-visit">佐藤様</span>`;
@@ -571,7 +623,7 @@ function renderCalendar() {
     container.innerHTML = html;
 }
 
-// --- Vital Chart (7 items) ---
+// --- Vital Chart ---
 let myChart;
 function initChart() {
     const ctx = document.getElementById('vitalChart').getContext('2d');
@@ -604,7 +656,7 @@ function initChart() {
 }
 function updateChart() { if(myChart) myChart.update(); alert("グラフを更新しました"); }
 
-// --- AI & Billing Logic (復活) ---
+// --- AI & Billing Logic ---
 function runAIGeneration() {
     const btn = document.getElementById('btnGen');
     btn.innerHTML = "生成中...";
@@ -620,7 +672,6 @@ function startVoiceInput() { document.getElementById('aiInputMemo').value += " �
 function toggleFaceSheet() { const el = document.getElementById('faceSheetPanel'); el.style.display = el.style.display==='none'?'block':'none'; }
 function goToPatient(id) { document.getElementById('patientSelector').value = id; setTab('record'); }
 
-// 算定ロジック
 const billingRules = [
     { name: "緊急時訪問看護加算", point: 540, reason: "24h対応" },
     { name: "特別管理加算(II)", point: 250, reason: "褥瘡管理" }
@@ -641,7 +692,7 @@ function initBilling() {
     calcBilling();
 }
 function calcBilling() {
-    let total = 5550; // 基本料
+    let total = 5550;
     document.querySelectorAll('#billingSuggestionList input:checked').forEach(e => {
         total += parseInt(e.dataset.p) * 10;
     });
@@ -662,19 +713,28 @@ function renderMap() {
     });
 }
 
+// 修正箇所④: 管理者パスワード (復活)
 function toggleAdminMode() {
     const t = document.getElementById('adminTab');
     if(t.style.display === 'none' || !t.style.display) {
-        if(confirm("管理者モードに切り替えますか？")) { t.style.display = 'block'; setTab('admin'); }
+        // パスワード確認
+        const pass = prompt("管理者パスワードを入力してください", "");
+        if(pass === "admin") {
+            t.style.display = 'block';
+            setTab('admin');
+        } else if (pass !== null) {
+            alert("パスワードが違います");
+        }
     } else {
-        t.style.display = 'none'; setTab('home');
+        t.style.display = 'none';
+        setTab('home');
     }
 }
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
 
 window.onload = function() {
-    // ログイン画面表示のため初期ロード時は何もしない（HTMLでloginScreenが表示されている）
+    // ログイン画面表示済み
 };
 </script>
 </body>
