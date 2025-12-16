@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Corrected Version</title>
+<title>CareNexus AI : Final Adjusted Version</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -134,29 +134,30 @@ white-space: nowrap; transition:0.2s; }
 .analysis-table { width:100%; border-collapse:collapse; font-size:12px; }
 .analysis-table th, .analysis-table td { border:1px solid #ccc; padding:8px; text-align:center; }
 .analysis-table th { background:#f9fafb; }
-
-/* 修正箇所②: ToDoリストの改善 (視認性向上) */
 .todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; transition: 0.2s; margin-bottom:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
 .todo-item:hover { border-color: var(--primary); background: #fafafa; }
 .todo-item input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
 .todo-item span { flex: 1; line-height: 1.5; font-weight: 500; color: #333; }
 .todo-item.completed { opacity:0.6; background:#f9fafb; }
 .todo-item.completed span { text-decoration:line-through; color: #888; }
-
-/* 修正箇所③: バイタル表 (テーブルデザイン) */
 .vital-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 16px; }
 .vital-table th, .vital-table td { border: 1px solid #d1d5db; padding: 8px 4px; text-align: center; }
 .vital-table th { background: #f3f4f6; font-weight: bold; }
 .vital-table tr:nth-child(even) { background: #f9fafb; }
 
-/* 修正箇所④: 労働負荷モニタリング表 */
-.load-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-.load-table th, .load-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #eee; }
-.load-table th { background: #f3f4f6; font-weight: bold; color: #4b5563; }
-.load-score { font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; }
-.score-high { background: #fee2e2; color: #b91c1c; }
-.score-mid { background: #fef3c7; color: #b45309; }
-.score-low { background: #dcfce7; color: #15803d; }
+/* 修正箇所①: 労働負荷カード用CSS */
+.load-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.load-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
+.load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+.load-name { font-weight: bold; font-size: 15px; }
+.load-score-badge { font-size: 12px; font-weight: bold; padding: 4px 8px; border-radius: 12px; }
+.score-danger { background: #fee2e2; color: #b91c1c; }
+.score-warning { background: #fef3c7; color: #b45309; }
+.score-success { background: #dcfce7; color: #15803d; }
+.load-stat-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #4b5563; }
+.load-val { font-weight: bold; color: var(--text-main); }
+.load-bar-container { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 12px; }
+.load-bar-fill { height: 100%; border-radius: 4px; }
 
 </style>
 </head>
@@ -166,7 +167,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Final Version</p>
+        <p style="opacity: 0.8;">Final Adjusted</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -218,15 +219,24 @@ white-space: nowrap; transition:0.2s; }
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <div class="flex-between" style="padding:8px; border-bottom:1px solid #eee;">
                             <div><div style="font-weight:bold; font-size:13px;">田中 太郎 様</div><div style="font-size:11px; color:#666;">09:00 - 定期巡回</div></div>
-                            <span class="tag" style="background:#dcfce7; color:#15803d;">完了</span>
+                            <div class="flex-row">
+                                <span class="tag" style="background:#dcfce7; color:#15803d;">完了</span>
+                                <button class="btn btn-sm btn-primary" onclick="goToPatient(1)">記録</button>
+                            </div>
                         </div>
                         <div class="flex-between" style="padding:8px; border-bottom:1px solid #eee;">
                             <div><div style="font-weight:bold; font-size:13px;">佐藤 花子 様</div><div style="font-size:11px; color:#666;">11:00 - 入浴介助</div></div>
-                            <span class="tag" style="background:#dbeafe; color:#1e40af;">進行中</span>
+                            <div class="flex-row">
+                                <span class="tag" style="background:#dbeafe; color:#1e40af;">進行中</span>
+                                <button class="btn btn-sm btn-primary" onclick="goToPatient(2)">記録</button>
+                            </div>
                         </div>
                         <div class="flex-between" style="padding:8px;">
                             <div><div style="font-weight:bold; font-size:13px;">鈴木 一郎 様</div><div style="font-size:11px; color:#666;">13:30 - リハビリ</div></div>
-                            <span class="tag">予定</span>
+                            <div class="flex-row">
+                                <span class="tag">予定</span>
+                                <button class="btn btn-sm btn-primary" onclick="goToPatient(3)">記録</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -514,44 +524,45 @@ white-space: nowrap; transition:0.2s; }
 
         <div class="panel">
             <div class="panel-title">労働負荷モニタリング (週間分析)</div>
-            <div style="overflow-x:auto;">
-                <table class="load-table">
-                    <thead>
-                        <tr>
-                            <th>スタッフ</th>
-                            <th>労働時間<br><span style="font-size:10px;font-weight:normal">(残業)</span></th>
-                            <th>訪問<br>件数</th>
-                            <th>移動<br>距離</th>
-                            <th>負荷指数<br><span style="font-size:10px;font-weight:normal">(スコア)</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:bold;">Ns.山田</td>
-                            <td>45h <br><span style="color:var(--danger)">(+5h)</span></td>
-                            <td>28件</td>
-                            <td>120km</td>
-                            <td><span class="load-score score-high">危険 (92)</span></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:bold;">PT.鈴木</td>
-                            <td>38h <br><span style="color:#666">(0h)</span></td>
-                            <td>22件</td>
-                            <td>80km</td>
-                            <td><span class="load-score score-low">適正 (65)</span></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:bold;">Ns.高橋</td>
-                            <td>42h <br><span style="color:var(--warning)">(+2h)</span></td>
-                            <td>25件</td>
-                            <td>95km</td>
-                            <td><span class="load-score score-mid">注意 (78)</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div style="margin-top:12px; font-size:11px; color:#666; text-align:right;">
-                ※負荷指数 = (労働時間 + 移動距離/10 + 訪問件数*0.5) で算出
+            <div class="load-grid">
+                <div class="load-card">
+                    <div class="load-header">
+                        <span class="load-name">Ns.山田</span>
+                        <span class="load-score-badge score-danger">危険 (92)</span>
+                    </div>
+                    <div class="load-stat-row"><span>労働時間</span><span class="load-val">45h <span style="color:var(--danger)">(+5h)</span></span></div>
+                    <div class="load-stat-row"><span>訪問件数</span><span class="load-val">28件</span></div>
+                    <div class="load-stat-row"><span>移動距離</span><span class="load-val">120km</span></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:92%; background:var(--danger);"></div>
+                    </div>
+                </div>
+
+                <div class="load-card">
+                    <div class="load-header">
+                        <span class="load-name">PT.鈴木</span>
+                        <span class="load-score-badge score-success">適正 (65)</span>
+                    </div>
+                    <div class="load-stat-row"><span>労働時間</span><span class="load-val">38h <span style="color:#666">(0h)</span></span></div>
+                    <div class="load-stat-row"><span>訪問件数</span><span class="load-val">22件</span></div>
+                    <div class="load-stat-row"><span>移動距離</span><span class="load-val">80km</span></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:65%; background:var(--success);"></div>
+                    </div>
+                </div>
+
+                <div class="load-card">
+                    <div class="load-header">
+                        <span class="load-name">Ns.高橋</span>
+                        <span class="load-score-badge score-warning">注意 (78)</span>
+                    </div>
+                    <div class="load-stat-row"><span>労働時間</span><span class="load-val">42h <span style="color:var(--warning)">(+2h)</span></span></div>
+                    <div class="load-stat-row"><span>訪問件数</span><span class="load-val">25件</span></div>
+                    <div class="load-stat-row"><span>移動距離</span><span class="load-val">95km</span></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:78%; background:var(--warning);"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -650,12 +661,10 @@ function authFaceID() {
 }
 
 // --- Tab Logic ---
-// 修正箇所⑤: 管理者権限の厳格化 (フラグ管理)
 let isAdminAuthenticated = false;
 
 function setTab(id) {
     if(id === 'admin' && !isAdminAuthenticated) {
-        // パスワード認証フローへ強制誘導
         toggleAdminMode();
         return;
     }
@@ -766,11 +775,14 @@ function calcBilling() {
 }
 
 // --- Map Logic ---
+// 修正箇所③: 看護師3名を表示するように修正
 function renderMap() {
     const map = document.getElementById('adminMap');
     if(map.children.length > 0) return;
     const pins = [
         { name:'Ns.山田', x:30, y:40, color:'var(--primary)', icon:'fa-user-nurse' },
+        { name:'PT.鈴木', x:60, y:25, color:'var(--success)', icon:'fa-user-nurse' }, // 追加
+        { name:'Ns.高橋', x:80, y:70, color:'var(--warning)', icon:'fa-user-nurse' }, // 追加
         { name:'田中様宅', x:25, y:35, color:'var(--danger)', icon:'fa-house-chimney-medical' },
         { name:'佐藤様宅', x:35, y:45, color:'var(--danger)', icon:'fa-house-chimney-medical' }
     ];
@@ -779,11 +791,8 @@ function renderMap() {
     });
 }
 
-// 修正箇所⑤: 管理者認証ロジック (二重ロック)
 function toggleAdminMode() {
     const t = document.getElementById('adminTab');
-    
-    // 既に認証済みでタブが表示されている場合 -> ログアウト
     if(isAdminAuthenticated) {
         if(confirm("管理者モードを終了しますか？")) {
             isAdminAuthenticated = false;
@@ -792,13 +801,11 @@ function toggleAdminMode() {
         }
         return;
     }
-
-    // 未認証の場合 -> パスワード確認
     const pass = prompt("管理者パスワードを入力してください", "");
     if(pass === "admin") {
         isAdminAuthenticated = true;
-        t.style.display = 'block'; // タブを表示
-        setTab('admin'); // 画面遷移
+        t.style.display = 'block';
+        setTab('admin');
     } else if (pass !== null) {
         alert("パスワードが違います");
     }
