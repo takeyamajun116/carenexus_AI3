@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Adjusted Version</title>
+<title>CareNexus AI : Final Complete Version</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -78,7 +78,7 @@ white-space: nowrap; transition:0.2s; }
 .section.active { display: block; padding: 0 16px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* === Calendar (JS Generated) === */
+/* === Calendar === */
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e5e7eb; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
 .cal-header { background: #f9fafb; padding: 8px 4px; text-align: center; font-size: 12px; font-weight: bold; }
 .cal-day { background: #fff; min-height: 80px; padding: 4px; font-size: 12px; position: relative; cursor: pointer; transition: 0.2s; }
@@ -90,7 +90,7 @@ white-space: nowrap; transition:0.2s; }
 .evt-visit { background: var(--primary); }
 .evt-mtg { background: var(--warning); }
 
-/* === Chat (Bubble UI) === */
+/* === Chat === */
 .chat-container { display: flex; flex-direction: column; height: 500px; background: #f3f4f6; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
 .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; position: relative; }
@@ -145,7 +145,7 @@ white-space: nowrap; transition:0.2s; }
 .vital-table th { background: #f3f4f6; font-weight: bold; }
 .vital-table tr:nth-child(even) { background: #f9fafb; }
 
-/* 修正箇所①: 労働負荷カード用CSS */
+/* 労働負荷カードCSS */
 .load-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .load-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
 .load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
@@ -159,6 +159,19 @@ white-space: nowrap; transition:0.2s; }
 .load-bar-container { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 12px; }
 .load-bar-fill { height: 100%; border-radius: 4px; }
 
+/* 修正箇所①: ログイン時緊急ポップアップ (モーダル) */
+.urgent-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+.urgent-modal-box { background: #fff; width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.urgent-modal-header { background: #fee2e2; padding: 16px; color: #b91c1c; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+.urgent-modal-body { padding: 20px; font-size: 14px; line-height: 1.6; }
+.urgent-modal-footer { padding: 16px; border-top: 1px solid #eee; text-align: center; background: #fafafa; }
+
+/* 修正箇所③: 処置チェックボックスCSS */
+.treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 10px; }
+.treatment-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #f9fafb; padding: 6px 10px; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.1s; }
+.treatment-item:hover { background: #f3f4f6; border-color: #d1d5db; }
+.treatment-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--primary); }
+
 </style>
 </head>
 <body>
@@ -167,7 +180,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Final Adjusted</p>
+        <p style="opacity: 0.8;">Final Complete</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -179,6 +192,25 @@ white-space: nowrap; transition:0.2s; }
         <div class="num-btn" onclick="authFaceID()"><i class="fa-solid fa-face-smile"></i></div><div class="num-btn" onclick="enterPin(0)">0</div><div class="num-btn" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></div>
     </div>
     <div class="mt-4 text-xs" style="margin-top:20px; opacity:0.7;">PIN: 0000</div>
+</div>
+
+<div id="urgentModal" class="urgent-modal-overlay">
+    <div class="urgent-modal-box">
+        <div class="urgent-modal-header">
+            <i class="fa-solid fa-circle-exclamation fa-lg"></i> 緊急：スケジュール変更
+        </div>
+        <div class="urgent-modal-body">
+            <p><strong>鈴木 一郎 様</strong>の訪問時間が変更されました。</p>
+            <div style="background:#fef2f2; padding:10px; border-radius:8px; margin-top:10px; border:1px solid #fecaca;">
+                変更前：13:30<br>
+                <span style="color:#dc2626; font-weight:bold;">変更後：14:00</span>
+            </div>
+            <p style="margin-top:10px; font-size:12px; color:#666;">理由：ご家族の都合により時間調整の依頼あり。</p>
+        </div>
+        <div class="urgent-modal-footer">
+            <button class="btn btn-primary" style="width:100%" onclick="closeUrgentModal()">確認しました</button>
+        </div>
+    </div>
 </div>
 
 <div class="app">
@@ -376,7 +408,6 @@ white-space: nowrap; transition:0.2s; }
             <div style="height:250px; position:relative;">
                 <canvas id="vitalChart"></canvas>
             </div>
-            
             <div style="margin-top:20px;">
                 <div style="font-size:13px; font-weight:bold; margin-bottom:4px;">測定履歴</div>
                 <div style="overflow-x:auto;">
@@ -397,6 +428,16 @@ white-space: nowrap; transition:0.2s; }
         <div class="grid-2">
             <div class="panel">
                 <div class="panel-title">訪問看護記録</div>
+                <label style="font-size:11px; font-weight:bold; color:var(--text-sub); margin-bottom:4px;">実施した処置 (提案)</label>
+                <div class="treatment-grid">
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('清拭・入浴介助')"> 清拭・入浴</label>
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('褥瘡処置')"> 褥瘡処置</label>
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('服薬管理')"> 服薬管理</label>
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('排便コントロール')"> 排便管理</label>
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('吸引')"> 吸引</label>
+                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('点滴管理')"> 点滴管理</label>
+                </div>
+
                 <textarea id="aiInputMemo" rows="3" placeholder="「褥瘡は良化傾向。ガーゼ交換実施。」のように入力..."></textarea>
                 <div class="flex-row" style="margin-bottom:10px;">
                     <button class="btn btn-primary" onclick="runAIGeneration()" id="btnGen"><i class="fa-solid fa-wand-magic-sparkles"></i> AI生成</button>
@@ -449,6 +490,8 @@ white-space: nowrap; transition:0.2s; }
                     </div>
                 </div>
                 <div class="chat-input-area">
+                    <input type="file" id="chatImageInput" style="display:none" accept="image/*" onchange="sendChatImage(this)">
+                    <button class="btn btn-ghost" onclick="document.getElementById('chatImageInput').click()"><i class="fa-solid fa-camera"></i></button>
                     <input type="text" placeholder="メッセージ..." style="margin:0;">
                     <button class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
@@ -636,7 +679,7 @@ function enterPin(num) {
     pinBuffer += num;
     updatePinDots();
     if(pinBuffer === "0000") {
-        document.getElementById('loginScreen').style.display = 'none';
+        loginSuccess();
     }
     if(pinBuffer.length >= 4 && pinBuffer !== "0000") {
         alert("PINが違います");
@@ -656,19 +699,25 @@ function updatePinDots() {
     });
 }
 function authFaceID() {
-    alert("Face ID 認証成功");
+    loginSuccess();
+}
+// 修正箇所①: ログイン成功時にポップアップを表示
+function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
+    // 緊急モーダルを表示
+    document.getElementById('urgentModal').style.display = 'flex';
+}
+function closeUrgentModal() {
+    document.getElementById('urgentModal').style.display = 'none';
 }
 
 // --- Tab Logic ---
 let isAdminAuthenticated = false;
-
 function setTab(id) {
     if(id === 'admin' && !isAdminAuthenticated) {
         toggleAdminMode();
         return;
     }
-
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
     document.getElementById('sect-' + id).classList.add('active');
@@ -774,15 +823,39 @@ function calcBilling() {
     document.getElementById('billingGrandTotal').innerText = total.toLocaleString() + " 円";
 }
 
+// 修正箇所③: 処置チェックボックスの連携
+function toggleTreatment(name) {
+    const ta = document.getElementById('aiInputMemo');
+    if(ta.value.includes(name)) return; // 簡易重複防止
+    ta.value += (ta.value ? " " : "") + name + "実施。";
+}
+
+// 修正箇所②: チャット画像送信
+function sendChatImage(input) {
+    if(input.files && input.files[0]) {
+        const area = document.getElementById('chatArea');
+        area.innerHTML += `
+        <div class="chat-row me">
+            <div>
+                <div class="chat-bubble">
+                    <i class="fa-solid fa-image"></i> 写真を送信しました<br>
+                    <span style="font-size:10px; color:#666;">${input.files[0].name}</span>
+                </div>
+            </div>
+        </div>`;
+        area.scrollTop = area.scrollHeight;
+        input.value = ""; // リセット
+    }
+}
+
 // --- Map Logic ---
-// 修正箇所③: 看護師3名を表示するように修正
 function renderMap() {
     const map = document.getElementById('adminMap');
     if(map.children.length > 0) return;
     const pins = [
         { name:'Ns.山田', x:30, y:40, color:'var(--primary)', icon:'fa-user-nurse' },
-        { name:'PT.鈴木', x:60, y:25, color:'var(--success)', icon:'fa-user-nurse' }, // 追加
-        { name:'Ns.高橋', x:80, y:70, color:'var(--warning)', icon:'fa-user-nurse' }, // 追加
+        { name:'PT.鈴木', x:60, y:25, color:'var(--success)', icon:'fa-user-nurse' },
+        { name:'Ns.高橋', x:80, y:70, color:'var(--warning)', icon:'fa-user-nurse' },
         { name:'田中様宅', x:25, y:35, color:'var(--danger)', icon:'fa-house-chimney-medical' },
         { name:'佐藤様宅', x:35, y:45, color:'var(--danger)', icon:'fa-house-chimney-medical' }
     ];
