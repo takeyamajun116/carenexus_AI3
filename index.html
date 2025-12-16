@@ -159,14 +159,14 @@ white-space: nowrap; transition:0.2s; }
 .load-bar-container { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 12px; }
 .load-bar-fill { height: 100%; border-radius: 4px; }
 
-/* 修正箇所①: ログイン時緊急ポップアップ (モーダル) */
+/* 緊急通知ポップアップ */
 .urgent-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
 .urgent-modal-box { background: #fff; width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .urgent-modal-header { background: #fee2e2; padding: 16px; color: #b91c1c; font-weight: bold; display: flex; align-items: center; gap: 8px; }
 .urgent-modal-body { padding: 20px; font-size: 14px; line-height: 1.6; }
 .urgent-modal-footer { padding: 16px; border-top: 1px solid #eee; text-align: center; background: #fafafa; }
 
-/* 修正箇所③: 処置チェックボックスCSS */
+/* 処置チェックボックスCSS */
 .treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 10px; }
 .treatment-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #f9fafb; padding: 6px 10px; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.1s; }
 .treatment-item:hover { background: #f3f4f6; border-color: #d1d5db; }
@@ -372,7 +372,7 @@ white-space: nowrap; transition:0.2s; }
             <div class="flex-between">
                 <div class="flex-row">
                     <i class="fa-solid fa-user-tag" style="color:var(--primary);"></i>
-                    <span style="font-weight:bold; font-size:14px;">利用者:</span>
+                    <span style="font-weight:bold; font-size:14px; white-space:nowrap;">利用者:</span>
                     <select id="patientSelector" style="min-width:180px;" onchange="switchPatient()">
                         <option value="1">田中 太郎 様</option>
                         <option value="2" selected>佐藤 花子 様</option>
@@ -701,7 +701,6 @@ function updatePinDots() {
 function authFaceID() {
     loginSuccess();
 }
-// 修正箇所①: ログイン成功時にポップアップを表示
 function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
     // 緊急モーダルを表示
@@ -823,14 +822,12 @@ function calcBilling() {
     document.getElementById('billingGrandTotal').innerText = total.toLocaleString() + " 円";
 }
 
-// 修正箇所③: 処置チェックボックスの連携
 function toggleTreatment(name) {
     const ta = document.getElementById('aiInputMemo');
-    if(ta.value.includes(name)) return; // 簡易重複防止
+    if(ta.value.includes(name)) return;
     ta.value += (ta.value ? " " : "") + name + "実施。";
 }
 
-// 修正箇所②: チャット画像送信
 function sendChatImage(input) {
     if(input.files && input.files[0]) {
         const area = document.getElementById('chatArea');
@@ -844,7 +841,7 @@ function sendChatImage(input) {
             </div>
         </div>`;
         area.scrollTop = area.scrollHeight;
-        input.value = ""; // リセット
+        input.value = "";
     }
 }
 
