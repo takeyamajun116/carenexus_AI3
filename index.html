@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Fixed Version</title>
+<title>CareNexus AI : Final Corrected Version</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -102,14 +102,14 @@ white-space: nowrap; transition:0.2s; }
 .chat-row.me .chat-bubble { background: #dbeafe; border: 1px solid #bfdbfe; border-bottom-right-radius: 2px; color: #1e40af; }
 .chat-input-area { background: #fff; padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
-/* === Admin Map (Grid Background) === */
+/* === Admin Map === */
 .map-container { position: relative; height: 400px; width: 100%; background-color: #e5e5f7; background-image: linear-gradient(#d1d5db 1px, transparent 1px), linear-gradient(90deg, #d1d5db 1px, transparent 1px); background-size: 40px 40px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
 .map-pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transition: transform 0.2s; }
 .map-pin:hover { transform: translate(-50%, -110%) scale(1.1); z-index: 20; }
 .pin-icon { font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
 .pin-label { background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 2px; border: 1px solid #ccc; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-/* === Staff Schedule (Table with Sticky) === */
+/* === Staff Schedule === */
 .schedule-wrapper { overflow: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 500px; background: white; }
 .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
 .schedule-table th, .schedule-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 12px; height: 40px; vertical-align: middle; }
@@ -135,14 +135,28 @@ white-space: nowrap; transition:0.2s; }
 .analysis-table th, .analysis-table td { border:1px solid #ccc; padding:8px; text-align:center; }
 .analysis-table th { background:#f9fafb; }
 
-/* 修正箇所②: ToDoのレイアウト崩れ防止 */
-.todo-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; transition: 0.2s; margin-bottom:6px; flex-wrap: nowrap; }
-.todo-item span { flex: 1; word-break: break-all; } /* テキストが長くても崩れないように */
-.todo-item.completed { opacity:0.6; text-decoration:line-through; background:#f9fafb; }
+/* 修正箇所②: ToDoリストの改善 (視認性向上) */
+.todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; transition: 0.2s; margin-bottom:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+.todo-item:hover { border-color: var(--primary); background: #fafafa; }
+.todo-item input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer; }
+.todo-item span { flex: 1; line-height: 1.5; font-weight: 500; color: #333; }
+.todo-item.completed { opacity:0.6; background:#f9fafb; }
+.todo-item.completed span { text-decoration:line-through; color: #888; }
 
-/* 修正箇所③: 労働負荷バー */
-.load-bar-bg { background: #e5e7eb; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
-.load-bar-val { height: 100%; background: var(--primary); }
+/* 修正箇所③: バイタル表 (テーブルデザイン) */
+.vital-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 16px; }
+.vital-table th, .vital-table td { border: 1px solid #d1d5db; padding: 8px 4px; text-align: center; }
+.vital-table th { background: #f3f4f6; font-weight: bold; }
+.vital-table tr:nth-child(even) { background: #f9fafb; }
+
+/* 修正箇所④: 労働負荷モニタリング表 */
+.load-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.load-table th, .load-table td { padding: 10px 8px; text-align: center; border-bottom: 1px solid #eee; }
+.load-table th { background: #f3f4f6; font-weight: bold; color: #4b5563; }
+.load-score { font-weight: bold; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+.score-high { background: #fee2e2; color: #b91c1c; }
+.score-mid { background: #fef3c7; color: #b45309; }
+.score-low { background: #dcfce7; color: #15803d; }
 
 </style>
 </head>
@@ -152,7 +166,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Complete Edition</p>
+        <p style="opacity: 0.8;">Final Version</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -181,7 +195,7 @@ white-space: nowrap; transition:0.2s; }
         <div class="tab" onclick="setTab('record')">記録・AI</div>
         <div class="tab" onclick="setTab('collab')">連携</div>
         <div class="tab" onclick="setTab('newuser')">新規登録</div>
-        <div class="tab" onclick="setTab('admin')" id="adminTab">管理・分析</div>
+        <div class="tab" onclick="setTab('admin')" id="adminTab" style="display:none;">管理・分析</div>
     </div>
 
     <section id="sect-home" class="section active">
@@ -261,18 +275,33 @@ white-space: nowrap; transition:0.2s; }
             <div class="flex-col">
                 <div class="panel">
                     <div class="panel-title">通知・アラート</div>
+                    <div style="background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding:12px; border-radius:6px; font-size:13px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-bell fa-shake"></i>
+                        <div>
+                            <b>急な訪問変更があります</b><br>
+                            鈴木様：13:30 -> 14:00に変更
+                        </div>
+                    </div>
                     <div style="background:#fff7ed; border:1px solid #fdba74; color:#c2410c; padding:10px; border-radius:6px; font-size:13px; margin-bottom:8px;">
                         <i class="fa-solid fa-triangle-exclamation"></i> <b>指示書期限切れ</b><br>田中 太郎様：あと2日
                     </div>
-                    <div style="background:#f0fdf4; border:1px solid #86efac; color:#15803d; padding:10px; border-radius:6px; font-size:13px;">
-                        <i class="fa-solid fa-check-circle"></i> <b>レセプト完了</b><br>11月分伝送済み
-                    </div>
                 </div>
+
                 <div class="panel">
                     <div class="panel-title">マイタスク (ToDo) <button class="btn btn-sm btn-ghost" onclick="addTodo()"><i class="fa-solid fa-plus"></i></button></div>
                     <div id="todoList">
-                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>ケアマネ鈴木様へ連絡 (14:00まで)</span></label>
-                        <label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>マスク・消毒液の発注</span></label>
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>ケアマネ鈴木様へ連絡 (14:00まで)</span>
+                        </label>
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>マスク・消毒液の発注</span>
+                        </label>
+                        <label class="todo-item">
+                            <input type="checkbox" onclick="toggleTodo(this)">
+                            <span>翌日の訪問ルート確認</span>
+                        </label>
                     </div>
                 </div>
             </div>
@@ -334,8 +363,24 @@ white-space: nowrap; transition:0.2s; }
                 <div><label>体重(kg)</label><input type="number" id="v_weight" value="58.2"></div>
             </div>
             <button class="btn btn-primary" style="width:100%; margin-bottom:16px;" onclick="updateChart()">グラフ更新</button>
-            <div style="height:350px; position:relative;">
+            <div style="height:250px; position:relative;">
                 <canvas id="vitalChart"></canvas>
+            </div>
+            
+            <div style="margin-top:20px;">
+                <div style="font-size:13px; font-weight:bold; margin-bottom:4px;">測定履歴</div>
+                <div style="overflow-x:auto;">
+                    <table class="vital-table">
+                        <thead>
+                            <tr><th>日時</th><th>血圧</th><th>脈拍</th><th>SpO2</th><th>体温</th><th>呼吸</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>12/15 11:00</td><td>135/88</td><td>76</td><td>95%</td><td>37.0℃</td><td>18</td></tr>
+                            <tr><td>12/14 11:00</td><td>128/80</td><td>74</td><td>98%</td><td>36.5℃</td><td>16</td></tr>
+                            <tr><td>12/13 11:00</td><td>132/85</td><td>78</td><td>96%</td><td>36.8℃</td><td>20</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -444,7 +489,6 @@ white-space: nowrap; transition:0.2s; }
                     <div><label>保険種別</label><select><option>介護保険</option><option>医療保険</option></select></div>
                     <div><label>主病名</label><input type="text" placeholder="例: 脳梗塞後遺症"></div>
                 </div>
-                
                 <div style="margin-top:16px; padding:20px; border:2px dashed #ccc; border-radius:8px; text-align:center; background:#f9fafb;">
                     <i class="fa-solid fa-camera" style="font-size:24px; color:#ccc; margin-bottom:8px;"></i>
                     <div style="font-weight:bold; font-size:13px; margin-bottom:4px;">保険証画像の登録</div>
@@ -453,7 +497,6 @@ white-space: nowrap; transition:0.2s; }
                         画像を選択 <input type="file" accept="image/*" style="display:none;">
                     </label>
                 </div>
-
                 <div style="margin-top:16px; display:flex; gap:16px;">
                     <button class="btn btn-primary" style="flex:1;">登録する</button>
                     <button class="btn btn-ghost" style="flex:1;" onclick="setTab('home')">キャンセル</button>
@@ -470,30 +513,45 @@ white-space: nowrap; transition:0.2s; }
         </div>
 
         <div class="panel">
-            <div class="panel-title">労働負荷モニタリング (週間予測)</div>
-            <div style="font-size:12px;">
-                <div style="margin-bottom:12px;">
-                    <div class="flex-between" style="margin-bottom:4px;">
-                        <span>Ns.山田 (稼働率: 危険)</span>
-                        <span style="font-weight:bold; color:var(--danger);">95%</span>
-                    </div>
-                    <div class="load-bar-bg"><div class="load-bar-val" style="width:95%; background:var(--danger);"></div></div>
-                    <div style="text-align:right; font-size:10px; color:#666; margin-top:2px;">残業見込: 8.5時間/週</div>
-                </div>
-                <div style="margin-bottom:12px;">
-                    <div class="flex-between" style="margin-bottom:4px;">
-                        <span>PT.鈴木 (稼働率: 適正)</span>
-                        <span style="font-weight:bold; color:var(--success);">75%</span>
-                    </div>
-                    <div class="load-bar-bg"><div class="load-bar-val" style="width:75%; background:var(--success);"></div></div>
-                </div>
-                <div>
-                    <div class="flex-between" style="margin-bottom:4px;">
-                        <span>Ns.高橋 (稼働率: やや高)</span>
-                        <span style="font-weight:bold; color:var(--warning);">82%</span>
-                    </div>
-                    <div class="load-bar-bg"><div class="load-bar-val" style="width:82%; background:var(--warning);"></div></div>
-                </div>
+            <div class="panel-title">労働負荷モニタリング (週間分析)</div>
+            <div style="overflow-x:auto;">
+                <table class="load-table">
+                    <thead>
+                        <tr>
+                            <th>スタッフ</th>
+                            <th>労働時間<br><span style="font-size:10px;font-weight:normal">(残業)</span></th>
+                            <th>訪問<br>件数</th>
+                            <th>移動<br>距離</th>
+                            <th>負荷指数<br><span style="font-size:10px;font-weight:normal">(スコア)</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:bold;">Ns.山田</td>
+                            <td>45h <br><span style="color:var(--danger)">(+5h)</span></td>
+                            <td>28件</td>
+                            <td>120km</td>
+                            <td><span class="load-score score-high">危険 (92)</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold;">PT.鈴木</td>
+                            <td>38h <br><span style="color:#666">(0h)</span></td>
+                            <td>22件</td>
+                            <td>80km</td>
+                            <td><span class="load-score score-low">適正 (65)</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold;">Ns.高橋</td>
+                            <td>42h <br><span style="color:var(--warning)">(+2h)</span></td>
+                            <td>25件</td>
+                            <td>95km</td>
+                            <td><span class="load-score score-mid">注意 (78)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:12px; font-size:11px; color:#666; text-align:right;">
+                ※負荷指数 = (労働時間 + 移動距離/10 + 訪問件数*0.5) で算出
             </div>
         </div>
 
@@ -592,12 +650,20 @@ function authFaceID() {
 }
 
 // --- Tab Logic ---
+// 修正箇所⑤: 管理者権限の厳格化 (フラグ管理)
+let isAdminAuthenticated = false;
+
 function setTab(id) {
+    if(id === 'admin' && !isAdminAuthenticated) {
+        // パスワード認証フローへ強制誘導
+        toggleAdminMode();
+        return;
+    }
+
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
     document.getElementById('sect-' + id).classList.add('active');
     
-    // タブの見た目制御
     const tabMap = {'home':0, 'calendar':1, 'record':2, 'collab':3, 'newuser':4, 'admin':5};
     const tabs = document.querySelectorAll('.tab');
     if(tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('active');
@@ -713,23 +779,31 @@ function renderMap() {
     });
 }
 
-// 修正箇所④: 管理者パスワード (復活)
+// 修正箇所⑤: 管理者認証ロジック (二重ロック)
 function toggleAdminMode() {
     const t = document.getElementById('adminTab');
-    if(t.style.display === 'none' || !t.style.display) {
-        // パスワード確認
-        const pass = prompt("管理者パスワードを入力してください", "");
-        if(pass === "admin") {
-            t.style.display = 'block';
-            setTab('admin');
-        } else if (pass !== null) {
-            alert("パスワードが違います");
+    
+    // 既に認証済みでタブが表示されている場合 -> ログアウト
+    if(isAdminAuthenticated) {
+        if(confirm("管理者モードを終了しますか？")) {
+            isAdminAuthenticated = false;
+            t.style.display = 'none';
+            setTab('home');
         }
-    } else {
-        t.style.display = 'none';
-        setTab('home');
+        return;
+    }
+
+    // 未認証の場合 -> パスワード確認
+    const pass = prompt("管理者パスワードを入力してください", "");
+    if(pass === "admin") {
+        isAdminAuthenticated = true;
+        t.style.display = 'block'; // タブを表示
+        setTab('admin'); // 画面遷移
+    } else if (pass !== null) {
+        alert("パスワードが違います");
     }
 }
+
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
 
