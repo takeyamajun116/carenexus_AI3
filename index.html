@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : UI Polished Edition</title>
+<title>CareNexus AI : Secure Login Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ========== Base Design (Strictly Preserved) ========== */
+/* ========== Base Design ========== */
 :root { 
     --primary: #2563eb; 
     --primary-light: #eff6ff;
@@ -109,19 +109,45 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
 .chat-user.active { background: #eff6ff; border-color: var(--primary); color: var(--primary); font-weight: bold; }
 .chat-avatar { width: 24px; height: 24px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; }
 
-/* Todo Item (Refined UI) */
+/* Todo Item */
 .todo-list { display: flex; flex-direction: column; gap: 8px; }
 .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f9fafb; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; transition: 0.2s; cursor: pointer; }
 .todo-item:hover { background: #fff; border-color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
 .todo-item input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; accent-color: var(--primary); }
 .todo-item span { flex: 1; transition: 0.2s; }
-/* Checkbox checked state handled by JS to add class for styling */
 .todo-item.completed span { text-decoration: line-through; color: #9ca3af; }
 .todo-item.completed { background: #f3f4f6; border-color: #e5e7eb; }
+
+/* Login Overlay */
+#loginOverlay { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.login-box { width: 300px; text-align: center; }
+.pin-input { font-size: 24px; letter-spacing: 8px; text-align: center; margin: 20px 0; padding: 10px; width: 100%; border: 1px solid #ccc; border-radius: 8px; }
 
 </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+    <div style="font-size: 48px; color: var(--primary); margin-bottom: 16px;"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="login-box">
+        <h2 style="margin: 0 0 8px 0;">CareNexus AI</h2>
+        <p style="color: var(--text-sub); font-size: 13px; margin-bottom: 24px;">スタッフ認証を行ってください</p>
+        
+        <input type="password" id="loginPin" class="pin-input" maxlength="4" placeholder="••••" inputmode="numeric">
+        
+        <button class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 14px; margin-bottom: 12px;" onclick="checkLogin()">
+            ログイン
+        </button>
+        
+        <button class="btn btn-ghost" style="width: 100%;" onclick="checkLogin(true)">
+            <i class="fa-solid fa-face-smile"></i> Face ID / 生体認証
+        </button>
+        
+        <div style="margin-top: 20px; font-size: 11px; color: #999;">
+            Demo Passcode: 0000
+        </div>
+    </div>
+</div>
 
 <div class="app">
     <header class="flex-between">
@@ -129,6 +155,7 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.
         <div class="flex-row">
             <button class="btn btn-sm btn-ghost" onclick="toggleClockIn()" id="clockBtn" title="勤怠打刻"><i class="fa-regular fa-clock"></i> 出勤</button>
             <div style="width:1px; height:20px; background:#ddd; margin:0 4px;"></div>
+            <button class="btn btn-ghost" onclick="lockScreen()" title="画面ロック"><i class="fa-solid fa-lock"></i></button>
             <button class="btn btn-ghost" onclick="toggleOffline()" title="オフラインモード"><i id="wifiIcon" class="fa-solid fa-wifi"></i></button>
             <button class="btn btn-sm" onclick="toggleAdminMode()" id="adminBtn"><i class="fa-solid fa-user-gear"></i> <span id="modeLabel">看護師</span></button>
         </div>
@@ -442,9 +469,34 @@ const billingRules = [ { keyword: "褥瘡", name: "真皮を超える褥瘡", po
 
 /* ================= INIT ================= */
 window.onload = () => {
+    // Show login overlay first
     renderHome(); renderCalendar(); renderPatientSelector();
     loadPatientData(currentPatientId); renderAdminMap(); renderRiskScores(); initChart();
 };
+
+/* ================= LOGIN & LOCK ================= */
+function checkLogin(isBio = false) {
+    const pin = document.getElementById('loginPin').value;
+    const overlay = document.getElementById('loginOverlay');
+    
+    if(isBio) {
+        alert("Face ID認証に成功しました");
+        overlay.style.display = 'none';
+        return;
+    }
+    
+    if(pin === '0000') {
+        overlay.style.display = 'none';
+    } else {
+        alert('パスコードが違います (0000)');
+        document.getElementById('loginPin').value = "";
+    }
+}
+
+function lockScreen() {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('loginPin').value = "";
+}
 
 /* ================= LOGIC ================= */
 function setTab(tabId) {
