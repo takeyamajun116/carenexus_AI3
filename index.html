@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Ultimate Version</title>
+<title>CareNexus AI : E-Chart Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -172,11 +172,13 @@ white-space: nowrap; transition:0.2s; }
 .treatment-item:hover { background: #f3f4f6; border-color: #d1d5db; }
 .treatment-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--primary); }
 
-/* 修正箇所：過去記録CSS */
-.history-item { border-left: 2px solid #ddd; padding-left: 12px; margin-bottom: 12px; position: relative; }
-.history-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #999; }
-.history-meta { font-size: 11px; color: #666; margin-bottom: 2px; }
-.history-content { font-size: 13px; color: #333; }
+/* 過去記録・スクロール対応 */
+.history-scroll-area { max-height: 400px; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fdfdfd; }
+.history-item { border-left: 3px solid #ddd; padding-left: 14px; margin-bottom: 16px; position: relative; }
+.history-item::before { content: ''; position: absolute; left: -6.5px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: #999; border: 2px solid #fff; }
+.history-item:last-child { margin-bottom: 0; }
+.history-meta { font-size: 11px; color: #666; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.history-content { font-size: 13px; color: #333; line-height: 1.5; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #f0f0f0; }
 .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
 
 </style>
@@ -486,8 +488,8 @@ white-space: nowrap; transition:0.2s; }
                     <button class="btn btn-primary" onclick="speakSummary()"><i class="fa-solid fa-volume-high"></i> 要約を読み上げ</button>
                 </div>
                 <div>
-                    <h5 style="margin:0 0 8px 0; font-size:13px; color:var(--text-sub);">直近の記録履歴</h5>
-                    <div id="historyList">
+                    <h5 style="margin:0 0 8px 0; font-size:13px; color:var(--text-sub);">過去の記録一覧 (全件)</h5>
+                    <div id="historyList" class="history-scroll-area">
                         </div>
                 </div>
             </div>
@@ -698,27 +700,51 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
-// Mock Data for Patients & History
+// Mock Data: 過去10件の記録 + AI要約
 const patientDatabase = {
-    1: { // 田中
-        summary: "【身体】血圧安定。褥瘡は良化傾向だが仙骨部に発赤残存。\n【精神】安定。デイサービスの利用を楽しみにしている。\n【家族】長男と同居。日中は不在。キーパーソンは長男。\n【環境】ベッド柵設置済み。転倒リスクあり。",
+    1: { // 田中 太郎 (褥瘡ケア)
+        summary: "【身体】血圧は130台で安定。褥瘡（仙骨部）は肉芽形成期に入り良化傾向だが、発赤は残存。浸出液は微量。\n【精神】安定しており、週2回のデイサービスを楽しみにしている。\n【家族】長男と同居。日中は不在だが夜間の見守りは可能。キーパーソンは長男。\n【環境】電動ベッド導入済み。ベッド柵あり。転倒リスク中等度。",
         history: [
-            { date: "12/14 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。入浴介助実施。皮膚トラブルなし。" },
-            { date: "12/11 14:00", staff: "PT.鈴木", content: "リハビリ実施。歩行訓練20分。下肢筋力維持できている。" },
-            { date: "12/08 09:15", staff: "Ns.高橋", content: "定期訪問。少し食欲低下気味とのこと。水分摂取を促す。" }
+            { date: "12/15 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。褥瘡処置（洗浄・アクトシン軟膏）。創部は小指大まで縮小。痛みなし。" },
+            { date: "12/14 09:15", staff: "Ns.高橋", content: "入浴介助実施。皮膚状態観察。背部に新たな発赤なし。食事摂取量10割。" },
+            { date: "12/13 09:30", staff: "Ns.山田", content: "定期訪問。排便コントロール。マグミット服用確認。軟便少量あり。" },
+            { date: "12/12 14:00", staff: "PT.鈴木", content: "訪問リハビリ。下肢筋力強化訓練。歩行器での屋内歩行安定。" },
+            { date: "12/11 09:30", staff: "Ns.山田", content: "定期訪問。褥瘡処置。ガーゼ交換。家族へ体位変換の指導を実施。" },
+            { date: "12/10 09:15", staff: "Ns.高橋", content: "全身清拭。足浴実施。爪切り実施。本人「さっぱりした」と笑顔。" },
+            { date: "12/09 09:30", staff: "Ns.山田", content: "バイタルチェック。BP138/82。少し高めだが経過観察。水分摂取促す。" },
+            { date: "12/08 14:00", staff: "PT.鈴木", content: "リハビリ実施。端座位バランス訓練。耐久性向上を図る。" },
+            { date: "12/07 09:30", staff: "Ns.山田", content: "褥瘡評価。Wk-1。デブリードマン実施せず洗浄のみ。感染兆候なし。" },
+            { date: "12/06 09:15", staff: "Ns.高橋", content: "入浴介助。洗髪実施。ヒートショック対策として浴室暖房確認。" }
         ]
     },
-    2: { // 佐藤
-        summary: "【身体】パーキンソン病の進行により嚥下機能低下。誤嚥に注意。\n【精神】軽度の認知機能低下あり。短期記憶が曖昧。\n【家族】独居。娘が週2回訪問。\n【環境】段差解消済み。ポータブルトイレ使用。",
+    2: { // 佐藤 花子 (パーキンソン)
+        summary: "【身体】パーキンソン病（Yahr III）。すくみ足あり。嚥下機能低下気味でムセが見られる。\n【精神】軽度の認知機能低下。短期記憶が曖昧なことあり。\n【家族】独居。娘が週2回訪問し買い物支援。緊急時は娘へ連絡。\n【環境】屋内段差解消済み。ポータブルトイレ使用。室温管理指導中。",
         history: [
-            { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。更衣動作に介助必要。バイタル異常なし。" },
-            { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。摘便実施。硬便少量あり。" }
+            { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。更衣動作に介助必要。バイタル異常なし。直後の疲労感ありベッド臥床。" },
+            { date: "12/14 11:00", staff: "Ns.佐藤", content: "服薬管理カレンダーセット。飲み忘れなし。嚥下状態確認、トロミ剤使用を再指導。" },
+            { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。摘便実施。硬便少量あり。腹部マッサージ施行。" },
+            { date: "12/11 15:30", staff: "PT.鈴木", content: "リハビリ。立ち上がり訓練。すくみ足へのリズム刺激指導。" },
+            { date: "12/10 11:00", staff: "Ns.佐藤", content: "全身状態観察。食欲あり。水分1000ml/日確保できている。" },
+            { date: "12/08 11:00", staff: "Ns.佐藤", content: "娘様同席のもと、今後のケアプランについて相談。夜間のトイレ不安あり。" },
+            { date: "12/07 15:30", staff: "PT.鈴木", content: "リハビリ。関節可動域訓練（肩・股関節）。拘縮予防。" },
+            { date: "12/06 11:00", staff: "Ns.山田", content: "入浴介助。洗身実施。皮膚乾燥あり、保湿クリーム塗布。" },
+            { date: "12/05 11:00", staff: "Ns.佐藤", content: "バイタルチェック。36.8℃。少し微熱気味だったため清拭に変更。" },
+            { date: "12/04 11:00", staff: "Ns.佐藤", content: "定期訪問。服薬確認。L-ドパの効果時間の変動（ウェアリングオフ）を観察。" }
         ]
     },
-    3: { // 鈴木
-        summary: "【身体】脳梗塞後遺症（左麻痺）。リハビリ意欲高い。\n【精神】前向きだが、焦りも見られる。\n【家族】妻と二人暮らし。妻の介護負担軽減が課題。\n【環境】手すり設置検討中。",
+    3: { // 鈴木 一郎 (脳梗塞後遺症)
+        summary: "【身体】左片麻痺（Brunnstrom III-IV）。感覚鈍麻あり。リハビリ意欲高い。\n【精神】前向きだが、回復の遅さに焦りも見られる。傾聴が必要。\n【家族】妻と二人暮らし。妻が高齢のため介護負担軽減が課題。\n【環境】手すり設置検討中。トイレまでの動線確保が必要。",
         history: [
-            { date: "12/13 13:30", staff: "PT.鈴木", content: "リハビリ実施。可動域訓練。妻へ介助方法を指導。" }
+            { date: "12/15 13:30", staff: "PT.鈴木", content: "リハビリ実施。平行棒内歩行。麻痺側の振り出し良好。妻へ介助指導。" },
+            { date: "12/13 13:30", staff: "PT.鈴木", content: "関節可動域訓練。左肩関節の亜脱臼予防。疼痛なし。" },
+            { date: "12/12 10:00", staff: "Ns.高橋", content: "定期訪問。血圧145/90。降圧剤服薬確認。塩分制限について指導。" },
+            { date: "12/10 13:30", staff: "PT.鈴木", content: "屋外歩行訓練（車椅子併用）。50m歩行達成。本人自信をつける。" },
+            { date: "12/09 10:00", staff: "Ns.山田", content: "入浴介助。浴槽またぎ動作の介助。転倒リスク高いため見守り強化。" },
+            { date: "12/08 13:30", staff: "PT.鈴木", content: "リハビリ。上肢機能訓練。ペグボード使用。手指の巧緻性向上を図る。" },
+            { date: "12/06 10:00", staff: "Ns.高橋", content: "健康相談。便秘気味とのことで食事内容の聴取。食物繊維摂取を勧める。" },
+            { date: "12/05 13:30", staff: "PT.鈴木", content: "基本動作訓練。寝返り・起き上がり動作の効率化。" },
+            { date: "12/03 10:00", staff: "Ns.山田", content: "バイタルチェック。SpO2 98%。胸部聴診クリア。体調良好。" },
+            { date: "12/01 13:30", staff: "PT.鈴木", content: "初回評価（月次）。先月比で歩行速度の改善が見られる。" }
         ]
     }
 };
@@ -777,8 +803,7 @@ function setTab(id) {
     if(id === 'calendar') renderCalendar();
     if(id === 'record') {
         if(!myChart) setTimeout(initChart, 100);
-        // Switch patient to ensure data is loaded
-        switchPatient(); 
+        switchPatient(); // 初期ロード時にデータを反映
     }
     if(id === 'admin') setTimeout(renderMap, 100);
 }
@@ -898,7 +923,7 @@ function sendChatImage(input) {
     }
 }
 
-// 修正箇所：利用者切り替え時の履歴更新
+// 修正箇所：利用者切り替え時の履歴・要約更新
 function switchPatient() {
     const pid = document.getElementById('patientSelector').value;
     const data = patientDatabase[pid];
@@ -909,14 +934,17 @@ function switchPatient() {
         data.history.forEach(h => {
             list.innerHTML += `
             <div class="history-item">
-                <div class="history-meta">${h.date} - ${h.staff}</div>
+                <div class="history-meta">
+                    <span>${h.date}</span>
+                    <span style="font-weight:bold; color:var(--primary);">${h.staff}</span>
+                </div>
                 <div class="history-content">${h.content}</div>
             </div>`;
         });
     }
 }
 
-// 修正箇所：読み上げ機能
+// 読み上げ機能
 function speakSummary() {
     const text = document.getElementById('aiSummaryText').innerText;
     if(!window.speechSynthesis) return alert("このブラウザは読み上げに対応していません");
