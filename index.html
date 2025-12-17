@@ -2,9 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Complete Edition</title>
+<title>CareNexus AI : Map Enhanced Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* ========== Base Design ========== */
@@ -67,7 +70,7 @@ color: var(--text-main); }
 .num-btn:active { background: rgba(255,255,255,0.3); }
 
 /* Header & Tabs */
-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 12px 16px; }
+header { position: sticky; top: 0; z-index: 1000; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 12px 16px; }
 .logo { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
 .tabs { display: flex; gap: 6px; padding: 6px; background: #e5e7eb; border-radius: 10px; margin: 16px; overflow-x: auto; scrollbar-width: none; }
 .tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 600; color: var(--text-sub); border-radius: 8px; cursor: pointer; 
@@ -103,12 +106,34 @@ white-space: nowrap; transition:0.2s; }
 .chat-row.me .chat-bubble { background: #dbeafe; border: 1px solid #bfdbfe; border-bottom-right-radius: 2px; color: #1e40af; }
 .chat-input-area { background: #fff; padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
-/* Admin Map */
-.map-container { position: relative; height: 400px; width: 100%; background-color: #e5e5f7; background-image: linear-gradient(#d1d5db 1px, transparent 1px), linear-gradient(90deg, #d1d5db 1px, transparent 1px); background-size: 40px 40px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-.map-pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transition: transform 0.2s; }
-.map-pin:hover { transform: translate(-50%, -110%) scale(1.1); z-index: 20; }
-.pin-icon { font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
-.pin-label { background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 2px; border: 1px solid #ccc; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+/* 修正箇所: Admin Map (Leaflet用にCSS調整) */
+.map-container { 
+    position: relative; 
+    height: 400px; 
+    width: 100%; 
+    border-radius: 8px; 
+    overflow: hidden; 
+    border: 1px solid var(--border); 
+    z-index: 1; /* 重なり順調整 */
+}
+/* Leafletのカスタムピン用スタイル */
+.custom-pin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px !important;
+    height: 32px !important;
+    background: transparent;
+    border: none;
+}
+.custom-pin i {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+    transition: transform 0.2s;
+}
+.custom-pin:hover i {
+    transform: scale(1.2) translateY(-5px);
+}
 
 /* Staff Schedule */
 .schedule-wrapper { overflow: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 500px; background: white; }
@@ -194,7 +219,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Omaha Engine Inside</p>
+        <p style="opacity: 0.8;">Map Enhanced Edition</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -651,42 +676,25 @@ white-space: nowrap; transition:0.2s; }
             <div class="panel-title">労働負荷モニタリング (週間分析)</div>
             <div class="load-grid">
                 <div class="load-card">
-                    <div class="load-header">
-                        <span class="load-name">Ns.山田</span>
-                        <span class="load-score-badge score-danger">危険 (92)</span>
-                    </div>
+                    <div class="load-header"><span class="load-name">Ns.山田</span><span class="load-score-badge score-danger">危険 (92)</span></div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">45h <span style="color:var(--danger)">(+5h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">28件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">120km</span></div>
-                    <div class="load-bar-container">
-                        <div class="load-bar-fill" style="width:92%; background:var(--danger);"></div>
-                    </div>
+                    <div class="load-bar-container"><div class="load-bar-fill" style="width:92%; background:var(--danger);"></div></div>
                 </div>
-
                 <div class="load-card">
-                    <div class="load-header">
-                        <span class="load-name">PT.鈴木</span>
-                        <span class="load-score-badge score-success">適正 (65)</span>
-                    </div>
+                    <div class="load-header"><span class="load-name">PT.鈴木</span><span class="load-score-badge score-success">適正 (65)</span></div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">38h <span style="color:#666">(0h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">22件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">80km</span></div>
-                    <div class="load-bar-container">
-                        <div class="load-bar-fill" style="width:65%; background:var(--success);"></div>
-                    </div>
+                    <div class="load-bar-container"><div class="load-bar-fill" style="width:65%; background:var(--success);"></div></div>
                 </div>
-
                 <div class="load-card">
-                    <div class="load-header">
-                        <span class="load-name">Ns.高橋</span>
-                        <span class="load-score-badge score-warning">注意 (78)</span>
-                    </div>
+                    <div class="load-header"><span class="load-name">Ns.高橋</span><span class="load-score-badge score-warning">注意 (78)</span></div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">42h <span style="color:var(--warning)">(+2h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">25件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">95km</span></div>
-                    <div class="load-bar-container">
-                        <div class="load-bar-fill" style="width:78%; background:var(--warning);"></div>
-                    </div>
+                    <div class="load-bar-container"><div class="load-bar-fill" style="width:78%; background:var(--warning);"></div></div>
                 </div>
             </div>
         </div>
@@ -717,59 +725,59 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
-// Mock Data: 過去10件の記録 + AI要約 + オマハスコア
+// Mock Data
 const patientDatabase = {
-    1: { // 田中 太郎 (褥瘡ケア)
-        summary: "【身体】血圧は130台で安定。褥瘡（仙骨部）は肉芽形成期に入り良化傾向だが、発赤は残存。浸出液は微量。\n【精神】安定しており、週2回のデイサービスを楽しみにしている。\n【家族】長男と同居。日中は不在だが夜間の見守りは可能。キーパーソンは長男。\n【環境】電動ベッド導入済み。ベッド柵あり。転倒リスク中等度。",
+    1: { 
+        summary: "【身体】血圧は130台で安定。褥瘡（仙骨部）は肉芽形成期入り。発赤残存。\n【精神】安定。\n【家族】長男同居。\n【環境】電動ベッド導入済み。転倒リスク中。",
         history: [
-            { date: "12/15 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。褥瘡処置（洗浄・アクトシン軟膏）。創部は小指大まで縮小。痛みなし。" },
-            { date: "12/14 09:15", staff: "Ns.高橋", content: "入浴介助実施。皮膚状態観察。背部に新たな発赤なし。食事摂取量10割。" },
-            { date: "12/13 09:30", staff: "Ns.山田", content: "定期訪問。排便コントロール。マグミット服用確認。軟便少量あり。" },
-            { date: "12/12 14:00", staff: "PT.鈴木", content: "訪問リハビリ。下肢筋力強化訓練。歩行器での屋内歩行安定。" },
-            { date: "12/11 09:30", staff: "Ns.山田", content: "定期訪問。褥瘡処置。ガーゼ交換。家族へ体位変換の指導を実施。" },
-            { date: "12/10 09:15", staff: "Ns.高橋", content: "全身清拭。足浴実施。爪切り実施。本人「さっぱりした」と笑顔。" },
-            { date: "12/09 09:30", staff: "Ns.山田", content: "バイタルチェック。BP138/82。少し高めだが経過観察。水分摂取促す。" },
-            { date: "12/08 14:00", staff: "PT.鈴木", content: "リハビリ実施。端座位バランス訓練。耐久性向上を図る。" },
-            { date: "12/07 09:30", staff: "Ns.山田", content: "褥瘡評価。Wk-1。デブリードマン実施せず洗浄のみ。感染兆候なし。" },
-            { date: "12/06 09:15", staff: "Ns.高橋", content: "入浴介助。洗髪実施。ヒートショック対策として浴室暖房確認。" }
+            { date: "12/15 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。褥瘡処置。改善傾向。" },
+            { date: "12/14 09:15", staff: "Ns.高橋", content: "入浴介助。皮膚状態観察。異常なし。" },
+            { date: "12/13 09:30", staff: "Ns.山田", content: "定期訪問。排便コントロール。" },
+            { date: "12/12 14:00", staff: "PT.鈴木", content: "リハビリ実施。歩行安定。" },
+            { date: "12/11 09:30", staff: "Ns.山田", content: "褥瘡処置。家族指導。" },
+            { date: "12/10 09:15", staff: "Ns.高橋", content: "清拭・足浴。" },
+            { date: "12/09 09:30", staff: "Ns.山田", content: "バイタルチェック。" },
+            { date: "12/08 14:00", staff: "PT.鈴木", content: "リハビリ実施。" },
+            { date: "12/07 09:30", staff: "Ns.山田", content: "褥瘡評価。" },
+            { date: "12/06 09:15", staff: "Ns.高橋", content: "入浴介助。" }
         ],
         omahaScores: { k: [2,2,3,3,3], b: [3,3,3,4,4], s: [2,2,3,3,3] } 
     },
-    2: { // 佐藤 花子 (パーキンソン)
-        summary: "【身体】パーキンソン病（Yahr III）。すくみ足あり。嚥下機能低下気味でムセが見られる。\n【精神】軽度の認知機能低下。短期記憶が曖昧。\n【家族】独居。娘が週2回訪問し買い物支援。緊急時は娘へ連絡。\n【環境】屋内段差解消済み。ポータブルトイレ使用。室温管理指導中。",
+    2: { 
+        summary: "【身体】パーキンソン病。すくみ足・嚥下低下あり。\n【精神】軽度認知低下。\n【家族】独居。娘週2回。\n【環境】段差解消済み。",
         history: [
-            { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。更衣動作に介助必要。バイタル異常なし。直後の疲労感ありベッド臥床。" },
-            { date: "12/14 11:00", staff: "Ns.佐藤", content: "服薬管理カレンダーセット。飲み忘れなし。嚥下状態確認、トロミ剤使用を再指導。" },
-            { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。摘便実施。硬便少量あり。腹部マッサージ施行。" },
-            { date: "12/11 15:30", staff: "PT.鈴木", content: "リハビリ。立ち上がり訓練。すくみ足へのリズム刺激指導。" },
-            { date: "12/10 11:00", staff: "Ns.佐藤", content: "全身状態観察。食欲あり。水分1000ml/日確保できている。" },
-            { date: "12/08 11:00", staff: "Ns.佐藤", content: "娘様同席のもと、今後のケアプランについて相談。夜間のトイレ不安あり。" },
-            { date: "12/07 15:30", staff: "PT.鈴木", content: "リハビリ。関節可動域訓練（肩・股関節）。拘縮予防。" },
-            { date: "12/06 11:00", staff: "Ns.山田", content: "入浴介助。洗身実施。皮膚乾燥あり、保湿クリーム塗布。" },
-            { date: "12/05 11:00", staff: "Ns.佐藤", content: "バイタルチェック。36.8℃。少し微熱気味だったため清拭に変更。" },
-            { date: "12/04 11:00", staff: "Ns.佐藤", content: "定期訪問。服薬確認。L-ドパの効果時間の変動（ウェアリングオフ）を観察。" }
+            { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。疲労感あり。" },
+            { date: "12/14 11:00", staff: "Ns.佐藤", content: "服薬管理。飲み忘れなし。" },
+            { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。" },
+            { date: "12/11 15:30", staff: "PT.鈴木", content: "リハビリ。立ち上がり訓練。" },
+            { date: "12/10 11:00", staff: "Ns.佐藤", content: "状態観察。水分摂取良好。" },
+            { date: "12/08 11:00", staff: "Ns.佐藤", content: "ケアプラン相談。" },
+            { date: "12/07 15:30", staff: "PT.鈴木", content: "リハビリ。" },
+            { date: "12/06 11:00", staff: "Ns.山田", content: "入浴介助。" },
+            { date: "12/05 11:00", staff: "Ns.佐藤", content: "バイタルチェック。" },
+            { date: "12/04 11:00", staff: "Ns.佐藤", content: "定期訪問。服薬確認。" }
         ],
         omahaScores: { k: [2,2,2,3,3], b: [2,2,3,3,3], s: [3,3,3,3,3] }
     },
-    3: { // 鈴木 一郎 (脳梗塞後遺症)
-        summary: "【身体】左片麻痺（Brunnstrom III-IV）。感覚鈍麻あり。リハビリ意欲高い。\n【精神】前向きだが、回復の遅さに焦りも見られる。傾聴が必要。\n【家族】妻と二人暮らし。妻が高齢のため介護負担軽減が課題。\n【環境】手すり設置検討中。トイレまでの動線確保が必要。",
+    3: { 
+        summary: "【身体】左片麻痺。リハビリ意欲高。\n【精神】前向きだが焦りあり。\n【家族】妻二人暮らし。\n【環境】手すり検討中。",
         history: [
-            { date: "12/15 13:30", staff: "PT.鈴木", content: "リハビリ実施。平行棒内歩行。麻痺側の振り出し良好。妻へ介助指導。" },
-            { date: "12/13 13:30", staff: "PT.鈴木", content: "関節可動域訓練。左肩関節の亜脱臼予防。疼痛なし。" },
-            { date: "12/12 10:00", staff: "Ns.高橋", content: "定期訪問。血圧145/90。降圧剤服薬確認。塩分制限について指導。" },
-            { date: "12/10 13:30", staff: "PT.鈴木", content: "屋外歩行訓練（車椅子併用）。50m歩行達成。本人自信をつける。" },
-            { date: "12/09 10:00", staff: "Ns.山田", content: "入浴介助。浴槽またぎ動作の介助。転倒リスク高いため見守り強化。" },
-            { date: "12/08 13:30", staff: "PT.鈴木", content: "リハビリ。上肢機能訓練。ペグボード使用。手指の巧緻性向上を図る。" },
-            { date: "12/06 10:00", staff: "Ns.高橋", content: "健康相談。便秘気味とのことで食事内容の聴取。食物繊維摂取を勧める。" },
-            { date: "12/05 13:30", staff: "PT.鈴木", content: "基本動作訓練。寝返り・起き上がり動作の効率化。" },
-            { date: "12/03 10:00", staff: "Ns.山田", content: "バイタルチェック。SpO2 98%。胸部聴診クリア。体調良好。" },
-            { date: "12/01 13:30", staff: "PT.鈴木", content: "初回評価（月次）。先月比で歩行速度の改善が見られる。" }
+            { date: "12/15 13:30", staff: "PT.鈴木", content: "リハビリ。平行棒歩行。" },
+            { date: "12/13 13:30", staff: "PT.鈴木", content: "可動域訓練。" },
+            { date: "12/12 10:00", staff: "Ns.高橋", content: "定期訪問。血圧高め。" },
+            { date: "12/10 13:30", staff: "PT.鈴木", content: "屋外歩行訓練。" },
+            { date: "12/09 10:00", staff: "Ns.山田", content: "入浴介助。" },
+            { date: "12/08 13:30", staff: "PT.鈴木", content: "リハビリ。" },
+            { date: "12/06 10:00", staff: "Ns.高橋", content: "健康相談。" },
+            { date: "12/05 13:30", staff: "PT.鈴木", content: "基本動作訓練。" },
+            { date: "12/03 10:00", staff: "Ns.山田", content: "バイタルチェック。" },
+            { date: "12/01 13:30", staff: "PT.鈴木", content: "月次評価。" }
         ],
         omahaScores: { k: [4,4,4,5,5], b: [4,4,5,5,5], s: [3,3,4,4,4] }
     }
 };
 
-// --- Login Logic ---
+// ... Login, Tab, Calendar Logic ...
 let pinBuffer = "";
 function enterPin(num) {
     pinBuffer += num;
@@ -959,8 +967,27 @@ function switchPatient() {
     }
 }
 
-// Map, Admin Logic
-function renderMap() { const map = document.getElementById('adminMap'); if(map.children.length > 0) return; const pins = [{x:30,y:40,c:'var(--primary)'},{x:60,y:25,c:'var(--success)'},{x:80,y:70,c:'var(--warning)'},{x:25,y:35,c:'var(--danger)'},{x:35,y:45,c:'var(--danger)'}]; pins.forEach(p => { map.innerHTML += `<div class="map-pin" style="left:${p.x}%; top:${p.y}%;"><div class="pin-label">${p.name}</div><i class="fa-solid fa-map-marker-alt pin-icon" style="color:${p.c};"></i></div>`; }); }
+// Map, Admin Logic (Leaflet)
+function renderMap() {
+    if(document.getElementById('adminMap').innerHTML.trim() !== "") return;
+    const map = L.map('adminMap').setView([35.6581, 139.3303], 13); // Hachioji
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const icons = {
+        staff: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-user-nurse" style="color:var(--primary)"></i>'}),
+        patient: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-house-chimney-medical" style="color:var(--danger)"></i>'})
+    };
+
+    L.marker([35.6581, 139.3303], {icon: icons.staff}).addTo(map).bindPopup("Ns.山田: 移動中");
+    L.marker([35.6600, 139.3400], {icon: icons.staff}).addTo(map).bindPopup("PT.鈴木: 訪問中");
+    L.marker([35.6500, 139.3200], {icon: icons.staff}).addTo(map).bindPopup("Ns.高橋: 休憩");
+    
+    L.marker([35.6550, 139.3350], {icon: icons.patient}).addTo(map).bindPopup("田中様宅");
+    L.marker([35.6650, 139.3250], {icon: icons.patient}).addTo(map).bindPopup("佐藤様宅");
+}
+
 function toggleAdminMode() { const t = document.getElementById('adminTab'); if(isAdminAuthenticated) { if(confirm("ログアウトしますか？")) { isAdminAuthenticated=false; t.style.display='none'; setTab('home'); } return; } if(prompt("PW")==="admin"){ isAdminAuthenticated=true; t.style.display='block'; setTab('admin'); } else { alert("Error"); } }
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
