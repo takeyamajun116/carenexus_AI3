@@ -43,7 +43,7 @@ justify-content: center; gap: 6px; font-size: 13px; transition: 0.1s; background
 .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
 .btn-success { background: var(--success); color: white; border-color: var(--success); }
 .btn-sm { font-size: 11px; padding: 4px 10px; height: 28px; }
-.btn-xs { font-size: 10px; padding: 2px 8px; height: 24px; border-radius: 4px; } /* 編集ボタン用 */
+.btn-xs { font-size: 10px; padding: 2px 8px; height: 24px; border-radius: 4px; }
 .btn-ghost { background: transparent; border: none; color: var(--text-sub); }
 .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
 
@@ -833,8 +833,27 @@ function renderCalendar() {
     let html = `<div class="cal-day" style="background:#f3f4f6"></div>`;
     for(let i=1; i<=daysInMonth; i++) {
         let events = "";
-        if(i===16) events += `<span class="cal-event evt-visit">田中様</span><span class="cal-event evt-visit">佐藤様</span>`;
-        if(i===12 || i===19) events += `<span class="cal-event evt-mtg">MTG</span>`;
+        const dayOfWeek = (i - 1) % 7; 
+        
+        if (dayOfWeek === 0 || dayOfWeek === 3) { // Mon & Thu
+             events += `<span class="cal-event evt-visit">田中様</span>`;
+             events += `<span class="cal-event evt-visit">佐藤様</span>`;
+        }
+        if (dayOfWeek === 1 || dayOfWeek === 4) { // Tue & Fri
+             events += `<span class="cal-event evt-visit">鈴木様</span>`;
+             if(i % 2 === 0) events += `<span class="cal-event evt-visit">高橋様</span>`;
+        }
+        if (dayOfWeek === 2) { // Wed
+             events += `<span class="cal-event evt-visit">伊藤様</span>`;
+             events += `<span class="cal-event evt-mtg">MTG</span>`;
+        }
+        if (i === 16) { 
+             events = `<span class="cal-event evt-visit">田中様</span><span class="cal-event evt-visit">佐藤様</span><span class="cal-event evt-visit">鈴木様</span>`;
+        }
+        if (i === 25) {
+             events += `<span class="cal-event evt-mtg" style="background:#8b5cf6">Xmas会</span>`;
+        }
+
         const isToday = (i===16)?"today":"";
         html += `<div class="cal-day ${isToday}"><span class="cal-num">${i}</span>${events}</div>`;
     }
@@ -945,10 +964,8 @@ function switchPatient() {
     const pid = document.getElementById('patientSelector').value;
     const data = patientDatabase[pid];
     if(data) {
-        // AI要約の更新
         document.getElementById('aiSummaryText').innerText = data.summary;
         
-        // 過去記録の更新 (全件表示)
         const list = document.getElementById('historyList');
         list.innerHTML = "";
         data.history.forEach(h => {
@@ -964,22 +981,21 @@ function switchPatient() {
     }
 }
 
-// 修正箇所：記録保存ロジック
+// 修正箇所：記録保存ロジック (保存して履歴に追加)
 function saveRecord() {
     const pid = document.getElementById('patientSelector').value;
     const memo = document.getElementById('aiInputMemo').value;
     const soap = document.getElementById('soapArea').innerText; // 編集済み内容取得
     
-    // 内容がなければアラート
     if(!memo && !soap) return alert("記録内容がありません");
 
     const content = (soap ? soap + "\n" : "") + (memo ? "(メモ: " + memo + ")" : "");
     const date = new Date().toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'numeric', minute:'numeric'});
 
-    // データベースに追加 (Unshiftで先頭に追加)
+    // DBに追加
     patientDatabase[pid].history.unshift({
         date: date,
-        staff: "Ns.山田", // ログインユーザー(デモ)
+        staff: "Ns.山田", 
         content: content
     });
 
@@ -990,6 +1006,8 @@ function saveRecord() {
     // 入力クリア
     document.getElementById('aiInputMemo').value = "";
     document.getElementById('soapArea').innerText = "";
+    document.getElementById('diagnosisArea').innerText = "";
+    document.getElementById('familyReportText').innerText = "";
 }
 
 // 編集ボタン用
@@ -999,6 +1017,12 @@ function enableEdit(id) {
     el.focus();
     el.style.backgroundColor = "#fff";
     el.style.border = "1px solid var(--primary)";
+    // フォーカス外れたら元に戻す簡易処理
+    el.onblur = function() {
+        el.contentEditable = "false";
+        el.style.backgroundColor = "";
+        el.style.border = "transparent";
+    };
 }
 
 // 読み上げ機能
