@@ -190,6 +190,12 @@ white-space: nowrap; transition:0.2s; }
 .micro-table th { background: #f9fafb; padding: 8px; text-align: left; border-bottom: 1px solid #ddd; font-weight: bold; color: #555; }
 .micro-table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
 .score-cell { font-weight: bold; color: var(--primary); }
+
+.kbs-table { width:100%; border-collapse:collapse; font-size:12px; margin-top:10px; }
+.kbs-table th, .kbs-table td { border:1px solid #ddd; padding:6px; text-align:center; }
+.kbs-table th { background:#f9fafb; font-weight:bold; color:#555; }
+.kbs-val-high { color:var(--success); font-weight:bold; }
+.kbs-val-low { color:var(--danger); font-weight:bold; }
 </style>
 </head>
 <body>
@@ -433,20 +439,19 @@ white-space: nowrap; transition:0.2s; }
                 <canvas id="vitalChart"></canvas>
                 <canvas id="omahaChart" style="display:none;"></canvas>
             </div>
-            <div style="margin-top:20px;">
-                <div style="font-size:13px; font-weight:bold; margin-bottom:4px;">測定履歴</div>
+            
+            <div style="margin-top:20px; border-top:1px solid #eee; padding-top:16px;">
+                <div style="font-size:13px; font-weight:bold; margin-bottom:4px; color:#4b5563;">【詳細】オマハシステム KBS評価推移 (Micro View)</div>
                 <div style="overflow-x:auto;">
-                    <table class="vital-table">
+                    <table class="kbs-table" id="recordKbsTable">
                         <thead>
-                            <tr><th>日時</th><th>血圧</th><th>脈拍</th><th>SpO2</th><th>体温</th><th>呼吸</th></tr>
+                            <tr><th>回数</th><th>問題カテゴリー</th><th>知識(K)</th><th>行動(B)</th><th>状態(S)</th></tr>
                         </thead>
-                        <tbody>
-                            <tr><td>12/15 11:00</td><td>135/88</td><td>76</td><td>95%</td><td>37.0℃</td><td>18</td></tr>
-                            <tr><td>12/14 11:00</td><td>128/80</td><td>74</td><td>98%</td><td>36.5℃</td><td>16</td></tr>
-                            <tr><td>12/13 11:00</td><td>132/85</td><td>78</td><td>96%</td><td>36.8℃</td><td>20</td></tr>
-                        </tbody>
+                        <tbody id="recordKbsBody">
+                            </tbody>
                     </table>
                 </div>
+                <div style="font-size:10px; color:#888; text-align:right; margin-top:4px;">※1=最低 5=最高</div>
             </div>
         </div>
 
@@ -720,7 +725,7 @@ white-space: nowrap; transition:0.2s; }
         </div>
 
         <div class="panel">
-            <div class="panel-title">利用者別 アウトカム評価一覧 (Micro View)</div>
+            <div class="panel-title">利用者別 アウトカム評価一覧 (Micro View - Admin)</div>
             <div style="overflow-x:auto;">
                 <table class="micro-table" id="microOutcomeTable">
                     <thead>
@@ -741,7 +746,7 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
-// Mock Data (Updated specifically for clearer Omaha breakdown)
+// Mock Data
 const patientDatabase = {
     1: { 
         name: "田中 太郎",
@@ -941,6 +946,41 @@ function saveRecord() {
 function enableEdit(id) { const el = document.getElementById(id); el.contentEditable = "true"; el.focus(); el.style.backgroundColor = "#fff"; el.style.border = "1px solid var(--primary)"; el.onblur = function() { el.contentEditable = "false"; el.style.backgroundColor = ""; el.style.border = "transparent"; }; }
 function speakSummary() { const u = new SpeechSynthesisUtterance(document.getElementById('aiSummaryText').innerText); u.lang = "ja-JP"; speechSynthesis.speak(u); }
 
+// 追加機能: 記録画面用 該当日時とKBSスコアのマッピングテーブル
+function renderRecordKbsTable(pid) {
+    const data = patientDatabase[pid];
+    const tbody = document.getElementById('recordKbsBody');
+    if(!tbody) return;
+    tbody.innerHTML = "";
+
+    // データの簡易マッピング (履歴の数とスコアの数を合わせる想定)
+    const labels = ['前回', '2回前', '3回前', '4回前', '5回前'];
+    
+    // 最新から過去へループ
+    for(let i=4; i>=0; i--) {
+        const k = data.omahaScores.k[i];
+        const b = data.omahaScores.b[i];
+        const s = data.omahaScores.s[i];
+        
+        let label = (i===4) ? "今回" : labels[4-i-1];
+        
+        // 装飾
+        const kClass = (k>=4) ? 'kbs-val-high' : (k<=2 ? 'kbs-val-low' : '');
+        const bClass = (b>=4) ? 'kbs-val-high' : (b<=2 ? 'kbs-val-low' : '');
+        const sClass = (s>=4) ? 'kbs-val-high' : (s<=2 ? 'kbs-val-low' : '');
+
+        tbody.innerHTML += `
+            <tr>
+                <td style="background:#f9fafb;">${label}</td>
+                <td>${data.omahaTag}</td>
+                <td class="${kClass}">${k}</td>
+                <td class="${bClass}">${b}</td>
+                <td class="${sClass}">${s}</td>
+            </tr>
+        `;
+    }
+}
+
 function switchPatient() {
     const pid = document.getElementById('patientSelector').value;
     const data = patientDatabase[pid];
@@ -952,16 +992,17 @@ function switchPatient() {
             list.innerHTML += `<div class="history-item"><div class="history-meta"><span>${h.date}</span><span style="font-weight:bold; color:var(--primary);">${h.staff}</span></div><div class="history-content">${h.content}</div></div>`;
         });
         if(currentChartMode === 'omaha') updateOmahaChart();
+        
+        // 記録画面用のKBSテーブルも更新
+        renderRecordKbsTable(pid);
     }
 }
 
-// 修正箇所②: ミクロ視点用テーブルのレンダリング
 function renderMicroOutcomes() {
     const tbody = document.getElementById('microOutcomeBody');
     if(!tbody) return;
     tbody.innerHTML = "";
     
-    // 全患者の最新状態をループ
     Object.keys(patientDatabase).forEach(key => {
         const p = patientDatabase[key];
         const lastK = p.omahaScores.k[p.omahaScores.k.length - 1];
