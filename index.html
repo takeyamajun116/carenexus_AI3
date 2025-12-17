@@ -196,6 +196,12 @@ white-space: nowrap; transition:0.2s; }
 .kbs-table th { background:#f9fafb; font-weight:bold; color:#555; }
 .kbs-val-high { color:var(--success); font-weight:bold; }
 .kbs-val-low { color:var(--danger); font-weight:bold; }
+
+/* Input for KBS */
+.kbs-input-group { background:#f0f9ff; padding:12px; border-radius:8px; border:1px solid #bae6fd; margin-bottom:12px; }
+.kbs-input-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.kbs-input-col label { color: #1e40af; margin-bottom: 4px; }
+.kbs-input-col select { border-color: #bfdbfe; color: #1e40af; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -459,13 +465,34 @@ white-space: nowrap; transition:0.2s; }
             <div class="panel">
                 <div class="panel-title">訪問看護記録 (SOAP)</div>
                 
-                <div style="margin-bottom:12px; background:#fff; padding:10px; border-radius:8px; border:1px solid #e5e7eb;">
-                    <label style="margin-bottom:4px;">本日の総合評価 (AI自動解析用)</label>
-                    <select id="dailyEval" style="margin-bottom:0;">
-                        <option value="3">維持・不変</option>
-                        <option value="4">改善・達成</option>
-                        <option value="2">悪化・未達</option>
-                    </select>
+                <div class="kbs-input-group">
+                    <div style="font-size:12px; font-weight:bold; color:var(--primary); margin-bottom:8px;">
+                        <i class="fa-solid fa-chart-line"></i> 本日のオマハシステム評価 (KBS)
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                         <span id="currentOmahaTag" class="omaha-tag" style="font-size:12px;">#読み込み中</span>
+                         <span style="font-size:10px; color:#666;">前回値をセット済み</span>
+                    </div>
+                    <div class="kbs-input-row">
+                        <div class="kbs-input-col">
+                            <label>知識 (K)</label>
+                            <select id="input_k">
+                                <option value="1">1:全くない</option><option value="2">2:最小限</option><option value="3">3:基本的</option><option value="4">4:十分</option><option value="5">5:優良</option>
+                            </select>
+                        </div>
+                        <div class="kbs-input-col">
+                            <label>行動 (B)</label>
+                            <select id="input_b">
+                                <option value="1">1:全くない</option><option value="2">2:稀に</option><option value="3">3:時々</option><option value="4">4:通常</option><option value="5">5:一貫</option>
+                            </select>
+                        </div>
+                        <div class="kbs-input-col">
+                            <label>状態 (S)</label>
+                            <select id="input_s">
+                                <option value="1">1:重度</option><option value="2">2:高度</option><option value="3">3:中等度</option><option value="4">4:軽度</option><option value="5">5:なし</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="treatment-section">
@@ -491,13 +518,6 @@ white-space: nowrap; transition:0.2s; }
                         <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('皮膚観察')"> 皮膚観察</label>
                     </div>
                 </div>
-                <div class="treatment-section">
-                    <div class="treatment-category">連携・調整 (Case Mgmt)</div>
-                    <div class="treatment-grid">
-                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('受診調整')"> 受診調整</label>
-                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('多職種連携')"> 多職種連携</label>
-                    </div>
-                </div>
 
                 <textarea id="aiInputMemo" rows="3" placeholder="「褥瘡は良化傾向。ガーゼ交換実施。」のように入力..." style="margin-top:10px;"></textarea>
                 <div class="flex-row" style="margin-bottom:10px;">
@@ -519,13 +539,6 @@ white-space: nowrap; transition:0.2s; }
                             <button class="btn btn-xs btn-outline" onclick="enableEdit('soapArea')">編集</button>
                         </div>
                         <div id="soapArea" class="editable-area" style="font-size:12px; white-space:pre-wrap;"></div>
-                    </div>
-                    <div style="background:#fff7ed; padding:8px; border:1px solid #fdba74; border-radius:6px;">
-                        <div class="flex-between">
-                            <div style="font-size:11px; font-weight:bold; color:#c2410c;">【家族レポート】</div>
-                            <button class="btn btn-xs btn-outline" onclick="enableEdit('familyReportText')">編集</button>
-                        </div>
-                        <div id="familyReportText" class="editable-area" style="font-size:12px;"></div>
                     </div>
                 </div>
             </div>
@@ -588,32 +601,6 @@ white-space: nowrap; transition:0.2s; }
                 </div>
             </div>
         </div>
-
-        <div class="panel">
-            <div class="panel-title">マッチング依頼 (新着)</div>
-            <div style="border:1px solid #bfdbfe; background:#eff6ff; padding:12px; border-radius:6px; margin-bottom:8px;">
-                <div class="flex-between">
-                    <div style="font-weight:bold; color:var(--primary);">患者A様 (末期がん/八王子市)</div>
-                    <span class="tag bg-white text-danger">緊急</span>
-                </div>
-                <div style="font-size:12px; color:#555; margin:4px 0;">医療保険 / 頻回な疼痛管理が必要 / 家族同居</div>
-                <div class="flex-row" style="justify-content:flex-end; margin-top:8px;">
-                    <button class="btn btn-sm btn-ghost" style="background:white;">詳細を見る</button>
-                    <button class="btn btn-sm btn-primary">承認する</button>
-                </div>
-            </div>
-            <div style="border:1px solid #e5e7eb; background:#f9fafb; padding:12px; border-radius:6px;">
-                <div class="flex-between">
-                    <div style="font-weight:bold; color:#4b5563;">患者B様 (難病/日野市)</div>
-                    <span class="tag">待機</span>
-                </div>
-                <div style="font-size:12px; color:#555; margin:4px 0;">ALS / 人工呼吸器管理 / 吸引指導</div>
-                <div class="flex-row" style="justify-content:flex-end; margin-top:8px;">
-                    <button class="btn btn-sm btn-ghost" style="background:white;">詳細を見る</button>
-                    <button class="btn btn-sm btn-primary">承認する</button>
-                </div>
-            </div>
-        </div>
     </section>
 
     <section id="sect-newuser" class="section">
@@ -671,56 +658,6 @@ white-space: nowrap; transition:0.2s; }
                         <div class="load-bar-fill" style="width:92%; background:var(--danger);"></div>
                     </div>
                 </div>
-
-                <div class="load-card">
-                    <div class="load-header">
-                        <span class="load-name">PT.鈴木</span>
-                        <span class="load-score-badge score-success">適正 (65)</span>
-                    </div>
-                    <div class="load-stat-row"><span>労働時間</span><span class="load-val">38h <span style="color:#666">(0h)</span></span></div>
-                    <div class="load-stat-row"><span>訪問件数</span><span class="load-val">22件</span></div>
-                    <div class="load-stat-row"><span>移動距離</span><span class="load-val">80km</span></div>
-                    <div class="load-bar-container">
-                        <div class="load-bar-fill" style="width:65%; background:var(--success);"></div>
-                    </div>
-                </div>
-
-                <div class="load-card">
-                    <div class="load-header">
-                        <span class="load-name">Ns.高橋</span>
-                        <span class="load-score-badge score-warning">注意 (78)</span>
-                    </div>
-                    <div class="load-stat-row"><span>労働時間</span><span class="load-val">42h <span style="color:var(--warning)">(+2h)</span></span></div>
-                    <div class="load-stat-row"><span>訪問件数</span><span class="load-val">25件</span></div>
-                    <div class="load-stat-row"><span>移動距離</span><span class="load-val">95km</span></div>
-                    <div class="load-bar-container">
-                        <div class="load-bar-fill" style="width:78%; background:var(--warning);"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-title">請求・経営分析</div>
-            <div class="grid-3">
-                <div style="border-right:1px solid #eee; padding-right:10px;">
-                    <div style="font-size:11px; color:#666;">今月の請求総額見込</div>
-                    <div style="font-size:24px; font-weight:800; color:var(--text-main);">¥ 5,420,000</div>
-                    <div style="font-size:11px; color:var(--success); margin-bottom:12px;">目標達成率 92%</div>
-                    <button class="btn btn-primary" style="width:100%; margin-bottom:8px;">レセプト伝送</button>
-                </div>
-                <div style="grid-column: span 2;">
-                    <div style="font-size:12px; font-weight:bold; margin-bottom:8px;">オマハ・アウトカム分析 (月次詳細)</div>
-                    <table class="analysis-table">
-                        <thead><tr><th>領域 (詳細分類)</th><th>対象数</th><th>改善率</th><th>評価</th></tr></thead>
-                        <tbody>
-                            <tr><td>生理 (皮膚・褥瘡)</td><td>12名</td><td class="text-success">↑ 25%</td><td>S</td></tr>
-                            <tr><td>生理 (循環・血圧)</td><td>20名</td><td class="text-success">↑ 10%</td><td>A</td></tr>
-                            <tr><td>健康関連 (服薬行動)</td><td>32名</td><td class="text-success">↑ 20%</td><td>A</td></tr>
-                            <tr><td>心理社会 (社会的接触)</td><td>5名</td><td style="color:#666">→ 0%</td><td>B</td></tr>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
 
@@ -757,12 +694,7 @@ const patientDatabase = {
             { date: "12/14 09:15", staff: "Ns.高橋", content: "入浴介助。皮膚状態観察。異常なし。" },
             { date: "12/13 09:30", staff: "Ns.山田", content: "定期訪問。排便コントロール。" },
             { date: "12/12 14:00", staff: "PT.鈴木", content: "リハビリ実施。歩行安定。" },
-            { date: "12/11 09:30", staff: "Ns.山田", content: "褥瘡処置。家族指導。" },
-            { date: "12/10 09:15", staff: "Ns.高橋", content: "清拭・足浴。" },
-            { date: "12/09 09:30", staff: "Ns.山田", content: "バイタルチェック。" },
-            { date: "12/08 14:00", staff: "PT.鈴木", content: "リハビリ実施。" },
-            { date: "12/07 09:30", staff: "Ns.山田", content: "褥瘡評価。" },
-            { date: "12/06 09:15", staff: "Ns.高橋", content: "入浴介助。" }
+            { date: "12/11 09:30", staff: "Ns.山田", content: "褥瘡処置。家族指導。" }
         ],
         omahaScores: { k: [2,2,3,3,3], b: [3,3,3,4,4], s: [2,2,3,3,3] } 
     },
@@ -775,12 +707,7 @@ const patientDatabase = {
             { date: "12/14 11:00", staff: "Ns.佐藤", content: "服薬管理。飲み忘れなし。" },
             { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。" },
             { date: "12/11 15:30", staff: "PT.鈴木", content: "リハビリ。立ち上がり訓練。" },
-            { date: "12/10 11:00", staff: "Ns.佐藤", content: "状態観察。水分摂取良好。" },
-            { date: "12/08 11:00", staff: "Ns.佐藤", content: "ケアプラン相談。" },
-            { date: "12/07 15:30", staff: "PT.鈴木", content: "リハビリ。" },
-            { date: "12/06 11:00", staff: "Ns.山田", content: "入浴介助。" },
-            { date: "12/05 11:00", staff: "Ns.佐藤", content: "バイタルチェック。" },
-            { date: "12/04 11:00", staff: "Ns.佐藤", content: "定期訪問。服薬確認。" }
+            { date: "12/10 11:00", staff: "Ns.佐藤", content: "状態観察。水分摂取良好。" }
         ],
         omahaScores: { k: [2,2,2,3,3], b: [2,2,3,3,3], s: [3,3,3,3,3] }
     },
@@ -793,12 +720,7 @@ const patientDatabase = {
             { date: "12/13 13:30", staff: "PT.鈴木", content: "可動域訓練。" },
             { date: "12/12 10:00", staff: "Ns.高橋", content: "定期訪問。血圧高め。" },
             { date: "12/10 13:30", staff: "PT.鈴木", content: "屋外歩行訓練。" },
-            { date: "12/09 10:00", staff: "Ns.山田", content: "入浴介助。" },
-            { date: "12/08 13:30", staff: "PT.鈴木", content: "リハビリ。" },
-            { date: "12/06 10:00", staff: "Ns.高橋", content: "健康相談。" },
-            { date: "12/05 13:30", staff: "PT.鈴木", content: "基本動作訓練。" },
-            { date: "12/03 10:00", staff: "Ns.山田", content: "バイタルチェック。" },
-            { date: "12/01 13:30", staff: "PT.鈴木", content: "月次評価。" }
+            { date: "12/09 10:00", staff: "Ns.山田", content: "入浴介助。" }
         ],
         omahaScores: { k: [4,4,4,5,5], b: [4,4,5,5,5], s: [3,3,4,4,4] }
     }
@@ -910,7 +832,6 @@ function runAIGeneration() {
         btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI生成';
         document.getElementById('diagnosisArea').innerHTML = "<span class='omaha-tag'>#皮膚(生理)</span> 皮膚統合性障害リスク";
         document.getElementById('soapArea').innerText = "[S] 「良くなってる」\n[O] 36.6℃, 創部良化\n[A] 順調\n[P] 継続";
-        document.getElementById('familyReportText').innerText = "お母様の背中の傷は順調に回復しています。";
         initBilling();
     }, 1000);
 }
@@ -928,43 +849,42 @@ function sendChatImage(input) { if(input.files[0]) { const area = document.getEl
 function saveRecord() {
     const pid = document.getElementById('patientSelector').value;
     const memo = document.getElementById('aiInputMemo').value;
-    const evalVal = document.getElementById('dailyEval').value; 
-    const currentScores = patientDatabase[pid].omahaScores.s;
-    const lastScore = currentScores[currentScores.length - 1];
-    let newScore = lastScore;
-    if(evalVal == 4 && newScore < 5) newScore++;
-    if(evalVal == 2 && newScore > 1) newScore--;
+    
+    // オマハスコアの取得
+    const newK = parseInt(document.getElementById('input_k').value);
+    const newB = parseInt(document.getElementById('input_b').value);
+    const newS = parseInt(document.getElementById('input_s').value);
+    
+    // データ更新
+    patientDatabase[pid].omahaScores.k.push(newK); patientDatabase[pid].omahaScores.k.shift();
+    patientDatabase[pid].omahaScores.b.push(newB); patientDatabase[pid].omahaScores.b.shift();
+    patientDatabase[pid].omahaScores.s.push(newS); patientDatabase[pid].omahaScores.s.shift();
+
     const date = new Date().toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'numeric', minute:'numeric'});
     patientDatabase[pid].history.unshift({ date: date, staff: "Ns.山田", content: memo || "定期記録" });
-    patientDatabase[pid].omahaScores.s.push(newScore); 
-    patientDatabase[pid].omahaScores.s.shift(); 
+    
+    // 画面更新
     switchPatient();
-    alert("記録を保存しました (裏側でオマハスコア更新: " + lastScore + "→" + newScore + ")");
+    alert("記録とKBSスコアを保存しました\n(K:" + newK + ", B:" + newB + ", S:" + newS + ")");
     document.getElementById('aiInputMemo').value = "";
 }
 
 function enableEdit(id) { const el = document.getElementById(id); el.contentEditable = "true"; el.focus(); el.style.backgroundColor = "#fff"; el.style.border = "1px solid var(--primary)"; el.onblur = function() { el.contentEditable = "false"; el.style.backgroundColor = ""; el.style.border = "transparent"; }; }
 function speakSummary() { const u = new SpeechSynthesisUtterance(document.getElementById('aiSummaryText').innerText); u.lang = "ja-JP"; speechSynthesis.speak(u); }
 
-// 追加機能: 記録画面用 該当日時とKBSスコアのマッピングテーブル
 function renderRecordKbsTable(pid) {
     const data = patientDatabase[pid];
     const tbody = document.getElementById('recordKbsBody');
     if(!tbody) return;
     tbody.innerHTML = "";
 
-    // データの簡易マッピング (履歴の数とスコアの数を合わせる想定)
     const labels = ['前回', '2回前', '3回前', '4回前', '5回前'];
-    
-    // 最新から過去へループ
     for(let i=4; i>=0; i--) {
         const k = data.omahaScores.k[i];
         const b = data.omahaScores.b[i];
         const s = data.omahaScores.s[i];
-        
         let label = (i===4) ? "今回" : labels[4-i-1];
         
-        // 装飾
         const kClass = (k>=4) ? 'kbs-val-high' : (k<=2 ? 'kbs-val-low' : '');
         const bClass = (b>=4) ? 'kbs-val-high' : (b<=2 ? 'kbs-val-low' : '');
         const sClass = (s>=4) ? 'kbs-val-high' : (s<=2 ? 'kbs-val-low' : '');
@@ -991,9 +911,15 @@ function switchPatient() {
         data.history.forEach(h => {
             list.innerHTML += `<div class="history-item"><div class="history-meta"><span>${h.date}</span><span style="font-weight:bold; color:var(--primary);">${h.staff}</span></div><div class="history-content">${h.content}</div></div>`;
         });
-        if(currentChartMode === 'omaha') updateOmahaChart();
         
-        // 記録画面用のKBSテーブルも更新
+        // オマハ入力欄の更新 (前回の値を初期値としてセット)
+        document.getElementById('currentOmahaTag').innerText = "#" + data.omahaTag;
+        const lastIndex = data.omahaScores.s.length - 1;
+        document.getElementById('input_k').value = data.omahaScores.k[lastIndex];
+        document.getElementById('input_b').value = data.omahaScores.b[lastIndex];
+        document.getElementById('input_s').value = data.omahaScores.s[lastIndex];
+
+        if(currentChartMode === 'omaha') updateOmahaChart();
         renderRecordKbsTable(pid);
     }
 }
@@ -1002,26 +928,18 @@ function renderMicroOutcomes() {
     const tbody = document.getElementById('microOutcomeBody');
     if(!tbody) return;
     tbody.innerHTML = "";
-    
     Object.keys(patientDatabase).forEach(key => {
         const p = patientDatabase[key];
-        const lastK = p.omahaScores.k[p.omahaScores.k.length - 1];
-        const lastB = p.omahaScores.b[p.omahaScores.b.length - 1];
-        const lastS = p.omahaScores.s[p.omahaScores.s.length - 1];
-        const prevS = p.omahaScores.s[p.omahaScores.s.length - 2] || lastS;
+        const lastK = p.omahaScores.k.at(-1);
+        const lastB = p.omahaScores.b.at(-1);
+        const lastS = p.omahaScores.s.at(-1);
+        const prevS = p.omahaScores.s.at(-2) || lastS;
         
         let evalHtml = '<span style="color:#666;">維持</span>';
         if(lastS > prevS) evalHtml = '<span class="text-success"><i class="fa-solid fa-arrow-trend-up"></i> 改善</span>';
         if(lastS < prevS) evalHtml = '<span class="text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 悪化</span>';
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${p.name}</td>
-            <td>${p.omahaTag}</td>
-            <td>${p.omahaScores.k.at(-2)} / ${p.omahaScores.b.at(-2)} / ${p.omahaScores.s.at(-2)}</td>
-            <td class="score-cell">${lastK} / ${lastB} / ${lastS}</td>
-            <td>${evalHtml}</td>
-        </tr>`;
+        tbody.innerHTML += `<tr><td>${p.name}</td><td>${p.omahaTag}</td><td>${p.omahaScores.k.at(-2)} / ${p.omahaScores.b.at(-2)} / ${p.omahaScores.s.at(-2)}</td><td class="score-cell">${lastK} / ${lastB} / ${lastS}</td><td>${evalHtml}</td></tr>`;
     });
 }
 
@@ -1029,10 +947,7 @@ function renderMap() {
     if(document.getElementById('adminMap').innerHTML.trim() !== "") return;
     const map = L.map('adminMap').setView([35.6581, 139.3303], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
-    const icons = {
-        staff: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-user-nurse" style="color:var(--primary)"></i>'}),
-        patient: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-house-chimney-medical" style="color:var(--danger)"></i>'})
-    };
+    const icons = { staff: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-user-nurse" style="color:var(--primary)"></i>'}), patient: L.divIcon({className:'custom-pin', html:'<i class="fa-solid fa-house-chimney-medical" style="color:var(--danger)"></i>'}) };
     L.marker([35.6581, 139.3303], {icon: icons.staff}).addTo(map).bindPopup("Ns.山田: 移動中");
     L.marker([35.6600, 139.3400], {icon: icons.staff}).addTo(map).bindPopup("PT.鈴木: 訪問中");
     L.marker([35.6500, 139.3200], {icon: icons.staff}).addTo(map).bindPopup("Ns.高橋: 休憩");
@@ -1043,20 +958,9 @@ function renderMap() {
 function toggleAdminMode() { 
     const t = document.getElementById('adminTab'); 
     if(isAdminAuthenticated) { 
-        if(confirm("ログアウトしますか？")) { 
-            isAdminAuthenticated=false; 
-            t.style.display='none'; 
-            setTab('home'); 
-        } 
-        return; 
+        if(confirm("ログアウトしますか？")) { isAdminAuthenticated=false; t.style.display='none'; setTab('home'); } return; 
     } 
-    if(prompt("PW")==="admin"){ 
-        isAdminAuthenticated=true; 
-        t.style.display='block'; 
-        setTab('admin'); 
-    } else { 
-        alert("Error"); 
-    } 
+    if(prompt("PW")==="admin"){ isAdminAuthenticated=true; t.style.display='block'; setTab('admin'); } else { alert("Error"); } 
 }
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
