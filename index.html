@@ -21,6 +21,8 @@
     --danger: #ef4444; 
     --success: #10b981;
     --warning: #f59e0b;
+    /* 新規: ログイン画面用の落ち着いた色 */
+    --login-bg: #1e293b; 
 }
 body { margin: 0; background: var(--bg-body); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; 
 -webkit-font-smoothing: antialiased; padding-bottom: 80px; }
@@ -59,8 +61,8 @@ label { font-size: 11px; font-weight: bold; color: var(--text-sub); display: blo
 color: var(--text-main); }
 .tag { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: #eee; margin-right: 4px; }
 
-/* Login */
-#loginScreen { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
+/* Login - 修正: 配色を落ち着いた色に変更 */
+#loginScreen { position: fixed; inset: 0; background: var(--login-bg); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
 .pin-input { display: flex; gap: 10px; margin: 20px 0; }
 .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; background: transparent; transition:0.2s; }
 .pin-dot.filled { background: #fff; }
@@ -71,6 +73,8 @@ color: var(--text-main); }
 /* Header & Tabs */
 header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 12px 16px; }
 .logo { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+/* 新規: ロゴ画像のスタイル調整 */
+.logo img { height: 32px; width: auto; }
 .tabs { display: flex; gap: 6px; padding: 6px; background: #e5e7eb; border-radius: 10px; margin: 16px; overflow-x: auto; scrollbar-width: none; }
 .tab { flex: 1; text-align: center; padding: 8px 12px; font-size: 13px; font-weight: 600; color: var(--text-sub); border-radius: 8px; cursor: pointer; 
 white-space: nowrap; transition:0.2s; }
@@ -251,7 +255,9 @@ white-space: nowrap; transition:0.2s; }
 
 <div class="app">
     <header class="flex-between">
-        <div class="logo"><i class="fa-solid fa-heart-pulse"></i> CareNexus AI</div>
+        <div class="logo">
+            <img src="CareNexuslogo.png" alt="CareNexus AI">
+        </div>
         <div class="flex-row">
             <button class="btn btn-sm btn-ghost"><i class="fa-regular fa-clock"></i> 11:15</button>
             <button class="btn btn-sm" onclick="toggleAdminMode()" id="adminBtn"><i class="fa-solid fa-user-gear"></i> 管理者</button>
