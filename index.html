@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Hub Extension</title>
+<title>CareNexus AI : Omaha Integrated Analytics</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ========== Base Design (変更なし) ========== */
+/* ========== Base Design ========== */
 :root { 
     --primary: #2563eb; 
     --primary-light: #eff6ff;
@@ -106,11 +106,7 @@ white-space: nowrap; transition:0.2s; }
 .chat-input-area { background: #fff; padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
 /* Admin Map */
-.map-container { position: relative; height: 400px; width: 100%; background-color: #e5e5f7; background-image: linear-gradient(#d1d5db 1px, transparent 1px), linear-gradient(90deg, #d1d5db 1px, transparent 1px); background-size: 40px 40px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
-.map-pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transition: transform 0.2s; }
-.map-pin:hover { transform: translate(-50%, -110%) scale(1.1); z-index: 20; }
-.pin-icon { font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
-.pin-label { background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 2px; border: 1px solid #ccc; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.map-container { position: relative; height: 400px; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); z-index: 1; }
 .custom-pin { display: flex; justify-content: center; align-items: center; width: 32px !important; height: 32px !important; background: transparent; border: none; }
 .custom-pin i { font-size: 28px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.2s; }
 .custom-pin:hover i { transform: scale(1.2) translateY(-5px); }
@@ -170,6 +166,7 @@ white-space: nowrap; transition:0.2s; }
 .urgent-modal-body { padding: 20px; font-size: 14px; line-height: 1.6; }
 .urgent-modal-footer { padding: 16px; border-top: 1px solid #eee; text-align: center; background: #fafafa; }
 
+/* 介入カテゴリ */
 .treatment-section { margin-bottom: 12px; }
 .treatment-category { font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 6px; background: #eff6ff; display: inline-block; padding: 2px 8px; border-radius: 4px; }
 .treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
@@ -188,8 +185,11 @@ white-space: nowrap; transition:0.2s; }
 .editable-area:focus { border-color: var(--primary); background: #fff; }
 .omaha-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #f3f4f6; color: #666; margin-right: 4px; border: 1px solid #e5e7eb; }
 
-/* 開発者用ハブパネル（非表示） */
-.hub-debug-panel { display: none; background: #222; color: #0f0; font-family: monospace; padding: 10px; border-radius: 8px; margin-top: 20px; font-size: 11px; max-height: 200px; overflow-y: auto; }
+/* Micro View Table */
+.micro-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.micro-table th { background: #f9fafb; padding: 8px; text-align: left; border-bottom: 1px solid #ddd; font-weight: bold; color: #555; }
+.micro-table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+.score-cell { font-weight: bold; color: var(--primary); }
 </style>
 </head>
 <body>
@@ -198,7 +198,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Hub Extension</p>
+        <p style="opacity: 0.8;">Omaha Integrated Analytics</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -655,25 +655,42 @@ white-space: nowrap; transition:0.2s; }
             <div class="panel-title">労働負荷モニタリング (週間分析)</div>
             <div class="load-grid">
                 <div class="load-card">
-                    <div class="load-header"><span class="load-name">Ns.山田</span><span class="load-score-badge score-danger">危険 (92)</span></div>
+                    <div class="load-header">
+                        <span class="load-name">Ns.山田</span>
+                        <span class="load-score-badge score-danger">危険 (92)</span>
+                    </div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">45h <span style="color:var(--danger)">(+5h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">28件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">120km</span></div>
-                    <div class="load-bar-container"><div class="load-bar-fill" style="width:92%; background:var(--danger);"></div></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:92%; background:var(--danger);"></div>
+                    </div>
                 </div>
+
                 <div class="load-card">
-                    <div class="load-header"><span class="load-name">PT.鈴木</span><span class="load-score-badge score-success">適正 (65)</span></div>
+                    <div class="load-header">
+                        <span class="load-name">PT.鈴木</span>
+                        <span class="load-score-badge score-success">適正 (65)</span>
+                    </div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">38h <span style="color:#666">(0h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">22件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">80km</span></div>
-                    <div class="load-bar-container"><div class="load-bar-fill" style="width:65%; background:var(--success);"></div></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:65%; background:var(--success);"></div>
+                    </div>
                 </div>
+
                 <div class="load-card">
-                    <div class="load-header"><span class="load-name">Ns.高橋</span><span class="load-score-badge score-warning">注意 (78)</span></div>
+                    <div class="load-header">
+                        <span class="load-name">Ns.高橋</span>
+                        <span class="load-score-badge score-warning">注意 (78)</span>
+                    </div>
                     <div class="load-stat-row"><span>労働時間</span><span class="load-val">42h <span style="color:var(--warning)">(+2h)</span></span></div>
                     <div class="load-stat-row"><span>訪問件数</span><span class="load-val">25件</span></div>
                     <div class="load-stat-row"><span>移動距離</span><span class="load-val">95km</span></div>
-                    <div class="load-bar-container"><div class="load-bar-fill" style="width:78%; background:var(--warning);"></div></div>
+                    <div class="load-bar-container">
+                        <div class="load-bar-fill" style="width:78%; background:var(--warning);"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -688,135 +705,47 @@ white-space: nowrap; transition:0.2s; }
                     <button class="btn btn-primary" style="width:100%; margin-bottom:8px;">レセプト伝送</button>
                 </div>
                 <div style="grid-column: span 2;">
-                    <div style="font-size:12px; font-weight:bold; margin-bottom:8px;">オマハ・アウトカム分析 (月次)</div>
+                    <div style="font-size:12px; font-weight:bold; margin-bottom:8px;">オマハ・アウトカム分析 (月次詳細)</div>
                     <table class="analysis-table">
-                        <thead><tr><th>領域</th><th>対象数</th><th>改善率 (K/B/S)</th><th>評価</th></tr></thead>
+                        <thead><tr><th>領域 (詳細分類)</th><th>対象数</th><th>改善率</th><th>評価</th></tr></thead>
                         <tbody>
-                            <tr><td>生理 (Physiological)</td><td>45名</td><td class="text-success">↑ 15%</td><td>A</td></tr>
-                            <tr><td>健康関連行動 (Health)</td><td>32名</td><td class="text-success">↑ 20%</td><td>S</td></tr>
-                            <tr><td>心理社会 (Psychosocial)</td><td>18名</td><td style="color:#666">→ 0%</td><td>B</td></tr>
+                            <tr><td>生理 (皮膚・褥瘡)</td><td>12名</td><td class="text-success">↑ 25%</td><td>S</td></tr>
+                            <tr><td>生理 (循環・血圧)</td><td>20名</td><td class="text-success">↑ 10%</td><td>A</td></tr>
+                            <tr><td>健康関連 (服薬行動)</td><td>32名</td><td class="text-success">↑ 20%</td><td>A</td></tr>
+                            <tr><td>心理社会 (社会的接触)</td><td>5名</td><td style="color:#666">→ 0%</td><td>B</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        
-        <div id="hubMonitor" class="hub-debug-panel">
-            <strong>CareNexus Hub Monitor (Adapter/Orchestrator Log)</strong>
-            <pre id="hubLogContent">Waiting for events...</pre>
+
+        <div class="panel">
+            <div class="panel-title">利用者別 アウトカム評価一覧 (Micro View)</div>
+            <div style="overflow-x:auto;">
+                <table class="micro-table" id="microOutcomeTable">
+                    <thead>
+                        <tr>
+                            <th>利用者</th>
+                            <th>問題分類 (オマハ)</th>
+                            <th>前回スコア (K/B/S)</th>
+                            <th>今回スコア (K/B/S)</th>
+                            <th>評価</th>
+                        </tr>
+                    </thead>
+                    <tbody id="microOutcomeBody">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </section>
 </div>
 
 <script>
-/* ================================================================
-   MODULE: CareNexus Hub Extension (Backend Simulation)
-   ================================================================
-   目的: 外部システム連携、データ正規化、統合処理を行うバックエンドロジック群
-   設計: Adapter / Orchestrator / Store パターン
-*/
-
-// 1. Adapter Layer
-class ExternalAdapter {
-    constructor(sourceName) { this.sourceName = sourceName; }
-    fetchData(patientId) {
-        // 外部システムからのデータ取得をシミュレート
-        const mockData = {
-            'MedicalLink': [
-                { type: 'visit', date: '2025-12-10', summary: '定期診察: 血圧安定' },
-                { type: 'rx', date: '2025-12-10', summary: 'アムロジピン処方継続' }
-            ],
-            'CareNote': [
-                { type: 'care', date: '2025-12-11', summary: '入浴介助: 皮膚トラブルなし' },
-                { type: 'meal', date: '2025-12-11', summary: '昼食全量摂取' }
-            ]
-        };
-        return mockData[this.sourceName] || [];
-    }
-}
-
-// 2. Logic Layer: Omaha Normalizer
-class OmahaNormalizer {
-    static normalize(record) {
-        // 簡易的なキーワードマッチングでオマハコードを付与
-        let code = 'Unknown';
-        if (record.summary.includes('血圧') || record.summary.includes('バイタル')) code = 'Physiological/Circulation';
-        if (record.summary.includes('皮膚') || record.summary.includes('入浴')) code = 'Physiological/Skin';
-        if (record.summary.includes('食事') || record.summary.includes('栄養')) code = 'Health/Nutrition';
-        if (record.summary.includes('薬') || record.summary.includes('処方')) code = 'Health/Medication';
-        
-        return { ...record, omahaCode: code };
-    }
-}
-
-// 2. Logic Layer: Consent Manager
-class ConsentManager {
-    static checkConsent(patientId) {
-        // デモ用: 常に同意ありとする
-        return true; 
-    }
-}
-
-// 2. Logic Layer: Orchestrator
-class HubOrchestrator {
-    constructor() {
-        this.adapters = [new ExternalAdapter('MedicalLink'), new ExternalAdapter('CareNote')];
-        this.store = new HubStore();
-    }
-    
-    async syncPatientData(patientId) {
-        if (!ConsentManager.checkConsent(patientId)) {
-            this.log(`Consent denied for Patient ${patientId}`);
-            return;
-        }
-
-        let integratedEvents = [];
-        this.adapters.forEach(adapter => {
-            const rawData = adapter.fetchData(patientId);
-            const normalizedData = rawData.map(d => OmahaNormalizer.normalize(d));
-            integratedEvents = [...integratedEvents, ...normalizedData.map(d => ({...d, source: adapter.sourceName}))];
-        });
-
-        // 日付順ソート
-        integratedEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        this.store.save(patientId, integratedEvents);
-        this.log(`Synced ${integratedEvents.length} events for Patient ${patientId}`);
-    }
-
-    log(msg) {
-        const logPanel = document.getElementById('hubLogContent');
-        if (logPanel) logPanel.innerText += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
-    }
-}
-
-// 3. Store Layer
-class HubStore {
-    constructor() { this.data = {}; }
-    save(id, events) { this.data[id] = events; }
-    get(id) { return this.data[id] || []; }
-}
-
-// Initialize Hub
-const hub = new HubOrchestrator();
-
-// 既存の画面ロジックフック (ページ読み込み時に連携処理を実行)
-window.addEventListener('load', () => {
-    // デモ: 患者ID 1, 2, 3 のデータをバックグラウンド同期
-    setTimeout(() => hub.syncPatientData(1), 1000);
-    setTimeout(() => hub.syncPatientData(2), 1500);
-    setTimeout(() => hub.syncPatientData(3), 2000);
-});
-
-
-/* ================================================================
-   EXISTING LOGIC (UI/UX層)
-   ================================================================
-*/
-
-// Mock Data
+// Mock Data (Updated specifically for clearer Omaha breakdown)
 const patientDatabase = {
     1: { 
+        name: "田中 太郎",
+        omahaTag: "Physiological/Skin", // 皮膚
         summary: "【身体】血圧は130台で安定。褥瘡（仙骨部）は肉芽形成期入り。発赤残存。\n【精神】安定。\n【家族】長男同居。\n【環境】電動ベッド導入済み。転倒リスク中。",
         history: [
             { date: "12/15 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。褥瘡処置。改善傾向。" },
@@ -833,6 +762,8 @@ const patientDatabase = {
         omahaScores: { k: [2,2,3,3,3], b: [3,3,3,4,4], s: [2,2,3,3,3] } 
     },
     2: { 
+        name: "佐藤 花子",
+        omahaTag: "Physiological/Neuro-Digest", // 神経・消化
         summary: "【身体】パーキンソン病。すくみ足・嚥下低下あり。\n【精神】軽度認知低下。\n【家族】独居。娘週2回。\n【環境】段差解消済み。",
         history: [
             { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。疲労感あり。" },
@@ -849,6 +780,8 @@ const patientDatabase = {
         omahaScores: { k: [2,2,2,3,3], b: [2,2,3,3,3], s: [3,3,3,3,3] }
     },
     3: { 
+        name: "鈴木 一郎",
+        omahaTag: "Physiological/Neuro-Mobility", // 神経・移動
         summary: "【身体】左片麻痺。リハビリ意欲高。\n【精神】前向きだが焦りあり。\n【家族】妻二人暮らし。\n【環境】手すり検討中。",
         history: [
             { date: "12/15 13:30", staff: "PT.鈴木", content: "リハビリ。平行棒歩行。" },
@@ -866,7 +799,7 @@ const patientDatabase = {
     }
 };
 
-// ... Login, Tab, Calendar Logic ...
+// --- Login Logic ---
 let pinBuffer = "";
 function enterPin(num) {
     pinBuffer += num;
@@ -891,7 +824,7 @@ function setTab(id) {
     if(tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('active');
     if(id === 'calendar') renderCalendar();
     if(id === 'record') { if(!myChart) setTimeout(initChart, 100); switchPatient(); }
-    if(id === 'admin') setTimeout(renderMap, 100);
+    if(id === 'admin') { setTimeout(renderMap, 100); renderMicroOutcomes(); }
 }
 
 function renderCalendar() {
@@ -1022,6 +955,35 @@ function switchPatient() {
     }
 }
 
+// 修正箇所②: ミクロ視点用テーブルのレンダリング
+function renderMicroOutcomes() {
+    const tbody = document.getElementById('microOutcomeBody');
+    if(!tbody) return;
+    tbody.innerHTML = "";
+    
+    // 全患者の最新状態をループ
+    Object.keys(patientDatabase).forEach(key => {
+        const p = patientDatabase[key];
+        const lastK = p.omahaScores.k[p.omahaScores.k.length - 1];
+        const lastB = p.omahaScores.b[p.omahaScores.b.length - 1];
+        const lastS = p.omahaScores.s[p.omahaScores.s.length - 1];
+        const prevS = p.omahaScores.s[p.omahaScores.s.length - 2] || lastS;
+        
+        let evalHtml = '<span style="color:#666;">維持</span>';
+        if(lastS > prevS) evalHtml = '<span class="text-success"><i class="fa-solid fa-arrow-trend-up"></i> 改善</span>';
+        if(lastS < prevS) evalHtml = '<span class="text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 悪化</span>';
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${p.name}</td>
+            <td>${p.omahaTag}</td>
+            <td>${p.omahaScores.k.at(-2)} / ${p.omahaScores.b.at(-2)} / ${p.omahaScores.s.at(-2)}</td>
+            <td class="score-cell">${lastK} / ${lastB} / ${lastS}</td>
+            <td>${evalHtml}</td>
+        </tr>`;
+    });
+}
+
 function renderMap() {
     if(document.getElementById('adminMap').innerHTML.trim() !== "") return;
     const map = L.map('adminMap').setView([35.6581, 139.3303], 13);
@@ -1039,12 +1001,10 @@ function renderMap() {
 
 function toggleAdminMode() { 
     const t = document.getElementById('adminTab'); 
-    const mon = document.getElementById('hubMonitor');
     if(isAdminAuthenticated) { 
         if(confirm("ログアウトしますか？")) { 
             isAdminAuthenticated=false; 
             t.style.display='none'; 
-            if(mon) mon.style.display='none';
             setTab('home'); 
         } 
         return; 
@@ -1052,7 +1012,6 @@ function toggleAdminMode() {
     if(prompt("PW")==="admin"){ 
         isAdminAuthenticated=true; 
         t.style.display='block'; 
-        if(mon) mon.style.display='block';
         setTab('admin'); 
     } else { 
         alert("Error"); 
@@ -1061,10 +1020,7 @@ function toggleAdminMode() {
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
 
-window.onload = function() {
-    // ログイン画面表示済み
-    // Hubの同期処理は自動スタート
-};
+window.onload = function() {};
 </script>
 </body>
 </html>
