@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : E-Chart Edition</title>
+<title>CareNexus AI : Final Ultimate Edition</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -43,6 +43,7 @@ justify-content: center; gap: 6px; font-size: 13px; transition: 0.1s; background
 .btn-danger { background: var(--danger); color: white; border-color: var(--danger); }
 .btn-success { background: var(--success); color: white; border-color: var(--success); }
 .btn-sm { font-size: 11px; padding: 4px 10px; height: 28px; }
+.btn-xs { font-size: 10px; padding: 2px 8px; height: 24px; border-radius: 4px; } /* 編集ボタン用 */
 .btn-ghost { background: transparent; border: none; color: var(--text-sub); }
 .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
 
@@ -181,6 +182,10 @@ white-space: nowrap; transition:0.2s; }
 .history-content { font-size: 13px; color: #333; line-height: 1.5; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #f0f0f0; }
 .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
 
+/* 編集・保存ボタン用 */
+.editable-area { outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px; transition: 0.2s; }
+.editable-area:focus { border-color: var(--primary); background: #fff; }
+
 </style>
 </head>
 <body>
@@ -189,7 +194,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Final Complete</p>
+        <p style="opacity: 0.8;">Final Ultimate</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -455,13 +460,25 @@ white-space: nowrap; transition:0.2s; }
                 
                 <div style="display:grid; gap:8px;">
                     <div style="background:#f8fafb; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【看護診断】</div><div id="diagnosisArea" style="font-size:12px;"></div>
+                        <div class="flex-between">
+                            <div style="font-size:11px; font-weight:bold; color:var(--primary);">【看護診断】</div>
+                            <button class="btn btn-xs btn-outline" onclick="enableEdit('diagnosisArea')">編集</button>
+                        </div>
+                        <div id="diagnosisArea" class="editable-area" style="font-size:12px;"></div>
                     </div>
                     <div style="background:#f8fafb; padding:8px; border:1px solid #e5e7eb; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:var(--primary);">【SOAP】</div><div id="soapArea" style="font-size:12px; white-space:pre-wrap;"></div>
+                        <div class="flex-between">
+                            <div style="font-size:11px; font-weight:bold; color:var(--primary);">【SOAP】</div>
+                            <button class="btn btn-xs btn-outline" onclick="enableEdit('soapArea')">編集</button>
+                        </div>
+                        <div id="soapArea" class="editable-area" style="font-size:12px; white-space:pre-wrap;"></div>
                     </div>
                     <div style="background:#fff7ed; padding:8px; border:1px solid #fdba74; border-radius:6px;">
-                        <div style="font-size:11px; font-weight:bold; color:#c2410c;">【家族レポート】</div><div id="familyReportText" style="font-size:12px;"></div>
+                        <div class="flex-between">
+                            <div style="font-size:11px; font-weight:bold; color:#c2410c;">【家族レポート】</div>
+                            <button class="btn btn-xs btn-outline" onclick="enableEdit('familyReportText')">編集</button>
+                        </div>
+                        <div id="familyReportText" class="editable-area" style="font-size:12px;"></div>
                     </div>
                 </div>
             </div>
@@ -472,7 +489,7 @@ white-space: nowrap; transition:0.2s; }
                 <div id="billingSuggestionList"></div>
                 <div style="margin-top:16px; padding-top:16px; border-top:1px solid #eee;">
                     <div class="flex-between" style="font-weight:bold; font-size:16px;"><span>確定額</span><span id="billingGrandTotal">0 円</span></div>
-                    <button class="btn btn-success" style="width:100%; margin-top:8px;">確定して保存</button>
+                    <button class="btn btn-primary" style="width:100%; margin-top:8px;" onclick="saveRecord()">記録を保存</button>
                 </div>
             </div>
         </div>
@@ -561,7 +578,7 @@ white-space: nowrap; transition:0.2s; }
                     <div><label>フリガナ</label><input type="text" placeholder="ヤマダ タロウ"></div>
                 </div>
                 <div class="grid-2">
-                    <div><label>生年月日</label><input type="date"></div>
+                    <div><label>生年月日</label><input type="date" style="width:100%; max-width:180px;"></div>
                     <div><label>性別</label><select><option>男性</option><option>女性</option></select></div>
                 </div>
                 <div><label>住所</label><input type="text" placeholder="住所を入力..." required></div>
@@ -718,7 +735,7 @@ const patientDatabase = {
         ]
     },
     2: { // 佐藤 花子 (パーキンソン)
-        summary: "【身体】パーキンソン病（Yahr III）。すくみ足あり。嚥下機能低下気味でムセが見られる。\n【精神】軽度の認知機能低下。短期記憶が曖昧なことあり。\n【家族】独居。娘が週2回訪問し買い物支援。緊急時は娘へ連絡。\n【環境】屋内段差解消済み。ポータブルトイレ使用。室温管理指導中。",
+        summary: "【身体】パーキンソン病（Yahr III）。すくみ足あり。嚥下機能低下気味でムセが見られる。\n【精神】軽度の認知機能低下。短期記憶が曖昧。\n【家族】独居。娘が週2回訪問し買い物支援。緊急時は娘へ連絡。\n【環境】屋内段差解消済み。ポータブルトイレ使用。室温管理指導中。",
         history: [
             { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。更衣動作に介助必要。バイタル異常なし。直後の疲労感ありベッド臥床。" },
             { date: "12/14 11:00", staff: "Ns.佐藤", content: "服薬管理カレンダーセット。飲み忘れなし。嚥下状態確認、トロミ剤使用を再指導。" },
@@ -928,7 +945,10 @@ function switchPatient() {
     const pid = document.getElementById('patientSelector').value;
     const data = patientDatabase[pid];
     if(data) {
+        // AI要約の更新
         document.getElementById('aiSummaryText').innerText = data.summary;
+        
+        // 過去記録の更新 (全件表示)
         const list = document.getElementById('historyList');
         list.innerHTML = "";
         data.history.forEach(h => {
@@ -942,6 +962,43 @@ function switchPatient() {
             </div>`;
         });
     }
+}
+
+// 修正箇所：記録保存ロジック
+function saveRecord() {
+    const pid = document.getElementById('patientSelector').value;
+    const memo = document.getElementById('aiInputMemo').value;
+    const soap = document.getElementById('soapArea').innerText; // 編集済み内容取得
+    
+    // 内容がなければアラート
+    if(!memo && !soap) return alert("記録内容がありません");
+
+    const content = (soap ? soap + "\n" : "") + (memo ? "(メモ: " + memo + ")" : "");
+    const date = new Date().toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'numeric', minute:'numeric'});
+
+    // データベースに追加 (Unshiftで先頭に追加)
+    patientDatabase[pid].history.unshift({
+        date: date,
+        staff: "Ns.山田", // ログインユーザー(デモ)
+        content: content
+    });
+
+    // 画面更新
+    switchPatient();
+    alert("記録を保存しました");
+    
+    // 入力クリア
+    document.getElementById('aiInputMemo').value = "";
+    document.getElementById('soapArea').innerText = "";
+}
+
+// 編集ボタン用
+function enableEdit(id) {
+    const el = document.getElementById(id);
+    el.contentEditable = "true";
+    el.focus();
+    el.style.backgroundColor = "#fff";
+    el.style.border = "1px solid var(--primary)";
 }
 
 // 読み上げ機能
