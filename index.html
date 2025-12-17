@@ -111,17 +111,6 @@ white-space: nowrap; transition:0.2s; }
 .custom-pin i { font-size: 28px; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); transition: transform 0.2s; }
 .custom-pin:hover i { transform: scale(1.2) translateY(-5px); }
 
-/* Staff Schedule */
-.schedule-wrapper { overflow: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 500px; background: white; }
-.schedule-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
-.schedule-table th, .schedule-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 12px; height: 40px; vertical-align: middle; }
-.schedule-table thead th { position: sticky; top: 0; background: #f3f4f6; z-index: 20; font-weight: bold; text-align: center; border-bottom: 2px solid #d1d5db; }
-.schedule-table td:first-child, .schedule-table th:first-child { position: sticky; left: 0; background: #fff; z-index: 10; border-right: 2px solid #d1d5db; width: 100px; font-weight: bold; text-align: center; }
-.schedule-table thead th:first-child { z-index: 30; background: #f3f4f6; }
-.task-bar { background: var(--primary); color: white; font-size: 11px; padding: 4px 6px; border-radius: 4px; display: block; width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-.task-bar.break { background: #f3f4f6; color: #666; border: 1px solid #ddd; }
-.task-bar.travel { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
-
 /* Utils */
 .timeline-container { position: relative; padding-left: 20px; border-left: 3px solid #e5e7eb; margin-left: 8px; margin-top: 10px; }
 .timeline-item { position: relative; margin-bottom: 24px; }
@@ -451,7 +440,7 @@ white-space: nowrap; transition:0.2s; }
                 <div style="overflow-x:auto;">
                     <table class="kbs-table" id="recordKbsTable">
                         <thead>
-                            <tr><th>回数</th><th>問題カテゴリー</th><th>知識(K)</th><th>行動(B)</th><th>状態(S)</th></tr>
+                            <tr><th>日付</th><th>問題</th><th>知識(K)</th><th>行動(B)</th><th>状態(S)</th></tr>
                         </thead>
                         <tbody id="recordKbsBody">
                             </tbody>
@@ -469,10 +458,20 @@ white-space: nowrap; transition:0.2s; }
                     <div style="font-size:12px; font-weight:bold; color:var(--primary); margin-bottom:8px;">
                         <i class="fa-solid fa-chart-line"></i> 本日のオマハシステム評価 (KBS)
                     </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                         <span id="currentOmahaTag" class="omaha-tag" style="font-size:12px;">#読み込み中</span>
-                         <span style="font-size:10px; color:#666;">前回値をセット済み</span>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:8px; margin-bottom:12px;">
+                        <div>
+                            <label style="font-size:10px; color:#666;">領域 (Domain)</label>
+                            <select id="omahaDomainSelect" onchange="updateOmahaProblems()" style="font-size:11px; padding:6px;">
+                                </select>
+                        </div>
+                        <div>
+                            <label style="font-size:10px; color:#666;">問題 (Problem)</label>
+                            <select id="omahaProblemSelect" onchange="loadPrevKBS()" style="font-size:11px; padding:6px; font-weight:bold; color:var(--text-main);">
+                                </select>
+                        </div>
                     </div>
+                
                     <div class="kbs-input-row">
                         <div class="kbs-input-col">
                             <label>知識 (K)</label>
@@ -683,6 +682,14 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
+// Omaha System Master Data
+const omahaMaster = {
+    "環境 (Environmental)": ["収入", "衛生状態", "住居", "近隣の安全"],
+    "心理社会 (Psychosocial)": ["コミュニケーション", "社会的接触", "役割変化", "対人関係", "悲嘆", "精神的健康", "介護", "放置/虐待"],
+    "生理 (Physiological)": ["聴覚", "視覚", "発話/言語", "口腔の健康", "認知", "痛み", "意識", "皮膚", "神経/筋肉/骨格機能", "呼吸", "循環", "消化/水分", "排泄", "生殖機能", "感染症"],
+    "健康関連行動 (Health Behaviors)": ["栄養", "睡眠/休息", "身体活動", "身の回りの世話(ADL)", "個人のケア", "物質乱用", "家族計画", "医療的・看護的ケア", "服薬管理"]
+};
+
 // Mock Data
 const patientDatabase = {
     1: { 
@@ -846,9 +853,45 @@ function calcBilling() { let total = 5550; document.querySelectorAll('#billingSu
 function toggleTreatment(name) { const ta = document.getElementById('aiInputMemo'); if(!ta.value.includes(name)) ta.value += (ta.value ? " " : "") + name + "実施。"; }
 function sendChatImage(input) { if(input.files[0]) { const area = document.getElementById('chatArea'); area.innerHTML += `<div class="chat-row me"><div class="chat-bubble">画像送信</div></div>`; area.scrollTop = area.scrollHeight; input.value = ""; } }
 
+// --- Omaha Logic Functions ---
+function initOmahaSelector() {
+    const domainSel = document.getElementById('omahaDomainSelect');
+    domainSel.innerHTML = "";
+    Object.keys(omahaMaster).forEach(domain => {
+        const opt = document.createElement('option');
+        opt.value = domain;
+        opt.innerText = domain;
+        domainSel.appendChild(opt);
+    });
+}
+function updateOmahaProblems() {
+    const domain = document.getElementById('omahaDomainSelect').value;
+    const problemSel = document.getElementById('omahaProblemSelect');
+    const problems = omahaMaster[domain];
+    
+    problemSel.innerHTML = "";
+    problems.forEach(prob => {
+        const opt = document.createElement('option');
+        opt.value = prob;
+        opt.innerText = prob;
+        problemSel.appendChild(opt);
+    });
+    // loadPrevKBS(); // デモでは初回ロード時に呼ばれるためここでは呼ばない
+}
+function loadPrevKBS() {
+    const prob = document.getElementById('omahaProblemSelect').value;
+    let baseK = 3, baseB = 3, baseS = 3;
+    if(prob.includes("痛み") || prob.includes("皮膚")) { baseK=2; baseB=3; baseS=2; }
+    if(prob.includes("栄養") || prob.includes("服薬")) { baseK=4; baseB=4; baseS=4; }
+    document.getElementById('input_k').value = baseK;
+    document.getElementById('input_b').value = baseB;
+    document.getElementById('input_s').value = baseS;
+}
+
 function saveRecord() {
     const pid = document.getElementById('patientSelector').value;
     const memo = document.getElementById('aiInputMemo').value;
+    const selectedProblem = document.getElementById('omahaProblemSelect').value;
     
     // オマハスコアの取得
     const newK = parseInt(document.getElementById('input_k').value);
@@ -865,34 +908,53 @@ function saveRecord() {
     
     // 画面更新
     switchPatient();
-    alert("記録とKBSスコアを保存しました\n(K:" + newK + ", B:" + newB + ", S:" + newS + ")");
+    alert("記録とKBSスコアを保存しました\n問題: " + selectedProblem + "\n(K:" + newK + ", B:" + newB + ", S:" + newS + ")");
     document.getElementById('aiInputMemo').value = "";
 }
 
 function enableEdit(id) { const el = document.getElementById(id); el.contentEditable = "true"; el.focus(); el.style.backgroundColor = "#fff"; el.style.border = "1px solid var(--primary)"; el.onblur = function() { el.contentEditable = "false"; el.style.backgroundColor = ""; el.style.border = "transparent"; }; }
 function speakSummary() { const u = new SpeechSynthesisUtterance(document.getElementById('aiSummaryText').innerText); u.lang = "ja-JP"; speechSynthesis.speak(u); }
 
+// KBS表のレンダリング（日付対応）
 function renderRecordKbsTable(pid) {
     const data = patientDatabase[pid];
     const tbody = document.getElementById('recordKbsBody');
     if(!tbody) return;
     tbody.innerHTML = "";
 
-    const labels = ['前回', '2回前', '3回前', '4回前', '5回前'];
-    for(let i=4; i>=0; i--) {
-        const k = data.omahaScores.k[i];
-        const b = data.omahaScores.b[i];
-        const s = data.omahaScores.s[i];
-        let label = (i===4) ? "今回" : labels[4-i-1];
+    const history = data.history;
+    const scores = data.omahaScores;
+    
+    // 直近5回分を表示（データ構造上、配列の後ろが最新）
+    // scores配列: [old, ..., new] (length=5)
+    // history配列: [new, ..., old]
+    for(let i=0; i<5; i++) {
+        // スコア配列のインデックス (4, 3, 2, 1, 0)
+        const scoreIndex = 4 - i;
+        if(scoreIndex < 0) break;
         
+        // 履歴の日付を取得 (履歴がない場合は仮の日付)
+        let dateStr = "---";
+        if(history[i]) {
+            // "12/15 09:30" -> "12/15"
+            dateStr = history[i].date.split(' ')[0];
+        }
+
+        const k = scores.k[scoreIndex];
+        const b = scores.b[scoreIndex];
+        const s = scores.s[scoreIndex];
+        
+        // 問題名は現在のタグから簡易取得 (実際はDBに紐づく)
+        const problemName = data.omahaTag.split('/')[1] || "皮膚";
+
         const kClass = (k>=4) ? 'kbs-val-high' : (k<=2 ? 'kbs-val-low' : '');
         const bClass = (b>=4) ? 'kbs-val-high' : (b<=2 ? 'kbs-val-low' : '');
         const sClass = (s>=4) ? 'kbs-val-high' : (s<=2 ? 'kbs-val-low' : '');
 
         tbody.innerHTML += `
             <tr>
-                <td style="background:#f9fafb;">${label}</td>
-                <td>${data.omahaTag}</td>
+                <td style="background:#f9fafb;">${dateStr}</td>
+                <td style="font-size:11px;">${problemName}</td>
                 <td class="${kClass}">${k}</td>
                 <td class="${bClass}">${b}</td>
                 <td class="${sClass}">${s}</td>
@@ -912,12 +974,17 @@ function switchPatient() {
             list.innerHTML += `<div class="history-item"><div class="history-meta"><span>${h.date}</span><span style="font-weight:bold; color:var(--primary);">${h.staff}</span></div><div class="history-content">${h.content}</div></div>`;
         });
         
-        // オマハ入力欄の更新 (前回の値を初期値としてセット)
-        document.getElementById('currentOmahaTag').innerText = "#" + data.omahaTag;
-        const lastIndex = data.omahaScores.s.length - 1;
-        document.getElementById('input_k').value = data.omahaScores.k[lastIndex];
-        document.getElementById('input_b').value = data.omahaScores.b[lastIndex];
-        document.getElementById('input_s').value = data.omahaScores.s[lastIndex];
+        // オマハ自動選択ロジック
+        if(data.omahaTag.includes("Skin")) {
+            document.getElementById('omahaDomainSelect').value = "生理 (Physiological)";
+            updateOmahaProblems();
+            document.getElementById('omahaProblemSelect').value = "皮膚";
+        } else if(data.omahaTag.includes("Neuro")) {
+            document.getElementById('omahaDomainSelect').value = "生理 (Physiological)";
+            updateOmahaProblems();
+            document.getElementById('omahaProblemSelect').value = "神経/筋肉/骨格機能";
+        }
+        loadPrevKBS();
 
         if(currentChartMode === 'omaha') updateOmahaChart();
         renderRecordKbsTable(pid);
@@ -965,7 +1032,9 @@ function toggleAdminMode() {
 function addTodo() { document.getElementById('todoList').innerHTML += `<label class="todo-item"><input type="checkbox" onclick="toggleTodo(this)"><span>新規タスク</span></label>`; }
 function toggleTodo(el) { el.parentElement.classList.toggle('completed', el.checked); }
 
-window.onload = function() {};
+window.onload = function() {
+    initOmahaSelector(); // 初期化
+};
 </script>
 </body>
 </html>
