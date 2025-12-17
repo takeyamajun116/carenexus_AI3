@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Complete Version</title>
+<title>CareNexus AI : Final Ultimate Version</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -171,6 +171,13 @@ white-space: nowrap; transition:0.2s; }
 .treatment-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #f9fafb; padding: 6px 10px; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.1s; }
 .treatment-item:hover { background: #f3f4f6; border-color: #d1d5db; }
 .treatment-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--primary); }
+
+/* 修正箇所：過去記録CSS */
+.history-item { border-left: 2px solid #ddd; padding-left: 12px; margin-bottom: 12px; position: relative; }
+.history-item::before { content: ''; position: absolute; left: -5px; top: 0; width: 8px; height: 8px; border-radius: 50%; background: #999; }
+.history-meta { font-size: 11px; color: #666; margin-bottom: 2px; }
+.history-content { font-size: 13px; color: #333; }
+.summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
 
 </style>
 </head>
@@ -467,6 +474,24 @@ white-space: nowrap; transition:0.2s; }
                 </div>
             </div>
         </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> 過去記録 / AIサマリー</div>
+            <div class="grid-2">
+                <div>
+                    <h5 style="margin:0 0 8px 0; font-size:13px; color:var(--text-sub);">AI重要情報サマリー (要約)</h5>
+                    <div class="summary-box" id="aiSummaryText">
+                        読み込み中...
+                    </div>
+                    <button class="btn btn-primary" onclick="speakSummary()"><i class="fa-solid fa-volume-high"></i> 要約を読み上げ</button>
+                </div>
+                <div>
+                    <h5 style="margin:0 0 8px 0; font-size:13px; color:var(--text-sub);">直近の記録履歴</h5>
+                    <div id="historyList">
+                        </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="sect-collab" class="section">
@@ -673,6 +698,31 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
+// Mock Data for Patients & History
+const patientDatabase = {
+    1: { // 田中
+        summary: "【身体】血圧安定。褥瘡は良化傾向だが仙骨部に発赤残存。\n【精神】安定。デイサービスの利用を楽しみにしている。\n【家族】長男と同居。日中は不在。キーパーソンは長男。\n【環境】ベッド柵設置済み。転倒リスクあり。",
+        history: [
+            { date: "12/14 09:30", staff: "Ns.山田", content: "定期訪問。バイタル安定。入浴介助実施。皮膚トラブルなし。" },
+            { date: "12/11 14:00", staff: "PT.鈴木", content: "リハビリ実施。歩行訓練20分。下肢筋力維持できている。" },
+            { date: "12/08 09:15", staff: "Ns.高橋", content: "定期訪問。少し食欲低下気味とのこと。水分摂取を促す。" }
+        ]
+    },
+    2: { // 佐藤
+        summary: "【身体】パーキンソン病の進行により嚥下機能低下。誤嚥に注意。\n【精神】軽度の認知機能低下あり。短期記憶が曖昧。\n【家族】独居。娘が週2回訪問。\n【環境】段差解消済み。ポータブルトイレ使用。",
+        history: [
+            { date: "12/15 11:00", staff: "Ns.佐藤", content: "入浴介助。更衣動作に介助必要。バイタル異常なし。" },
+            { date: "12/12 11:00", staff: "Ns.山田", content: "排便コントロール。摘便実施。硬便少量あり。" }
+        ]
+    },
+    3: { // 鈴木
+        summary: "【身体】脳梗塞後遺症（左麻痺）。リハビリ意欲高い。\n【精神】前向きだが、焦りも見られる。\n【家族】妻と二人暮らし。妻の介護負担軽減が課題。\n【環境】手すり設置検討中。",
+        history: [
+            { date: "12/13 13:30", staff: "PT.鈴木", content: "リハビリ実施。可動域訓練。妻へ介助方法を指導。" }
+        ]
+    }
+};
+
 // --- Login Logic ---
 let pinBuffer = "";
 function enterPin(num) {
@@ -703,7 +753,6 @@ function authFaceID() {
 }
 function loginSuccess() {
     document.getElementById('loginScreen').style.display = 'none';
-    // 緊急モーダルを表示
     document.getElementById('urgentModal').style.display = 'flex';
 }
 function closeUrgentModal() {
@@ -726,7 +775,11 @@ function setTab(id) {
     if(tabs[tabMap[id]]) tabs[tabMap[id]].classList.add('active');
 
     if(id === 'calendar') renderCalendar();
-    if(id === 'record' && !myChart) setTimeout(initChart, 100);
+    if(id === 'record') {
+        if(!myChart) setTimeout(initChart, 100);
+        // Switch patient to ensure data is loaded
+        switchPatient(); 
+    }
     if(id === 'admin') setTimeout(renderMap, 100);
 }
 
@@ -779,7 +832,7 @@ function initChart() {
 }
 function updateChart() { if(myChart) myChart.update(); alert("グラフを更新しました"); }
 
-// --- AI & Billing Logic ---
+// --- AI & Billing & Patient Logic ---
 function runAIGeneration() {
     const btn = document.getElementById('btnGen');
     btn.innerHTML = "生成中...";
@@ -843,6 +896,34 @@ function sendChatImage(input) {
         area.scrollTop = area.scrollHeight;
         input.value = "";
     }
+}
+
+// 修正箇所：利用者切り替え時の履歴更新
+function switchPatient() {
+    const pid = document.getElementById('patientSelector').value;
+    const data = patientDatabase[pid];
+    if(data) {
+        document.getElementById('aiSummaryText').innerText = data.summary;
+        const list = document.getElementById('historyList');
+        list.innerHTML = "";
+        data.history.forEach(h => {
+            list.innerHTML += `
+            <div class="history-item">
+                <div class="history-meta">${h.date} - ${h.staff}</div>
+                <div class="history-content">${h.content}</div>
+            </div>`;
+        });
+    }
+}
+
+// 修正箇所：読み上げ機能
+function speakSummary() {
+    const text = document.getElementById('aiSummaryText').innerText;
+    if(!window.speechSynthesis) return alert("このブラウザは読み上げに対応していません");
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
 }
 
 // --- Map Logic ---
