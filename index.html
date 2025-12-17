@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
-/* ========== Base Design (UI維持) ========== */
+/* ========== Base Design ========== */
 :root { 
     --primary: #2563eb; 
     --primary-light: #eff6ff;
@@ -145,14 +145,21 @@ white-space: nowrap; transition:0.2s; }
 .treatment-item:hover { border-color: var(--primary); }
 .treatment-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--primary); }
 
-/* History & Billing */
-.history-scroll-area { max-height: 400px; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fdfdfd; }
+/* History & Billing - Modified for alignment and scroll */
+.history-scroll-area { max-height: 300px; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fdfdfd; }
 .history-item { border-left: 3px solid #ddd; padding-left: 14px; margin-bottom: 16px; position: relative; }
 .history-item::before { content: ''; position: absolute; left: -6.5px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: #999; border: 2px solid #fff; }
 .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
-.billing-rec { display: flex; align-items: flex-start; padding: 12px; background: #fff; border: 1px solid #bfdbfe; border-radius: 8px; margin-bottom: 8px; }
+
+/* FIX: Billing and Todo Alignment */
+.billing-rec { display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 12px; background: #fff; border: 1px solid #bfdbfe; border-radius: 8px; margin-bottom: 8px; text-align: left; }
+.billing-rec input { margin: 0; width: 16px; height: 16px; flex-shrink: 0; }
+.billing-content { flex: 1; }
 .billing-title { font-weight:bold; font-size:14px; display:flex; justify-content:space-between; width:100%; }
-.todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; transition: 0.2s; margin-bottom:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+
+.todo-item { display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; transition: 0.2s; margin-bottom:8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); text-align: left; }
+.todo-item input { margin: 0; width: 16px; height: 16px; flex-shrink: 0; }
+.todo-item span { flex: 1; }
 
 /* Tables */
 .micro-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -539,6 +546,31 @@ white-space: nowrap; transition:0.2s; }
                 </div>
             </div>
         </div>
+
+        <div class="panel">
+            <div class="panel-title"><i class="fa-solid fa-handshake-simple"></i> 新規受け入れマッチング (病院・クリニック連携)</div>
+            <div style="font-size:12px; color:#666; margin-bottom:12px;">地域の医療機関からの訪問看護依頼が届いています。</div>
+            
+            <div class="match-card">
+                <div class="match-info">
+                    <div style="background:#dbeafe; width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#1e40af;">
+                        <i class="fa-regular fa-hospital" style="font-size:20px;"></i>
+                    </div>
+                    <div style="border-left:1px solid #eee; padding-left:10px;">
+                        <div style="font-weight:bold; font-size:13px;">依頼元: 山田中央総合病院</div>
+                        <div style="font-size:11px; color:#666;">患者: 高橋 様 (82歳/女性) - 退院予定: 12/20</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:10px; color:#666; margin-bottom:2px;">エリア: 八王子市千人町</div>
+                    <div class="tag" style="background:#fee2e2; color:#b91c1c; margin:0;">医療保険</div>
+                    <div style="margin-top:6px; display:flex; gap:6px; justify-content:flex-end;">
+                        <button class="btn btn-xs btn-outline">詳細確認</button>
+                        <button class="btn btn-xs btn-primary">受入可</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="sect-newuser" class="section">
@@ -706,7 +738,10 @@ const patientDatabase = {
             { date: "12/14 09:15", staff: "Ns.高橋", content: "入浴介助。皮膚状態観察。異常なし。" },
             { date: "12/13 09:30", staff: "Ns.山田", content: "定期訪問。排便コントロール。" },
             { date: "12/12 14:00", staff: "PT.鈴木", content: "リハビリ実施。歩行安定。" },
-            { date: "12/11 09:30", staff: "Ns.山田", content: "褥瘡処置。家族指導。" }
+            { date: "12/11 09:30", staff: "Ns.山田", content: "褥瘡処置。家族指導。" },
+            { date: "12/09 09:30", staff: "Ns.山田", content: "定期訪問。" },
+            { date: "12/07 09:30", staff: "Ns.山田", content: "定期訪問。" },
+            { date: "12/05 09:30", staff: "Ns.山田", content: "定期訪問。" }
         ],
         omahaScores: { k: [2,2,3,3,3], b: [3,3,3,4,4], s: [2,2,3,3,3] } 
     },
@@ -794,7 +829,10 @@ function initChart() {
                 { label: '収縮期', data: [128,130,125,132,128,135,130], borderColor: '#dc2626', yAxisID: 'y', tension: 0.3 },
                 { label: '拡張期', data: [80, 82, 78, 85, 80, 88, 82], borderColor: '#fca5a5', yAxisID: 'y', borderDash:[5,5], tension: 0.3 },
                 { label: '脈拍', data: [72, 75, 70, 78, 74, 76, 78], borderColor: '#2563eb', yAxisID: 'y', tension: 0.3 },
-                { label: 'SpO2', data: [98, 97, 98, 96, 98, 95, 98], borderColor: '#059669', yAxisID: 'y1', tension: 0.3 }
+                { label: 'SpO2', data: [98, 97, 98, 96, 98, 95, 98], borderColor: '#059669', yAxisID: 'y1', tension: 0.3 },
+                /* 修正: 呼吸と体重を追加 */
+                { label: '呼吸', data: [16, 18, 16, 17, 16, 15, 16], borderColor: '#8b5cf6', yAxisID: 'y', tension: 0.3 },
+                { label: '体重', data: [58.0, 58.1, 58.0, 57.9, 58.2, 58.1, 58.2], borderColor: '#4b5563', yAxisID: 'y', borderDash: [2,2], tension: 0.1 }
             ]
         },
         options: {
@@ -833,7 +871,7 @@ function goToPatient(id) { document.getElementById('patientSelector').value = id
 function enableEdit(id) { const el = document.getElementById(id); el.contentEditable = "true"; el.focus(); el.style.backgroundColor = "#fff"; el.style.border = "1px solid var(--primary)"; el.onblur = function() { el.contentEditable = "false"; el.style.backgroundColor = ""; el.style.border = "transparent"; }; }
 function speakSummary() { const u = new SpeechSynthesisUtterance(document.getElementById('aiSummaryText').innerText); u.lang = "ja-JP"; speechSynthesis.speak(u); }
 
-// Billing
+// Billing (Modified for alignment)
 const billingRules = [{ name: "緊急時訪問看護加算", point: 540 }, { name: "特別管理加算(II)", point: 250 }];
 function initBilling() { const list = document.getElementById('billingSuggestionList'); list.innerHTML = ""; billingRules.forEach(r => { list.innerHTML += `<div class="billing-rec"><input type="checkbox" checked onchange="calcBilling()" data-p="${r.point}"><div class="billing-content"><div class="billing-title"><span>${r.name}</span><span>+${r.point*10}円</span></div></div></div>`; }); calcBilling(); }
 function calcBilling() { let total = 5550; document.querySelectorAll('#billingSuggestionList input:checked').forEach(e => { total += parseInt(e.dataset.p) * 10; }); document.getElementById('billingGrandTotal').innerText = total.toLocaleString() + " 円"; }
@@ -841,7 +879,7 @@ function calcBilling() { let total = 5550; document.querySelectorAll('#billingSu
 function toggleTreatment(name) { const ta = document.getElementById('aiInputMemo'); if(!ta.value.includes(name)) ta.value += (ta.value ? " " : "") + name + "実施。"; }
 function sendChatImage(input) { if(input.files[0]) { const area = document.getElementById('chatArea'); area.innerHTML += `<div class="chat-row me"><div class="chat-bubble">画像送信</div></div>`; area.scrollTop = area.scrollHeight; input.value = ""; } }
 
-// --- New Feature: Family Report ---
+// Family Report
 function generateFamilyReport() {
     const pid = document.getElementById('patientSelector').value;
     const name = patientDatabase[pid].name;
@@ -925,7 +963,6 @@ function renderMicroOutcomes() {
         if(lastS > prevS) evalHtml = '<span class="text-success"><i class="fa-solid fa-arrow-trend-up"></i> 改善</span>';
         if(lastS < prevS) evalHtml = '<span class="text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 悪化</span>';
         
-        // 修正: 日付を取得
         const lastDate = p.history[0] ? p.history[0].date.split(' ')[0] : '-';
 
         tbody.innerHTML += `<tr><td>${lastDate}</td><td>${p.name}</td><td>${p.omahaTag}</td><td>${p.omahaScores.k.at(-2)} / ${p.omahaScores.b.at(-2)} / ${p.omahaScores.s.at(-2)}</td><td class="score-cell">${lastK} / ${lastB} / ${lastS}</td><td>${evalHtml}</td></tr>`;
