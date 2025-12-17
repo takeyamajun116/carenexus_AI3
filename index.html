@@ -21,7 +21,6 @@
     --danger: #ef4444; 
     --success: #10b981;
     --warning: #f59e0b;
-    /* ログイン画面用の落ち着いた色 */
     --login-bg: #1e293b; 
 }
 body { margin: 0; background: var(--bg-body); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; 
@@ -358,6 +357,14 @@ white-space: nowrap; transition:0.2s; }
             <div class="flex-col">
                 <div class="panel">
                     <div class="panel-title">通知・アラート</div>
+                    <div style="background:#e0f2fe; border:1px solid #7dd3fc; color:#0369a1; padding:12px; border-radius:6px; font-size:13px; margin-bottom:8px; display:flex; align-items:flex-start; gap:8px;">
+                        <i class="fa-solid fa-circle-info" style="margin-top:2px;"></i>
+                        <div>
+                            <b>連携システム更新 (MCS)</b><br>
+                            佐藤 花子 様の情報が更新・自動同期されました。
+                        </div>
+                    </div>
+                    
                     <div style="background:#fee2e2; border:1px solid #fecaca; color:#b91c1c; padding:12px; border-radius:6px; font-size:13px; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-bell fa-shake"></i>
                         <div>
@@ -954,7 +961,6 @@ function initChart() {
                 { label: '脈拍', data: [72, 75, 70, 78, 74, 76, 78], borderColor: '#2563eb', yAxisID: 'y', tension: 0.3 },
                 { label: 'SpO2', data: [98, 97, 98, 96, 98, 95, 98], borderColor: '#059669', yAxisID: 'y1', tension: 0.3 },
                 { label: '呼吸', data: [16, 18, 16, 17, 16, 15, 16], borderColor: '#8b5cf6', yAxisID: 'y', tension: 0.3 },
-                // 新規: 体温を追加
                 { label: '体温', data: [36.5, 36.6, 36.5, 36.8, 36.7, 36.6, 36.6], borderColor: '#d97706', yAxisID: 'y', tension: 0.3 },
                 { label: '体重', data: [58.0, 58.1, 58.0, 57.9, 58.2, 58.1, 58.2], borderColor: '#4b5563', yAxisID: 'y', borderDash: [2,2], tension: 0.1 }
             ]
