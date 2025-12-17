@@ -2,12 +2,12 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>CareNexus AI : Final Ultimate Edition</title>
+<title>CareNexus AI : Omaha System Integrated</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ========== Base Design ========== */
+/* ========== Base Design (維持) ========== */
 :root { 
     --primary: #2563eb; 
     --primary-light: #eff6ff;
@@ -57,7 +57,7 @@ label { font-size: 11px; font-weight: bold; color: var(--text-sub); display: blo
 color: var(--text-main); }
 .tag { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: #eee; margin-right: 4px; }
 
-/* ========== Login Screen ========== */
+/* Login */
 #loginScreen { position: fixed; inset: 0; background: var(--primary); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
 .pin-input { display: flex; gap: 10px; margin: 20px 0; }
 .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #fff; background: transparent; transition:0.2s; }
@@ -79,7 +79,7 @@ white-space: nowrap; transition:0.2s; }
 .section.active { display: block; padding: 0 16px; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* === Calendar === */
+/* Calendar */
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: #e5e7eb; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
 .cal-header { background: #f9fafb; padding: 8px 4px; text-align: center; font-size: 12px; font-weight: bold; }
 .cal-day { background: #fff; min-height: 80px; padding: 4px; font-size: 12px; position: relative; cursor: pointer; transition: 0.2s; }
@@ -91,7 +91,7 @@ white-space: nowrap; transition:0.2s; }
 .evt-visit { background: var(--primary); }
 .evt-mtg { background: var(--warning); }
 
-/* === Chat === */
+/* Chat */
 .chat-container { display: flex; flex-direction: column; height: 500px; background: #f3f4f6; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
 .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .chat-bubble { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.4; position: relative; }
@@ -103,14 +103,14 @@ white-space: nowrap; transition:0.2s; }
 .chat-row.me .chat-bubble { background: #dbeafe; border: 1px solid #bfdbfe; border-bottom-right-radius: 2px; color: #1e40af; }
 .chat-input-area { background: #fff; padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
-/* === Admin Map === */
+/* Admin Map */
 .map-container { position: relative; height: 400px; width: 100%; background-color: #e5e5f7; background-image: linear-gradient(#d1d5db 1px, transparent 1px), linear-gradient(90deg, #d1d5db 1px, transparent 1px); background-size: 40px 40px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
 .map-pin { position: absolute; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; transition: transform 0.2s; }
 .map-pin:hover { transform: translate(-50%, -110%) scale(1.1); z-index: 20; }
 .pin-icon { font-size: 28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); }
 .pin-label { background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; white-space: nowrap; margin-bottom: 2px; border: 1px solid #ccc; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
 
-/* === Staff Schedule === */
+/* Staff Schedule */
 .schedule-wrapper { overflow: auto; border: 1px solid var(--border); border-radius: 8px; max-height: 500px; background: white; }
 .schedule-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; }
 .schedule-table th, .schedule-table td { padding: 8px; border-bottom: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; font-size: 12px; height: 40px; vertical-align: middle; }
@@ -121,7 +121,7 @@ white-space: nowrap; transition:0.2s; }
 .task-bar.break { background: #f3f4f6; color: #666; border: 1px solid #ddd; }
 .task-bar.travel { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
 
-/* === Other Utils === */
+/* Utils */
 .timeline-container { position: relative; padding-left: 20px; border-left: 3px solid #e5e7eb; margin-left: 8px; margin-top: 10px; }
 .timeline-item { position: relative; margin-bottom: 24px; }
 .timeline-dot { position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: var(--primary); border: 2px solid white; box-shadow: 0 0 0 2px #e5e7eb; }
@@ -146,7 +146,6 @@ white-space: nowrap; transition:0.2s; }
 .vital-table th { background: #f3f4f6; font-weight: bold; }
 .vital-table tr:nth-child(even) { background: #f9fafb; }
 
-/* 労働負荷カードCSS */
 .load-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
 .load-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
 .load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
@@ -160,20 +159,20 @@ white-space: nowrap; transition:0.2s; }
 .load-bar-container { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 12px; }
 .load-bar-fill { height: 100%; border-radius: 4px; }
 
-/* 緊急通知ポップアップ */
 .urgent-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
 .urgent-modal-box { background: #fff; width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .urgent-modal-header { background: #fee2e2; padding: 16px; color: #b91c1c; font-weight: bold; display: flex; align-items: center; gap: 8px; }
 .urgent-modal-body { padding: 20px; font-size: 14px; line-height: 1.6; }
 .urgent-modal-footer { padding: 16px; border-top: 1px solid #eee; text-align: center; background: #fafafa; }
 
-/* 処置チェックボックスCSS */
-.treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-bottom: 10px; }
-.treatment-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #f9fafb; padding: 6px 10px; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.1s; }
-.treatment-item:hover { background: #f3f4f6; border-color: #d1d5db; }
+/* 修正箇所：介入カテゴリ (ラベル付きグリッド) */
+.treatment-section { margin-bottom: 12px; }
+.treatment-category { font-size: 11px; font-weight: bold; color: var(--primary); margin-bottom: 6px; background: #eff6ff; display: inline-block; padding: 2px 8px; border-radius: 4px; }
+.treatment-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.treatment-item { display: flex; align-items: center; gap: 6px; font-size: 12px; background: #fff; padding: 6px 10px; border-radius: 20px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.1s; }
+.treatment-item:hover { border-color: var(--primary); }
 .treatment-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--primary); }
 
-/* 過去記録・スクロール対応 */
 .history-scroll-area { max-height: 400px; overflow-y: auto; padding-right: 8px; border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fdfdfd; }
 .history-item { border-left: 3px solid #ddd; padding-left: 14px; margin-bottom: 16px; position: relative; }
 .history-item::before { content: ''; position: absolute; left: -6.5px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: #999; border: 2px solid #fff; }
@@ -181,10 +180,15 @@ white-space: nowrap; transition:0.2s; }
 .history-meta { font-size: 11px; color: #666; margin-bottom: 4px; display: flex; justify-content: space-between; }
 .history-content { font-size: 13px; color: #333; line-height: 1.5; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #f0f0f0; }
 .summary-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
-
-/* 編集・保存ボタン用 */
 .editable-area { outline: none; border: 1px solid transparent; border-radius: 4px; padding: 4px; transition: 0.2s; }
 .editable-area:focus { border-color: var(--primary); background: #fff; }
+
+/* 修正箇所：オマハ評価UI */
+.omaha-box { border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; background: #fdfdfd; margin-top: 10px; }
+.omaha-slider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+.omaha-slider-label { width: 60px; font-weight: bold; }
+.omaha-slider { flex: 1; }
+.omaha-val { width: 30px; text-align: center; font-weight: bold; color: var(--primary); }
 
 </style>
 </head>
@@ -194,7 +198,7 @@ white-space: nowrap; transition:0.2s; }
     <div style="margin-bottom: 20px; text-align: center;">
         <i class="fa-solid fa-user-nurse" style="font-size: 3rem; margin-bottom: 10px;"></i>
         <h2>CareNexus AI</h2>
-        <p style="opacity: 0.8;">Final Ultimate</p>
+        <p style="opacity: 0.8;">Omaha System Integrated</p>
     </div>
     <div class="pin-input">
         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -408,7 +412,13 @@ white-space: nowrap; transition:0.2s; }
         </div>
 
         <div class="panel">
-            <div class="panel-title">バイタルサイン (7項目)</div>
+            <div class="panel-title">
+                <span>バイタル・成果評価</span>
+                <div class="flex-row">
+                    <button class="btn btn-xs btn-primary" onclick="toggleChartMode('vital')">バイタル</button>
+                    <button class="btn btn-xs btn-outline" onclick="toggleChartMode('omaha')">看護成果(KBS)</button>
+                </div>
+            </div>
             <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:16px;">
                 <div><label>収縮期血圧</label><input type="number" id="v_sbp" value="130"></div>
                 <div><label>拡張期血圧</label><input type="number" id="v_dbp" value="82"></div>
@@ -421,6 +431,7 @@ white-space: nowrap; transition:0.2s; }
             <button class="btn btn-primary" style="width:100%; margin-bottom:16px;" onclick="updateChart()">グラフ更新</button>
             <div style="height:250px; position:relative;">
                 <canvas id="vitalChart"></canvas>
+                <canvas id="omahaChart" style="display:none;"></canvas>
             </div>
             <div style="margin-top:20px;">
                 <div style="font-size:13px; font-weight:bold; margin-bottom:4px;">測定履歴</div>
@@ -441,18 +452,59 @@ white-space: nowrap; transition:0.2s; }
 
         <div class="grid-2">
             <div class="panel">
-                <div class="panel-title">訪問看護記録</div>
-                <label style="font-size:11px; font-weight:bold; color:var(--text-sub); margin-bottom:4px;">実施した処置 (提案)</label>
-                <div class="treatment-grid">
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('清拭・入浴介助')"> 清拭・入浴</label>
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('褥瘡処置')"> 褥瘡処置</label>
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('服薬管理')"> 服薬管理</label>
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('排便コントロール')"> 排便管理</label>
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('吸引')"> 吸引</label>
-                    <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('点滴管理')"> 点滴管理</label>
+                <div class="panel-title">訪問看護記録・オマハ評価</div>
+                
+                <div class="omaha-box">
+                    <label style="margin-bottom:8px;">問題分類 (オマハシステム)</label>
+                    <select style="margin-bottom:12px;">
+                        <option>生理領域: 循環</option>
+                        <option>生理領域: 痛み</option>
+                        <option>生理領域: 皮膚</option>
+                        <option>健康関連行動: 栄養</option>
+                        <option>健康関連行動: 服薬管理</option>
+                    </select>
+                    <div class="omaha-slider-row">
+                        <span class="omaha-slider-label">知識 (K)</span>
+                        <input type="range" class="omaha-slider" min="1" max="5" value="3" oninput="document.getElementById('k_val').innerText=this.value">
+                        <span class="omaha-val" id="k_val">3</span>
+                    </div>
+                    <div class="omaha-slider-row">
+                        <span class="omaha-slider-label">行動 (B)</span>
+                        <input type="range" class="omaha-slider" min="1" max="5" value="3" oninput="document.getElementById('b_val').innerText=this.value">
+                        <span class="omaha-val" id="b_val">3</span>
+                    </div>
+                    <div class="omaha-slider-row">
+                        <span class="omaha-slider-label">状態 (S)</span>
+                        <input type="range" class="omaha-slider" min="1" max="5" value="2" oninput="document.getElementById('s_val').innerText=this.value">
+                        <span class="omaha-val" id="s_val">2</span>
+                    </div>
                 </div>
 
-                <textarea id="aiInputMemo" rows="3" placeholder="「褥瘡は良化傾向。ガーゼ交換実施。」のように入力..."></textarea>
+                <div class="treatment-section" style="margin-top:16px;">
+                    <div class="treatment-category">治療・処置</div>
+                    <div class="treatment-grid">
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('清拭')"> 清拭</label>
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('褥瘡処置')"> 褥瘡処置</label>
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('吸引')"> 吸引</label>
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('点滴')"> 点滴</label>
+                    </div>
+                </div>
+                <div class="treatment-section">
+                    <div class="treatment-category">指導・助言</div>
+                    <div class="treatment-grid">
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('服薬指導')"> 服薬指導</label>
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('栄養指導')"> 栄養指導</label>
+                    </div>
+                </div>
+                <div class="treatment-section">
+                    <div class="treatment-category">サーベイランス</div>
+                    <div class="treatment-grid">
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('バイタル')"> バイタル</label>
+                        <label class="treatment-item"><input type="checkbox" onchange="toggleTreatment('皮膚観察')"> 皮膚観察</label>
+                    </div>
+                </div>
+
+                <textarea id="aiInputMemo" rows="3" placeholder="「褥瘡は良化傾向。ガーゼ交換実施。」のように入力..." style="margin-top:10px;"></textarea>
                 <div class="flex-row" style="margin-bottom:10px;">
                     <button class="btn btn-primary" onclick="runAIGeneration()" id="btnGen"><i class="fa-solid fa-wand-magic-sparkles"></i> AI生成</button>
                     <button class="btn btn-ghost" onclick="startVoiceInput()"><i class="fa-solid fa-microphone"></i> 音声</button>
@@ -717,7 +769,7 @@ white-space: nowrap; transition:0.2s; }
 </div>
 
 <script>
-// Mock Data: 過去10件の記録 + AI要約
+// Mock Data: 過去10件の記録 + AI要約 + オマハスコア
 const patientDatabase = {
     1: { // 田中 太郎 (褥瘡ケア)
         summary: "【身体】血圧は130台で安定。褥瘡（仙骨部）は肉芽形成期に入り良化傾向だが、発赤は残存。浸出液は微量。\n【精神】安定しており、週2回のデイサービスを楽しみにしている。\n【家族】長男と同居。日中は不在だが夜間の見守りは可能。キーパーソンは長男。\n【環境】電動ベッド導入済み。ベッド柵あり。転倒リスク中等度。",
@@ -732,7 +784,8 @@ const patientDatabase = {
             { date: "12/08 14:00", staff: "PT.鈴木", content: "リハビリ実施。端座位バランス訓練。耐久性向上を図る。" },
             { date: "12/07 09:30", staff: "Ns.山田", content: "褥瘡評価。Wk-1。デブリードマン実施せず洗浄のみ。感染兆候なし。" },
             { date: "12/06 09:15", staff: "Ns.高橋", content: "入浴介助。洗髪実施。ヒートショック対策として浴室暖房確認。" }
-        ]
+        ],
+        omahaScores: { k: [2,2,3,3,3], b: [3,3,3,4,4], s: [2,2,3,3,3] } // Mock
     },
     2: { // 佐藤 花子 (パーキンソン)
         summary: "【身体】パーキンソン病（Yahr III）。すくみ足あり。嚥下機能低下気味でムセが見られる。\n【精神】軽度の認知機能低下。短期記憶が曖昧。\n【家族】独居。娘が週2回訪問し買い物支援。緊急時は娘へ連絡。\n【環境】屋内段差解消済み。ポータブルトイレ使用。室温管理指導中。",
@@ -747,7 +800,8 @@ const patientDatabase = {
             { date: "12/06 11:00", staff: "Ns.山田", content: "入浴介助。洗身実施。皮膚乾燥あり、保湿クリーム塗布。" },
             { date: "12/05 11:00", staff: "Ns.佐藤", content: "バイタルチェック。36.8℃。少し微熱気味だったため清拭に変更。" },
             { date: "12/04 11:00", staff: "Ns.佐藤", content: "定期訪問。服薬確認。L-ドパの効果時間の変動（ウェアリングオフ）を観察。" }
-        ]
+        ],
+        omahaScores: { k: [2,2,2,3,3], b: [2,2,3,3,3], s: [3,3,3,3,3] }
     },
     3: { // 鈴木 一郎 (脳梗塞後遺症)
         summary: "【身体】左片麻痺（Brunnstrom III-IV）。感覚鈍麻あり。リハビリ意欲高い。\n【精神】前向きだが、回復の遅さに焦りも見られる。傾聴が必要。\n【家族】妻と二人暮らし。妻が高齢のため介護負担軽減が課題。\n【環境】手すり設置検討中。トイレまでの動線確保が必要。",
@@ -762,7 +816,8 @@ const patientDatabase = {
             { date: "12/05 13:30", staff: "PT.鈴木", content: "基本動作訓練。寝返り・起き上がり動作の効率化。" },
             { date: "12/03 10:00", staff: "Ns.山田", content: "バイタルチェック。SpO2 98%。胸部聴診クリア。体調良好。" },
             { date: "12/01 13:30", staff: "PT.鈴木", content: "初回評価（月次）。先月比で歩行速度の改善が見られる。" }
-        ]
+        ],
+        omahaScores: { k: [4,4,4,5,5], b: [4,4,5,5,5], s: [3,3,4,4,4] }
     }
 };
 
@@ -833,35 +888,19 @@ function renderCalendar() {
     let html = `<div class="cal-day" style="background:#f3f4f6"></div>`;
     for(let i=1; i<=daysInMonth; i++) {
         let events = "";
-        const dayOfWeek = (i - 1) % 7; 
-        
-        if (dayOfWeek === 0 || dayOfWeek === 3) { // Mon & Thu
-             events += `<span class="cal-event evt-visit">田中様</span>`;
-             events += `<span class="cal-event evt-visit">佐藤様</span>`;
-        }
-        if (dayOfWeek === 1 || dayOfWeek === 4) { // Tue & Fri
-             events += `<span class="cal-event evt-visit">鈴木様</span>`;
-             if(i % 2 === 0) events += `<span class="cal-event evt-visit">高橋様</span>`;
-        }
-        if (dayOfWeek === 2) { // Wed
-             events += `<span class="cal-event evt-visit">伊藤様</span>`;
-             events += `<span class="cal-event evt-mtg">MTG</span>`;
-        }
-        if (i === 16) { 
-             events = `<span class="cal-event evt-visit">田中様</span><span class="cal-event evt-visit">佐藤様</span><span class="cal-event evt-visit">鈴木様</span>`;
-        }
-        if (i === 25) {
-             events += `<span class="cal-event evt-mtg" style="background:#8b5cf6">Xmas会</span>`;
-        }
-
+        if(i===16) events += `<span class="cal-event evt-visit">田中様</span><span class="cal-event evt-visit">佐藤様</span>`;
+        if(i===12 || i===19) events += `<span class="cal-event evt-mtg">MTG</span>`;
         const isToday = (i===16)?"today":"";
         html += `<div class="cal-day ${isToday}"><span class="cal-num">${i}</span>${events}</div>`;
     }
     container.innerHTML = html;
 }
 
-// --- Vital Chart ---
+// --- Vital & Omaha Chart ---
 let myChart;
+let currentChartMode = 'vital'; // 'vital' or 'omaha'
+let omahaChartInstance = null;
+
 function initChart() {
     const ctx = document.getElementById('vitalChart').getContext('2d');
     const labels = ['12/10','12/11','12/12','12/13','12/14','12/15','今回'];
@@ -891,7 +930,58 @@ function initChart() {
         }
     });
 }
-function updateChart() { if(myChart) myChart.update(); alert("グラフを更新しました"); }
+
+// 修正箇所: グラフ切り替えロジック
+function toggleChartMode(mode) {
+    currentChartMode = mode;
+    const vCanvas = document.getElementById('vitalChart');
+    const oCanvas = document.getElementById('omahaChart');
+    
+    if(mode === 'vital') {
+        vCanvas.style.display = 'block';
+        oCanvas.style.display = 'none';
+    } else {
+        vCanvas.style.display = 'none';
+        oCanvas.style.display = 'block';
+        updateOmahaChart();
+    }
+}
+
+function updateOmahaChart() {
+    const pid = document.getElementById('patientSelector').value;
+    const data = patientDatabase[pid].omahaScores;
+    const ctx = document.getElementById('omahaChart').getContext('2d');
+    
+    if(omahaChartInstance) omahaChartInstance.destroy();
+    
+    omahaChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['1回前', '2回前', '3回前', '4回前', '今回'],
+            datasets: [
+                { label: '知識 (K)', data: data.k, borderColor: '#2563eb', tension:0.2 },
+                { label: '行動 (B)', data: data.b, borderColor: '#10b981', tension:0.2 },
+                { label: '状態 (S)', data: data.s, borderColor: '#f59e0b', tension:0.2 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { min: 1, max: 5, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
+
+function updateChart() { 
+    if(currentChartMode === 'vital') {
+        if(myChart) myChart.update(); 
+    } else {
+        updateOmahaChart();
+    }
+    alert("グラフを更新しました"); 
+}
 
 // --- AI & Billing & Patient Logic ---
 function runAIGeneration() {
@@ -959,13 +1049,12 @@ function sendChatImage(input) {
     }
 }
 
-// 修正箇所：利用者切り替え時の履歴・要約更新
+// 修正箇所：利用者切り替え時の履歴・要約更新 (連動)
 function switchPatient() {
     const pid = document.getElementById('patientSelector').value;
     const data = patientDatabase[pid];
     if(data) {
         document.getElementById('aiSummaryText').innerText = data.summary;
-        
         const list = document.getElementById('historyList');
         list.innerHTML = "";
         data.history.forEach(h => {
@@ -978,46 +1067,43 @@ function switchPatient() {
                 <div class="history-content">${h.content}</div>
             </div>`;
         });
+        
+        // グラフモードがオマハなら更新
+        if(currentChartMode === 'omaha') updateOmahaChart();
     }
 }
 
-// 修正箇所：記録保存ロジック (保存して履歴に追加)
 function saveRecord() {
     const pid = document.getElementById('patientSelector').value;
     const memo = document.getElementById('aiInputMemo').value;
-    const soap = document.getElementById('soapArea').innerText; // 編集済み内容取得
+    const soap = document.getElementById('soapArea').innerText; 
     
     if(!memo && !soap) return alert("記録内容がありません");
 
     const content = (soap ? soap + "\n" : "") + (memo ? "(メモ: " + memo + ")" : "");
     const date = new Date().toLocaleString('ja-JP', {month:'numeric', day:'numeric', hour:'numeric', minute:'numeric'});
 
-    // DBに追加
     patientDatabase[pid].history.unshift({
         date: date,
         staff: "Ns.山田", 
         content: content
     });
 
-    // 画面更新
     switchPatient();
     alert("記録を保存しました");
     
-    // 入力クリア
     document.getElementById('aiInputMemo').value = "";
     document.getElementById('soapArea').innerText = "";
     document.getElementById('diagnosisArea').innerText = "";
     document.getElementById('familyReportText').innerText = "";
 }
 
-// 編集ボタン用
 function enableEdit(id) {
     const el = document.getElementById(id);
     el.contentEditable = "true";
     el.focus();
     el.style.backgroundColor = "#fff";
     el.style.border = "1px solid var(--primary)";
-    // フォーカス外れたら元に戻す簡易処理
     el.onblur = function() {
         el.contentEditable = "false";
         el.style.backgroundColor = "";
@@ -1025,7 +1111,6 @@ function enableEdit(id) {
     };
 }
 
-// 読み上げ機能
 function speakSummary() {
     const text = document.getElementById('aiSummaryText').innerText;
     if(!window.speechSynthesis) return alert("このブラウザは読み上げに対応していません");
